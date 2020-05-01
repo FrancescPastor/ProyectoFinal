@@ -1,3 +1,31 @@
+Vue.component('alumno',{
+  template: `
+<div>
+
+<button @click="comprobar">click</button>
+</div>
+
+  `,
+
+  data(){ 
+    
+    return {
+      vacia: []
+    }
+  },  
+  methods: {
+  comprobar: function(event){
+    let socket = io.connect('http://localhost:8888');
+    socket.on('hola',function(data){
+    console.log(data);
+    })
+  }
+    
+  }
+
+  });
+
+
 const error = {
     data: function() {
       return {
@@ -15,6 +43,7 @@ const error = {
     template: `
     <div>
     <p>Benvinguts a Vue.js</p>
+    <alumno></alumno>
     </div>
   
     `
@@ -32,6 +61,7 @@ const error = {
   };
   
   var app = new Vue({
+    
     el: '#app',
     data: {
       rutaActual: window.location.hash,
