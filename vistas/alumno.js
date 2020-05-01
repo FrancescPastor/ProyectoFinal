@@ -2,7 +2,8 @@ Vue.component('alumno',{
   template: `
 <div>
 
-<button @click="comprobar">click</button>
+<button @click="probarconexion">click</button>
+<button @click="hola">fea</button>
 </div>
 
   `,
@@ -14,12 +15,55 @@ Vue.component('alumno',{
     }
   },  
   methods: {
-  comprobar: function(event){
+  probarconexion: function(event){
     let socket = io.connect('http://localhost:8888');
     socket.on('hola',function(data){
     console.log(data);
     })
+  },
+
+  hola : function(event){
+    console.log("sada")
+    navigator.getMedia = ( navigator.getUserMedia ||
+      navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia);
+
+navigator.getMedia (
+
+// Restricciones (contraints) *Requerido
+{
+video: true,
+audio: true
+},
+
+// Funcion de finalizacion (Succes-Callback) *Requerido
+function(localMediaStream) {
+var video = document.querySelector('video');
+//video.src = window.URL.createObjectURL(localMediaStream);
+try {
+  video.srcObject = localMediaStream;
+} catch (error) {
+  //video.src = window.URL.createObjectURL(localMediaStream);
+  //video.src = (window.URL ? URL : webkitURL).createObjectURL(event.data);
+ 
+}
+
+video.onloadedmetadata = function(e) {
+// Haz algo con el video aquí.
+};
+},
+
+// errorCallback *Opcional
+function(err) {
+console.log("Ocurrió el siguiente error: " + err);
+}
+
+)
+
   }
+  
+
+
     
   }
 
