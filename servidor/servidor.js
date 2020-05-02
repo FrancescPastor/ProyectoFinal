@@ -19,6 +19,11 @@ app.get("/alumno", (req, res)=>{
   res.sendFile(path.join(__dirname, '../vistas', 'alumno.html'));
 
 })
+app.get("/profesor", (req, res)=>{
+  res.setHeader("Content-type", "text/html");
+  res.sendFile(path.join(__dirname, '../vistas', 'profesor.html'));
+
+})
 
 //Esto es para hacer que vaya el vuejs y se ha de poner debajo de las rutas !!siempre!!
 const history = require('connect-history-api-fallback');
