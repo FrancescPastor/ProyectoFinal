@@ -16,19 +16,19 @@ const dbName = 'myproject';
 //Aqui ponemos la ruta
 app.get("/alumno", (req, res)=>{
   res.setHeader("Content-type", "text/html");
-  res.sendFile(path.join(__dirname, '../vistas', 'alumno.html'));
+  res.sendFile(path.join(__dirname, '../cliente', 'alumno.html'));
 
 })
 app.get("/profesor", (req, res)=>{
   res.setHeader("Content-type", "text/html");
-  res.sendFile(path.join(__dirname, '../vistas', 'profesor.html'));
+  res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
 
 })
 
 //Esto es para hacer que vaya el vuejs y se ha de poner debajo de las rutas !!siempre!!
 const history = require('connect-history-api-fallback');
 app.use(history());
-app.use(express.static(path.join(__dirname, '../vistas')));
+app.use(express.static(path.join(__dirname, '../cliente')));
 
 
 //puerto dinamico
