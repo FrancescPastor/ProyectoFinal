@@ -1,5 +1,7 @@
 var express = require('express');
 var app = express();
+const https = require('https');
+
 const path = require("path");
 const fs = require("fs");
 var bodyParser = require("body-parser");
@@ -12,6 +14,13 @@ const url = 'mongodb://localhost:27017';
 
 // Database Name
 const dbName = 'webClass';
+
+https.createServer({
+  key: fs.readFileSync('server.key'),
+  cert: fs.readFileSync('server.cert')
+}, app).listen(3000, () => {
+  console.log('Listening...')
+})
 
 //Aqui ponemos la ruta
 app.get("/alumno", (req, res) => {
@@ -36,12 +45,12 @@ const history = require('connect-history-api-fallback');
 app.use(history());
 app.use(express.static(path.join(__dirname, '../cliente')));
 
-
-//puerto dinamico
+/*
+//puerto dinamico esto es para hacerlo sin https 
 app.set('puerto', process.env.PORT || 3000);
 app.listen(app.get('puerto'), function () {
   console.log('Esuchando por el puerto: ' + app.get('puerto'));
-});
+});*/
 //conexion con web sockets unicasting
 io.on('connection', function (socket) {
   socket.on('dataUser', function (data) {
