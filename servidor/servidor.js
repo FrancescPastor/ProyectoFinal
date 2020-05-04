@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
-const path = require ("path");
-const fs = require ("fs");
+const path = require("path");
+const fs = require("fs");
 var bodyParser = require("body-parser");
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
@@ -9,19 +9,25 @@ var port = 8888;
 var io = require('socket.io').listen(app.listen(port));
 // Connection URL
 const url = 'mongodb://localhost:27017';
- 
+
 // Database Name
-const dbName = 'myproject';
+const dbName = 'webClass';
 
 //Aqui ponemos la ruta
-app.get("/alumno", (req, res)=>{
+app.get("/alumno", (req, res) => {
   res.setHeader("Content-type", "text/html");
   res.sendFile(path.join(__dirname, '../cliente', 'alumno.html'));
 
 })
-app.get("/profesor", (req, res)=>{
+app.get("/profesor", (req, res) => {
   res.setHeader("Content-type", "text/html");
   res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
+
+})
+
+app.get("/registro", (req, res) => {
+  res.setHeader("Content-type", "text/html");
+  res.sendFile(path.join(__dirname, '../cliente', 'registro.html'));
 
 })
 
@@ -33,12 +39,38 @@ app.use(express.static(path.join(__dirname, '../cliente')));
 
 //puerto dinamico
 app.set('puerto', process.env.PORT || 3000);
-  app.listen(app.get('puerto'), function () {
-      console.log('Esuchando por el puerto: '+ app.get('puerto'));
-    });
+app.listen(app.get('puerto'), function () {
+  console.log('Esuchando por el puerto: ' + app.get('puerto'));
+});
 //conexion con web sockets unicasting
- io.on('connection', function (socket){
-io.sockets.emit('hola', 'holaQueTal');
+io.on('connection', function (socket) {
+  socket.on('dataUser', function (data) {
+    MongoClient.connect(url, function (err, client) {
+      assert.equal(null, err);
+      console.log("Connected successfully to server");
+
+      const db = client.db(dbName);
+      //llamamos a la funcion que comprueba el login
+      checkLogin(db, err, function () { });
+      client.close();
+
+    });
+
+    var checkLogin = function (db, err, callback) {
+      db.collection('loginUsers').find({ email: data[0], password: data[1] }).toArray(function (err, result) {
+        if (err) throw err;
+        if (result.length > 0) {
+          socket.emit('userType', result[0].type);
+
+        }
+      });
+      assert.equal(err, null);
+      callback();
+    }
+
+
+
+  });
 })
 
 
@@ -48,38 +80,21 @@ io.sockets.emit('hola', 'holaQueTal');
 
 
 
-
-
-
-
-
-
-
-//Ejemlo mongo db
+//Insert en la base de datos
 /*
-    MongoClient.connect(url, function(err, client) {
-      assert.equal(null, err);
-      console.log("Connected successfully to server");
-     
-      const db = client.db(dbName);
-      insertDocuments(db, function() {
-        client.close();
-      });
-    
+  var insertRegister = function (db, err, callback){
+    db.collection ('loginUsers').insertOne({
+      "email" : data[0],
+      "password": data[1],
+      "type": "administrador"
     });
+    assert.equal(err,null);
+    console.log("correct");
+    callback();
+  }
+*/
 
-    const insertDocuments = function(db, callback) {
-      // Get the documents collection
-      const collection = db.collection('documents');
-      // Insert some documents
-      collection.insertMany([
-        {a : 1}, {a : 2}, {a : 3}
-      ], function(err, result) {
-        assert.equal(err, null);
-        assert.equal(3, result.result.n);
-        assert.equal(3, result.ops.length);
-        console.log("Inserted 3 documents into the collection");
-        callback(result);
-      });
-    }*/
-  
+
+
+
+

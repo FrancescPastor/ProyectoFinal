@@ -4,7 +4,6 @@ Vue.component('alumno', {
   template:/*html*/ `
 <div>
 
-<button @click="probarconexion">Conexion</button>
 <button id="btn1">dsfsd</button>
 
 
@@ -19,22 +18,15 @@ Vue.component('alumno', {
 
   data() {
    
-
+ 
     return {
-      vacia: []
-
-
-    }
+      vacia: [],
+   }
   },
   methods: {
 
     
-    probarconexion: function (event) {
-      let socket = io.connect('http://localhost:8888');
-      socket.on('hola', function (data) {
-        console.log(data);
-      })
-    },
+    
     playVideo: function (stream, idVideo) {
       const video = document.getElementById(idVideo);
       video.srcObject = stream;
@@ -44,19 +36,18 @@ Vue.component('alumno', {
 
     },
     openStream: function () {
-      navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+      navigator.mediaDevices.getUserMedia({ audio: false, video: true })
         .then(stream =>{ 
           this.playVideo(stream, 'localVideo')
           const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false, stream});
           p.on('signal', token =>{
             txtMySignal.innerHTML = JSON.stringify(token);
           });
-        
        $('#btn1').click(()=>{
         let friendSignal = JSON.parse(this.$refs.txtTextSignal.value);
         p.signal(friendSignal);
        })
-       // let friendSignal = JSON.parse(this.$refs.txtTextSignal.value);
+       
           p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
           })
         .catch(err => console.log(err));
@@ -66,6 +57,7 @@ Vue.component('alumno', {
   },
   created: function () {
     this.openStream();
+
  
   }
 
