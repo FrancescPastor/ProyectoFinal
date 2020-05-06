@@ -31,6 +31,7 @@ Vue.component('registro', {
     },
     methods: {
         sendForm() {
+      
           if (this.validaType()) {
             let dataUser = [];
             dataUser.push(this.form.email, this.form.password);
@@ -39,10 +40,10 @@ Vue.component('registro', {
             socket.emit('dataUser', dataUser);
             socket.on('userType',function (data){
               if (data == "alumno"){
-                window.location.href = "http://localhost:3000/alumno";
+                window.location.href = "https://localhost:3000/alumno";
               }
              else if (data == "profesor"){
-                window.location.href = "http://localhost:3000/profesor";
+                window.location.href = "https://localhost:3000/profesor";
               }
               else if (data == "administrador"){
                 console.log("admin");
