@@ -1,8 +1,8 @@
 var express = require('express');
 var app = express();
-var cookieParser = require('cookie-parser');
 const https = require('https');
 const session = require ('express-session') ;
+const cookieParser = require('cookie-parser');
 const path = require("path");
 const fs = require("fs");
 app.set('trust proxy', 1) 
@@ -19,11 +19,12 @@ const dbName = 'webClass';
 /**
  * Usamos el sesion de express
  */
+app.use(cookieParser('fd34s@!@dfa453f3DF#$D&W'));
 app.use (session({
   secret: "fd34s@!@dfa453f3DF#$D&W", 
   resave: false, 
   saveUninitialized: true, 
-  cookie: {path: '/',httpOnly: true, secure: true, maxAge: null }
+  cookie: { secure: true }
 }))
 /**
  * hacer esl server https
@@ -35,35 +36,71 @@ https.createServer({
   console.log('Listening...')
 })
 
-var auth = function(req, res) { 
-
-
-  if (req.session.user == "pau@gmail.com" ){
-  console.log(req.session.user);
-    return 1();
+var authAlumno = function(req, res) { 
+    MongoClient.connect(url, function (err, client, req, res) {
+    assert.equal(null, err);
+    console.log("Connected successfully to server");
+    const db = client.db(dbName);
+    /**
+     * llamamos a la funcion que comprueba el login
+     */
+    sessionControl(db, err, function () { });
+    client.close();
+  });
+  var sessionControl = function (db, err, callback) {
+    db.collection('loginUsers').find({ email: req.session.user, type: "alumno"}).toArray(function (err, result) {
+      if (err) throw err;
+      if (result.length > 0) {
+     
+       res.sendFile(path.join(__dirname, '../cliente', 'alumno.html'));
+      }else {
+       
+        res.sendFile(path.join(__dirname, '../cliente', 'registro.html'));
+      }
+    });
+    assert.equal(err, null);
+    callback();
   }
-  else{
-   console.log(req.session.user);
-    console.log("no puedes entrar");
-    return res.sendStatus(401)
-   }
+};
+var authProfesor = function(req, res) { 
+  MongoClient.connect(url, function (err, client, req, res) {
+  assert.equal(null, err);
+  console.log("Connected successfully to server");
+  const db = client.db(dbName);
+  /**
+   * llamamos a la funcion que comprueba el login
+   */
+  sessionControlP(db, err, function () { });
+  client.close();
+});
+var sessionControlP = function (db, err, callback) {
+  db.collection('loginUsers').find({ email: req.session.user, type: "profesor"}).toArray(function (err, result) {
+    if (err) throw err;
+    if (result.length > 0) {
+   
+     res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
+    }else {
+
+      res.sendFile(path.join(__dirname, '../cliente', 'registro.html'));
+    }
+  });
+  assert.equal(err, null);
+  callback();
+}
 };
 /**
  * Aqui ponemos la ruta
  */
 app.get("/alumno", (req, res) => {
   res.setHeader("Content-type", "text/html");
-  res.sendFile(path.join(__dirname, '../cliente', 'alumno.html'));
-  console.log(req.session.user);
-  auth(req, res,  function(){});
+ 
+  authAlumno(req, res,  function(){});
   
-
-
 })
 app.get("/profesor", (req, res) => {
   res.setHeader("Content-type", "text/html");
-  res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
-
+  authProfesor(req, res,  function(){});
+  
 })
 /**
  * esta es la ruta de registro que valida si el usuario esta en la bdd y si esta deja entrar
@@ -88,7 +125,7 @@ app.get("/registro", (req, res) => {
           if (result.length > 0) {
             socket.emit('userType', result[0].type);
             req.session.user = result[0].email;
-          console.log("registro"+req.session.user);
+            req.session.save();
           }
         });
         assert.equal(err, null);
@@ -100,7 +137,6 @@ app.get("/registro", (req, res) => {
   })
   res.setHeader("Content-type", "text/html");
   res.sendFile(path.join(__dirname, '../cliente', 'registro.html'));
-
 })
  
 
