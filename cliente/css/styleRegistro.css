@@ -7,10 +7,11 @@ html,body{
     height: 100vh; 
     font-family: "Roboto"; 
     color:#333;  
+  
 }
 
 .divlogin{ 
-
+     background: url(../img/fondo.jpg) no-repeat; 
     background-size: cover; 
     background-position: center center; 
     width: 100%; 
@@ -18,7 +19,6 @@ html,body{
     display: flex;
     align-content: center;
     align-items: center;    
-    background: url(../img/fondo.jpg) no-repeat;
 }
 .divlogin .container{ 
     width: 100%;

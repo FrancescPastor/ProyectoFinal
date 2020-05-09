@@ -93,18 +93,53 @@ var sessionControlP = function (db, err, callback) {
  */
 app.get("/alumno", (req, res) => {
   res.setHeader("Content-type", "text/html");
- 
-  authAlumno(req, res,  function(){});
+  res.sendFile(path.join(__dirname, '../cliente', 'alumno.html'));
+ // authAlumno(req, res,  function(){});
   
 })
 app.get("/profesor", (req, res) => {
   res.setHeader("Content-type", "text/html");
-  authProfesor(req, res,  function(){});
+  res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
+  //authProfesor(req, res,  function(){});
   
 })
 /**
  * esta es la ruta de registro que valida si el usuario esta en la bdd y si esta deja entrar
  */
+var tokenAlumn = "";
+var tokenProfe="";
+io.on('connection', function (socket) { 
+  
+  socket.on('tokenProfesor', function (data) {
+    tokenProfe = data;
+
+  });
+  socket.emit('tokenProfesorToAlumno', tokenProfe);
+
+  socket.on('tokenAlumno', function (data) {
+    tokenAlumn = data;
+  
+  });
+socket.emit('tokenAlumnoToProfesor', tokenAlumn);
+
+  /*
+  socket.on('tokenAlumno', function (data) {
+    token = data;
+   
+  });   
+  socket.on('tokenProfesor', function (data){
+ 
+    tokenProfe = data;
+  })
+  setTimeout(()=>{
+    
+    socket.emit("tokenProfesorToAlumno",token);
+    console.log("ey profe"+token);
+   },90);
+ */
+
+
+});
 app.get("/registro", (req, res) => {
   io.on('connection', function (socket) {
     socket.on('dataUser', function (data) {

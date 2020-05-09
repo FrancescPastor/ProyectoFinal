@@ -1,0 +1,22 @@
+    body {
+        font-family: "Lato", sans-serif;
+    }
+    
+    .stylePag {
+        background: #7b74a71a;
+    }
+    
+    .navbar {
+        background-color: #595d9ce8;
+        color: white;
+    }
+    
+    .nav-link {
+        text-decoration: none;
+        color: white;
+    }
+    
+    .nav-link:hover {
+        background-color: #787ba7e8;
+        color: white;
+    }
