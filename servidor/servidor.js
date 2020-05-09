@@ -108,6 +108,8 @@ app.get("/profesor", (req, res) => {
  */
 var tokenAlumn = "";
 var tokenProfe="";
+var arrayTokensAlumnos=[];
+var arrayTokensAlumnos1=[];
 io.on('connection', function (socket) { 
   
   socket.on('tokenProfesor', function (data) {
@@ -117,10 +119,15 @@ io.on('connection', function (socket) {
   socket.emit('tokenProfesorToAlumno', tokenProfe);
 
   socket.on('tokenAlumno', function (data) {
-    tokenAlumn = data;
+    tokenAlumn = data[1];
+    if (data[1].length != 20){
+      arrayTokensAlumnos.push({nombreAlumno:data[0], token: data[1]});
+      arrayTokensAlumnos1.push({nombreAlumno:data[0], token: data[1]});
+    }
   
   });
-socket.emit('tokenAlumnoToProfesor', tokenAlumn);
+socket.emit('tokenAlumnoToProfesor', arrayTokensAlumnos);
+socket.emit('listaAlumnos', arrayTokensAlumnos1);
 
   /*
   socket.on('tokenAlumno', function (data) {

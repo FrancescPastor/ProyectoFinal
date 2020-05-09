@@ -161,8 +161,7 @@ Vue.component('mostrarCamaras', {
 <video id="friendStream" autoplay playsinline controls="false"/>
 <textarea rows="3" width="300px" cols="50" id="txtMySignal"></textarea>
 <input type="text" placeholder="El token de tu amigo" ref="txtTextSignal"></input>
-<button id="btn1">dsfsd</button>
-<button id="btn1" @click="pillarTokenAlumn">token alumno</button>
+<button id="btn1">Establecer conexion con el alumno</button>
   <div id="accordion">
     <div class="card">
       <div class="card-header" id="headingOne">
@@ -187,14 +186,27 @@ Vue.component('mostrarCamaras', {
                 </td>    
               </tr>
              </tbody>
+
           </table>
         </div>      
       </div>
     </div>
   </div>
+  <button  v-on:click="this.mostrarListaAlumnos">Mostrar alumnos conectados</button>
+    <ul >
+       <li  v-for="listaAlumno in llistaAlumnos">
+       <input class="tamañForat" type="text" v-bind:id="listaAlumno.nombreAlumno" v-text="listaAlumno.nombreAlumno" v-bind:key="listaAlumno.nombreAlumno"  v-model="listaAlumno.nombreAlumno"  />
+      </li>
+           
+          </ul>
+          <p>hola</p>
+
+
+
 </div>
 </div>
   `,
+
     data() {
 
         return {
@@ -214,6 +226,9 @@ Vue.component('mostrarCamaras', {
 
 
 
+            ],
+            llistaAlumnos: [
+                
             ]
         }
     },
@@ -243,30 +258,40 @@ pillarTokenAlumn : function (){
         const p = new SimplePeer ({initiator: location.hash === "#/monitorizacion", trickle: false, stream});
         p.on('signal', token =>{
           txtMySignal.innerHTML = JSON.stringify(token);
-          console.log("genero token");
           let socket = io.connect('http://localhost:8888');
           socket.emit('tokenProfesor', JSON.stringify(token));
         });
       $('#btn1').click(()=>{
-        
-        let socket = io.connect('http://localhost:8888');
-        socket.on('tokenAlumnoToProfesor', function(data) {
-          console.log(data);
-          let tokenA = JSON.parse(data);
-      p.signal(tokenA);
-        })
-     
-      console.log("genero segundo token");
       
+        let socket = io.connect('http://localhost:8888');
+        
+        socket.on('tokenAlumnoToProfesor', function(data) {
+          for (i=0; i<data.length; i++){
+            let tokenA = JSON.parse(data[i].token);
+
+           p.signal(tokenA);
+           
+          } 
+        })
+        p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
       })
       
-        p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
         })
       .catch(err => console.log(err));
   },
+  mostrarListaAlumnos: function (){
+    let socket = io.connect('http://localhost:8888');
+    socket.on('listaAlumnos', function(data) {
+    llistaAlumnos = data;
+    console.log(llistaAlumnos);
+    })
+
+  }
+
 },
 created: function () {
   this.openStream();
+
 }
 
 

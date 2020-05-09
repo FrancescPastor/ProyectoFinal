@@ -35,6 +35,7 @@ Vue.component('registro', {
           if (this.validaType()) {
             let dataUser = [];
             dataUser.push(this.form.email, this.form.password);
+            localStorage.setItem('emailAlumn', this.form.email);
             console.log(dataUser);
             let socket = io.connect('http://localhost:8888');
             socket.emit('dataUser', dataUser);

@@ -5,14 +5,14 @@
     template:/*html*/ `
   <div>
   
-  <button id="btn1">dsfsd</button>
+  <button id="btn1">Dar permisos al profesor</button>
   
   
   <video id="localVideo" autoplay playsinline controls="false"/>
   <video id="friendStream" autoplay playsinline controls="false"/>
   <textarea rows="3" width="300px" cols="50" id="txtMySignal"></textarea>
   <input type="text" placeholder="El token de tu amigo" ref="txtTextSignal"></input>
-  <button id="btn1" @click="tokenProfe">conectar camara</button>
+
   
   </div> 
   
@@ -65,9 +65,14 @@
             this.playVideo(stream, 'localVideo')
             const p = new SimplePeer ({initiator: location.hash === "#/monitorizacion", trickle: false, stream});
             p.on('signal', token =>{
+              informacionAlumno=[];
               txtMySignal.innerHTML = JSON.stringify(token);
+
               let socket = io.connect('http://localhost:8888');
-              socket.emit('tokenAlumno', JSON.stringify(token));
+              console.log(localStorage.getItem('emailAlumn'));
+              informacionAlumno.push(localStorage.getItem('emailAlumn'));
+              informacionAlumno.push(JSON.stringify(token));
+              socket.emit('tokenAlumno',informacionAlumno);
               console.log("genero token");
              
               //aqui se genera el primer token 
