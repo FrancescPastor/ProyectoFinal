@@ -1,4 +1,6 @@
 var tokenAlumn = "";
+var listaAA = [];
+let idAlumnoGlobal = 0;
 Vue.component('men', {
     template: /*html*/ `
 <div>
@@ -161,7 +163,8 @@ Vue.component('mostrarCamaras', {
 <video id="friendStream" autoplay playsinline controls="false"/>
 <textarea rows="3" width="300px" cols="50" id="txtMySignal"></textarea>
 <input type="text" placeholder="El token de tu amigo" ref="txtTextSignal"></input>
-<button id="btn1">Establecer conexion con el alumno</button>
+
+
   <div id="accordion">
     <div class="card">
       <div class="card-header" id="headingOne">
@@ -192,27 +195,33 @@ Vue.component('mostrarCamaras', {
       </div>
     </div>
   </div>
-  <button  v-on:click="this.mostrarListaAlumnos">Mostrar alumnos conectados</button>
-    <ul >
-       <li  v-for="listaAlumno in llistaAlumnos">
-       <input class="tamañForat" type="text" v-bind:id="listaAlumno.nombreAlumno" v-text="listaAlumno.nombreAlumno" v-bind:key="listaAlumno.nombreAlumno"  v-model="listaAlumno.nombreAlumno"  />
-      </li>
-           
-          </ul>
-          <p>hola</p>
 
 
 
 </div>
+<form>
+    <div id="prueba">
+        <ul  v-for="listaAlumno in listaAA">
+            <button class="alumnoInfo" v-bind:id="listaAlumno.idAlumno" v-text="listaAlumno.nombreAlumno" >
+            </button>     
+        </ul>
+    </div>
+</form>
 </div>
   `,
 
     data() {
+   
 
         return {
+          form: {
+            id : ""
+          },
+          idAlumno:0,
+           listaAA :[],
             listaCamaras: [
 
-                [{ id: 1, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
+                [   { id: 1, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
                     { id: 2, nombre: "f", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
                     { id: 3, nombre: "v", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
                     { id: 4, nombre: "c", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
@@ -224,15 +233,25 @@ Vue.component('mostrarCamaras', {
                     { id: 8, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
                 ]
 
-
-
             ],
-            llistaAlumnos: [
-                
-            ]
+
         }
+       
     },
     methods: {
+     
+       
+      a :function (){
+        var cogerArrayLocal = JSON.parse(localStorage.getItem('tokenAlumno'));
+
+      //  console.log(this.listaAA);
+        console.log(cogerArrayLocal.length);
+           if (listaAA.length<cogerArrayLocal.length){
+             this.listaAA = cogerArrayLocal;
+          }
+                
+      
+       },
       playVideo: function (stream, idVideo) {
         const video = document.getElementById(idVideo);
         video.srcObject = stream;
@@ -240,16 +259,7 @@ Vue.component('mostrarCamaras', {
           video.play();
         }
       },
-pillarTokenAlumn : function (){
-/*
-  let socket = io.connect('http://localhost:8888');
-  socket.on('tokenAlumnoToProfesor', function(data) {
-        
-    tokenAlumn = data;
-    console.log(tokenAlumn);
-   
-  })*/
-},
+
     
   openStream: function () {
     navigator.mediaDevices.getUserMedia({ audio: false, video: true })
@@ -261,37 +271,46 @@ pillarTokenAlumn : function (){
           let socket = io.connect('http://localhost:8888');
           socket.emit('tokenProfesor', JSON.stringify(token));
         });
-      $('#btn1').click(()=>{
-      
-        let socket = io.connect('http://localhost:8888');
-        
-        socket.on('tokenAlumnoToProfesor', function(data) {
-          for (i=0; i<data.length; i++){
-            let tokenA = JSON.parse(data[i].token);
 
-           p.signal(tokenA);
-           
-          } 
-        })
-        p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
-      })
-      
-        })
+    
+     $('button').click(()=>{ 
+        console.log("pruebarara");
+        console.log(event.currentTarget.id);
+              
+
+                 let arrayToken = JSON.parse(localStorage.getItem('tokenAlumno'));
+                  for (i=0; i<arrayToken.length; i++){
+                    if(arrayToken[i].idAlumno==event.currentTarget.id){
+
+                      let tokenA = arrayToken[i].token;
+                      p.signal(tokenA);
+                      p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'));
+                    }
+                  }  
+                 
+                  
+                })
+       })
       .catch(err => console.log(err));
+     
   },
-  mostrarListaAlumnos: function (){
+ 
+
+  subirAlLocal : function (){
     let socket = io.connect('http://localhost:8888');
     socket.on('listaAlumnos', function(data) {
-    llistaAlumnos = data;
-    console.log(llistaAlumnos);
-    })
+    localStorage.setItem('tokenAlumno', JSON.stringify(data));
 
-  }
+    })
+  },
 
 },
 created: function () {
-  this.openStream();
-
+                        this.openStream();
+                        this.a();
+                        this.listaAA=setInterval(this.a, 3000);
+                        this.subirAlLocal();
+                        setInterval(this.subirAlLocal, 3000);
 }
 
 
@@ -346,7 +365,159 @@ Vue.component('mostrarCompartirPantalla', {
 
 });
 
+Vue.component('registroAlumno', {
+  template: /*html*/ `
+<div>
+<form @submit.prevent="guardarAlumnoNuevo()" class="col-12 mt-2">
+  <fieldset class="mb-5">
+   <div class="form-group row">    
+        <div class="col-lg-2">    
+          <label for="nombre" >Nombre</label>
+        </div>
+        <div class="col-lg-2">    
+          <input class="form-control" required placeholder="Escriba Nombre" type="text" v-model="form.nombre"/>
+        </div>
+        <div class="col-lg-2">    
+          <label for="clase">Apellidos</label>
+        </div>
+        <div class="col-lg-2">    
+          <input class="form-control"  type="text" required placeholder="Escriba Apellidos" v-model="form.apellido"/>
+        </div>
+        <div class="col-lg-2">    
+          <label for="clase">Email</label>
+        </div>
+        <div class="col-lg-2">    
+          <input class="form-control"  type="email" required placeholder="Escriba Email" v-model="form.email"/>
+        </div>
+    </div>
+    <div class="form-group row">    
+          <div class="col-lg-2">    
+            <label for="clase">Password Registro</label>
+          </div>
+          <div class="col-lg-2">    
+            <input class="form-control"  type="password" required placeholder="Escriba contraseña" v-model="form.contraseña"/>
+          </div>
+          <div class="col-lg-2">    
+            <label for="clase">Ciudad</label>
+          </div>
+          <div class="col-lg-2">    
+            <input class="form-control"  type="text" required placeholder="Escriba ciudad" v-model="form.ciudad"/>
+          </div>
+          <div class="col-lg-2">    
+            <label for="clase">Dirección</label>
+          </div>
+          <div class="col-lg-2">    
+            <input class="form-control" type="text" required placeholder="Escriba direccion" v-model="form.direccion"/>
+          </div>
+    </div>
+    <div class="form-group row">    
+          <div class="col-lg-2">    
+            <label for="clase">Código Postal</label>
+          </div>
+          <div class="col-lg-2">    
+            <input class="form-control" type="number" required placeholder="Escriba cp"  v-model="form.cp"/>
+          </div>
+          <div class="col-lg-2">    
+            <label for="clase">Teléfono</label>
+          </div>
+          <div class="col-lg-2">    
+            <input class="form-control" type="number"  required placeholder="Escriba teléfono"  v-model="form.telefono"/>
+          </div>
+          <div class="col-lg-2">    
+            <label for="clase">Tipo</label>
+          </div>
+          <div class="col-lg-2">    
+            <input id ="tipo" class="form-control" disabled value="Alumno" type="text"/>
+          </div>
+    </div>
+    <div class="form-group row">    
+      <div class="col-lg-2">    
+        <label for="clase">Fecha Nacimiento</label>
+      </div>
+      <div class="col-lg-2">    
+        <input class="form-control"  type="date" required placeholder="Escriba fecha nac." v-model="form.edad"/>
+      </div>   
+      <div class="col-lg-2">    
+        <label for="clase">Clase</label>
+      </div>
+      <div class="col-lg-2">    
+        <select class="form-control" v-model="form.clase">
+            <option selected="true" value="">Ninguno/a</option>
+            <option value="1">Clase 1</option>
+            <option value="2">Clase 2</option>
+            <option value="3">Clase 3</option>
+        </select>
+      </div>
+      <div class="col-lg-2">  
+        <label  for="clase">Asignatura</label>
+      </div>
+      <div class="col-lg-2"> 
+          <select class="custom-select" v-model="form.asignatura">
+            <option selected="true" value="">Ninguno/a</option>
+            <option value="1">Mates</option>
+            <option value="2">Sociales</option>
+            <option value="3">Lengua</option>
+          </select>
+      </div>
+    </div>
+    <div class=" float-md-left row">
+      <div class="col-lg-2">       
+        <button type="submit" class="btn btn-danger">Guardar</button>
+      </div> 
+    </div> 
+  </fieldset>
+</form>
+</div> 
+`,
 
+  data() {
+
+      return {
+          vacia: [],
+          form: {
+              nombre: "",
+              apellido: "",
+              email: "",
+              contraseña: "",
+              ciudad: "",
+              direccion: "",
+              cp: "",
+              telefono: "",
+              tipo: "",
+              edad: "",
+              clase: "",
+              asignatura: ""
+          }
+
+      }
+  },
+  methods: {
+
+      guardarAlumnoNuevo: function() {
+
+          datosAlumno = [
+              this.nombre = this.form.nombre,
+              this.apellido = this.form.apellido,
+              this.email = this.form.email,
+              this.contraseña = this.form.contraseña,
+              this.ciudad = this.form.ciudad,
+              this.direccion = this.form.direccion,
+              this.cp = this.form.cp,
+              this.telefono = this.form.telefono,
+              this.tipo = "alumno",
+              this.edad = this.form.edad,
+              this.clase = this.form.clase,
+              this.asignatura = this.form.asignatura
+          ]
+          let registroUsuario = [];
+          registroUsuario.push(datosAlumno);
+          console.log(registroUsuario);
+          let socket = io.connect('http://localhost:8888');
+          socket.emit('registroAlumno', registroUsuario);
+      }
+  }
+
+});
 const error = {
     data: function() {
         return {
@@ -383,12 +554,17 @@ const monitorizacion = {
   </div>
    `
 };
-
+const registroAlumnos = {
+  template: `
+  <registroAlumno></registroAlumno>
+  `
+};
 const rutes = {
 
     '#/subirExamen': subirExamen,
     '#/listaAlumnos': listaAlumnos,
-    '#/monitorizacion': monitorizacion
+    '#/monitorizacion': monitorizacion,
+    '#/registroAlumnos': registroAlumnos,
 
 };
 
@@ -430,7 +606,10 @@ var app = new Vue({
             <a class="nav-link" href="#/monitorizacion" v-on:click="navegar">Monitorizacion</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#/examenesRealizados">Examenes Realizados</a>
+            <a class="nav-link" href="#/examenesRealizados" v-on:click="navegar">Examenes Realizados</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#/registroAlumnos" v-on:click="navegar">Registrar Alumnos</a>
           </li>
         <!--<li class="nav-item">
             <a class="nav-link disabled" href="#">Disabled</a>

@@ -98,6 +98,13 @@ app.get("/alumno", (req, res) => {
   
 })
 app.get("/profesor", (req, res) => {
+
+  io.on('connection', function (socket) { 
+
+    socket.on('registroAlumno', function (data) {
+console.log(data);
+    });
+  })
   res.setHeader("Content-type", "text/html");
   res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
   //authProfesor(req, res,  function(){});
@@ -109,25 +116,51 @@ app.get("/profesor", (req, res) => {
 var tokenAlumn = "";
 var tokenProfe="";
 var arrayTokensAlumnos=[];
-var arrayTokensAlumnos1=[];
+var idAlumnoServidor =0;
+
 io.on('connection', function (socket) { 
   
   socket.on('tokenProfesor', function (data) {
     tokenProfe = data;
 
+    MongoClient.connect(url, function (err, client) {
+      assert.equal(null, err);
+      console.log("Connected successfully to server");
+      const db = client.db(dbName);
+      /**
+       * llamamos a la funcion que comprueba el login
+       */
+      checkLogin(db, err, function () { });
+      client.close();
+     
+    });
+    var checkLogin = function (db, err, callback) {
+      db.collection('loginUsers').find({ email: data[0], password: data[1] }).toArray(function (err, result) {
+        if (err) throw err;
+        if (result.length > 0) {
+          socket.emit('userType', result[0].type);
+          req.session.user = result[0].email;
+          req.session.save();
+        }
+      });
+      assert.equal(err, null);
+      callback();
+    }
+
   });
   socket.emit('tokenProfesorToAlumno', tokenProfe);
 
   socket.on('tokenAlumno', function (data) {
+    idAlumnoServidor++;
     tokenAlumn = data[1];
     if (data[1].length != 20){
-      arrayTokensAlumnos.push({nombreAlumno:data[0], token: data[1]});
-      arrayTokensAlumnos1.push({nombreAlumno:data[0], token: data[1]});
+  
+      arrayTokensAlumnos.push({nombreAlumno:data[0], token: data[1], idAlumno: idAlumnoServidor});
     }
   
   });
-socket.emit('tokenAlumnoToProfesor', arrayTokensAlumnos);
-socket.emit('listaAlumnos', arrayTokensAlumnos1);
+
+socket.emit('listaAlumnos', arrayTokensAlumnos);
 
   /*
   socket.on('tokenAlumno', function (data) {
@@ -157,23 +190,42 @@ app.get("/registro", (req, res) => {
         /**
          * llamamos a la funcion que comprueba el login
          */
-        checkLogin(db, err, function () { });
+        insertarAlumno(db, err, function () { });
+        insertarRegistro(db, err, function () { });
         client.close();
        
       });
-      var checkLogin = function (db, err, callback) {
-        db.collection('loginUsers').find({ email: data[0], password: data[1] }).toArray(function (err, result) {
-          if (err) throw err;
-          if (result.length > 0) {
-            socket.emit('userType', result[0].type);
-            req.session.user = result[0].email;
-            req.session.save();
-          }
+      var insertarAlumno = function (db, err, callback){
+        db.collection ('RegistroUsuarios').insertOne({
+          "nombre" : data[0],
+          "apellidos": data[1],
+          "email": data[2],
+          "password": data[3],
+          "ciudad": data[4],
+          "direccion": data[5],
+          "cp": data[6],
+          "telefono": data[7],
+          "tipo": data[8],
+          "fechaNacimiento": data[9],
+          "clase": data[10],
+          "asignatura": data[11],
+
+      
         });
-        assert.equal(err, null);
+        assert.equal(err,null);
+        console.log("correct");
         callback();
       }
-      
+      var insertarRegistro = function (db, err, callback){
+        db.collection ('loginUsers').insertOne({
+          "email" : data[2],
+          "password": data[3],
+          "type": data[8]
+        });
+        assert.equal(err,null);
+        console.log("correct");
+        callback();
+      }
   
     });
   })
