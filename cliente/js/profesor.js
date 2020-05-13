@@ -1,6 +1,6 @@
 var tokenAlumn = "";
 var listaAA = [];
-let idAlumnoGlobal = 0;
+//let idAlumnoGlobal = 0;
 Vue.component('men', {
     template: /*html*/ `
 <div>
@@ -163,6 +163,7 @@ Vue.component('mostrarCamaras', {
 <video id="friendStream" autoplay playsinline controls="false"/>
 <textarea rows="3" width="300px" cols="50" id="txtMySignal"></textarea>
 <input type="text" placeholder="El token de tu amigo" ref="txtTextSignal"></input>
+<video id="videoScr" autoplay playsinline controls="false"/>
 
 
   <div id="accordion">
@@ -201,10 +202,12 @@ Vue.component('mostrarCamaras', {
 </div>
 <form>
     <div id="prueba">
-        <ul  v-for="listaAlumno in listaAA">
-            <button class="alumnoInfo" v-bind:id="listaAlumno.idAlumno" v-text="listaAlumno.nombreAlumno" >
-            </button>     
-        </ul>
+        <div  v-for="listaAlumno in listaAA">
+          <div id="iduno">
+            <button v-bind:id="listaAlumno.idAlumno" class="alumnoInfo"  v-text="listaAlumno.nombreAlumno"> </button>     
+        </div>
+      </div>
+        <button  class="holas"  >   close   </button>   
     </div>
 </form>
 </div>
@@ -242,8 +245,12 @@ Vue.component('mostrarCamaras', {
      
        
       a :function (){
-        var cogerArrayLocal = JSON.parse(localStorage.getItem('tokenAlumno'));
-
+        
+          if (localStorage.getItem('tokenAlumno')=== null){
+          localStorage.setItem([]);
+          }else {
+               var cogerArrayLocal = JSON.parse(localStorage.getItem('tokenAlumno'));
+          }
       //  console.log(this.listaAA);
         console.log(cogerArrayLocal.length);
            if (listaAA.length<cogerArrayLocal.length){
@@ -266,24 +273,31 @@ Vue.component('mostrarCamaras', {
       .then(stream =>{ 
         this.playVideo(stream, 'localVideo')
         const p = new SimplePeer ({initiator: location.hash === "#/monitorizacion", trickle: false, stream});
+   
         p.on('signal', token =>{
           txtMySignal.innerHTML = JSON.stringify(token);
           let socket = io.connect('http://localhost:8888');
           socket.emit('tokenProfesor', JSON.stringify(token));
         });
-
-    
-     $('button').click(()=>{ 
+        
+       $('.holas').click(()=>{
+         
+              p.removeStream(stream);
+        })
+     $(document).on('click','.alumnoInfo',(e)=>{
+    //  p.removeStream(stream);
+  
         console.log("pruebarara");
-        console.log(event.currentTarget.id);
+        console.log(e.currentTarget.id);
               
 
                  let arrayToken = JSON.parse(localStorage.getItem('tokenAlumno'));
                   for (i=0; i<arrayToken.length; i++){
-                    if(arrayToken[i].idAlumno==event.currentTarget.id){
+                    if(arrayToken[i].idAlumno==e.currentTarget.id){
 
                       let tokenA = arrayToken[i].token;
                       p.signal(tokenA);
+                      localStorage.setItem('tokenActual', JSON.stringify(tokenA));
                       p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'));
                     }
                   }  
@@ -303,14 +317,33 @@ Vue.component('mostrarCamaras', {
 
     })
   },
+  /* getScreenConstraints : function(error, screen_constraints) {
+    if (error) {
+        return alert(error);
+    }
 
+    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    navigator.getUserMedia({
+        video: screen_constraints
+    }, function(stream) {
+        var video = document.querySelector('videoScr');
+        video.src = URL.createObjectURL(stream);
+        video.play();
+    }, function(error) {
+        alert(JSON.stringify(error, null, '\t'));
+    });
+},*/
 },
+
 created: function () {
+
                         this.openStream();
                         this.a();
                         this.listaAA=setInterval(this.a, 3000);
                         this.subirAlLocal();
                         setInterval(this.subirAlLocal, 3000);
+                      //  this.getScreenConstraints();
+                        
 }
 
 

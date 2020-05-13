@@ -12,7 +12,7 @@
   <video id="friendStream" autoplay playsinline controls="false"/>
   <textarea rows="3" width="300px" cols="50" id="txtMySignal"></textarea>
   <input type="text" placeholder="El token de tu amigo" ref="txtTextSignal"></input>
-
+  <button  class="holas"  >   close   </button>   
   
   </div> 
   
@@ -78,14 +78,18 @@
               //aqui se genera el primer token 
               //esto en vez de hacer el iner lo pasaremos con websockets
             });
+            $('.holas').click(()=>{
+         
+              p.removeStream(stream);
+                      })
          $('#btn1').click(()=>{
         //  let friendSignal = JSON.parse(this.$refs.txtTextSignal.value);
          let socket = io.connect('http://localhost:8888');
           socket.on('tokenProfesorToAlumno', function(data) {
           
-          tokenProfe = JSON.parse(data);
-          console.log(tokenProfe);
-          p.signal(tokenProfe);
+                tokenProfe = JSON.parse(data);
+                console.log(tokenProfe);
+                p.signal(tokenProfe);
         })
       
           console.log("genero segundo token");
