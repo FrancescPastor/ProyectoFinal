@@ -302,9 +302,20 @@ Vue.component('mostrarCamaras', {
                  
                     }
                   }  
+
+
+                  for (rec=0; rec<this.listaAA.length; rec++){
+                   
+                    if (this.listaAA[rec].idAlumno == e.currentTarget.id){
+                       console.log( this.listaAA[rec].idAlumno);
+                       let gh = JSON.parse(this.listaAA[rec].idAlumno);
+                       p.on('stream', friendStream => this.playVideo(friendStream, gh));
+                     
+                       }
+                         }
                  
-                  if (localStorage.getItem('x') == 'primero'){
-               let  y = 1;
+            /*      if (localStorage.getItem('x') == 'primero'){
+                     let  y = 1;
                      p.on('stream', friendStream => this.playVideo(friendStream, '1'));
                      console.log("primertoken");
                      y= "segundo"
@@ -314,7 +325,8 @@ Vue.component('mostrarCamaras', {
                      else if(localStorage.getItem('x')=='segundo') {
                         p.on('stream', segundo => this.playVideo(segundo, '2'));
                         console.log("segundotoken");
-                       }
+                       }*/
+                  
                 })
                 
        })
