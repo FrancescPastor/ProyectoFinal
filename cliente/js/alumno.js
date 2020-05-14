@@ -5,14 +5,15 @@
     template:/*html*/ `
   <div>
   
-  <button id="btn1">Dar permisos al profesor</button>
-  
+ 
+  <button id="btn3">Conectarse</button>
   
   <video id="localVideo" autoplay playsinline controls="false"/>
   <video id="friendStream" autoplay playsinline controls="false"/>
+  
   <textarea rows="3" width="300px" cols="50" id="txtMySignal"></textarea>
   <input type="text" placeholder="El token de tu amigo" ref="txtTextSignal"></input>
-  <button  class="holas"  >   close   </button>   
+
   
   </div> 
   
@@ -35,72 +36,43 @@
         }
   
       },
-      tokenProfe : function (){/*
-        navigator.mediaDevices.getUserMedia({ audio: false, video: true })
-        .then(stream =>{ 
-          this.playVideo(stream, 'localVideo')
-          const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false, stream});
-          p.on('signal', token =>{
-            txtMySignal.innerHTML = JSON.stringify(token);
-            console.log("genero token");
-            let socket = io.connect('http://localhost:8888');
-            socket.emit('tokenAlumno', JSON.stringify(token));
-          });
-  
-       
-          p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
-          })
-        .catch(err => console.log(err));
-          let socket = io.connect('http://localhost:8888');
-          socket.on('tokenProfesorToAlumno', function(data) {
-          
-          tokenProfe = data;
-         
-        })
-  */
-     },
-     openStream: function () {
+      
+      openStream: function () {
         navigator.mediaDevices.getUserMedia({ audio: false, video: true })
           .then(stream =>{ 
             this.playVideo(stream, 'localVideo')
-            const p = new SimplePeer ({initiator: location.hash === "#/monitorizacion", trickle: false, stream});
+            const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false, stream});
+              console.log("entrado");
             p.on('signal', token =>{
               informacionAlumno=[];
               txtMySignal.innerHTML = JSON.stringify(token);
-
               let socket = io.connect('http://localhost:8888');
-              console.log(localStorage.getItem('emailAlumn'));
               informacionAlumno.push(localStorage.getItem('emailAlumn'));
               informacionAlumno.push(JSON.stringify(token));
               socket.emit('tokenAlumno',informacionAlumno);
-              console.log("genero token");
-             
-              //aqui se genera el primer token 
-              //esto en vez de hacer el iner lo pasaremos con websockets
-            });
-            $('.holas').click(()=>{
-         
-              p.removeStream(stream);
-                      })
-         $('#btn1').click(()=>{
-        //  let friendSignal = JSON.parse(this.$refs.txtTextSignal.value);
-         let socket = io.connect('http://localhost:8888');
-          socket.on('tokenProfesorToAlumno', function(data) {
-          
-                tokenProfe = JSON.parse(data);
-                console.log(tokenProfe);
-                p.signal(tokenProfe);
-        })
-      
-          console.log("genero segundo token");
-         })
-         
-            p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
+
+            $('#btn3').click(()=>{
+                
+              let socket = io.connect('http://localhost:8888');
+              socket.on('tokenConexion', function(data) {
+              let emailComparar = JSON.parse(data[0]);
+              
+              if (emailComparar == localStorage.getItem('emailAlumn')){
+
+                p.signal(data[1]);
+              
+               }
+            
+                })
             })
+
+          });
+    
+         
+          p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
+          })
           .catch(err => console.log(err));
       },
-      
-  
     },
     created: function () {
      this.openStream();

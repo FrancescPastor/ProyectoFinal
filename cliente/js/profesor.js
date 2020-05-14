@@ -1,4 +1,8 @@
 var tokenAlumn = "";
+//localStorage.setItem()
+if (localStorage.getItem("x") === null) {
+  localStorage.setItem("x",'primero');
+}
 var listaAA = [];
 //let idAlumnoGlobal = 0;
 Vue.component('men', {
@@ -160,7 +164,7 @@ Vue.component('mostrarCamaras', {
     template: /*html*/ `
 <div>
 <video id="localVideo" autoplay playsinline controls="false"/>
-<video id="friendStream" autoplay playsinline controls="false"/>
+
 <textarea rows="3" width="300px" cols="50" id="txtMySignal"></textarea>
 <input type="text" placeholder="El token de tu amigo" ref="txtTextSignal"></input>
 <video id="videoScr" autoplay playsinline controls="false"/>
@@ -184,9 +188,9 @@ Vue.component('mostrarCamaras', {
               <thead>   
               </thead>
             <tbody>
-              <tr v-for="camara in listaCamaras">
-                <td class="tamañoFilasPantCam" v-for="idCamara in camara">
-                  <video class="tamañoFilasPantCam" v-bind:id="idCamara.id" autoplay playsinline controls="false"/>
+              <tr>
+                <td class="tamañoFilasPantCam"  v-for="listaAlumno in listaAA">
+                  <video class="tamañoFilasPantCam" v-bind:id="listaAlumno.idAlumno" autoplay playsinline controls="false"/>
                 </td>    
               </tr>
              </tbody>
@@ -207,7 +211,7 @@ Vue.component('mostrarCamaras', {
             <button v-bind:id="listaAlumno.idAlumno" class="alumnoInfo"  v-text="listaAlumno.nombreAlumno"> </button>     
         </div>
       </div>
-        <button  class="holas"  >   close   </button>   
+
     </div>
 </form>
 </div>
@@ -251,13 +255,9 @@ Vue.component('mostrarCamaras', {
           }else {
                var cogerArrayLocal = JSON.parse(localStorage.getItem('tokenAlumno'));
           }
-      //  console.log(this.listaAA);
-        console.log(cogerArrayLocal.length);
            if (listaAA.length<cogerArrayLocal.length){
              this.listaAA = cogerArrayLocal;
           }
-                
-      
        },
       playVideo: function (stream, idVideo) {
         const video = document.getElementById(idVideo);
@@ -272,38 +272,51 @@ Vue.component('mostrarCamaras', {
     navigator.mediaDevices.getUserMedia({ audio: false, video: true })
       .then(stream =>{ 
         this.playVideo(stream, 'localVideo')
-        const p = new SimplePeer ({initiator: location.hash === "#/monitorizacion", trickle: false, stream});
+        const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false, stream});
    
         p.on('signal', token =>{
           txtMySignal.innerHTML = JSON.stringify(token);
+          info = [];
+          nombreAl1= localStorage.getItem('alumnoNombreSeñal');
+          info.push(nombreAl1, token);
           let socket = io.connect('http://localhost:8888');
-          socket.emit('tokenProfesor', JSON.stringify(token));
+          socket.emit('tokenProfesor', info);
+          
         });
         
-       $('.holas').click(()=>{
-         
-              p.removeStream(stream);
-        })
+      
      $(document).on('click','.alumnoInfo',(e)=>{
-    //  p.removeStream(stream);
+   
   
         console.log("pruebarara");
         console.log(e.currentTarget.id);
               
 
-                 let arrayToken = JSON.parse(localStorage.getItem('tokenAlumno'));
+              let arrayToken = JSON.parse(localStorage.getItem('tokenAlumno'));
                   for (i=0; i<arrayToken.length; i++){
                     if(arrayToken[i].idAlumno==e.currentTarget.id){
 
                       let tokenA = arrayToken[i].token;
                       p.signal(tokenA);
-                      localStorage.setItem('tokenActual', JSON.stringify(tokenA));
-                      p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'));
+                      localStorage.setItem('alumnoNombreSeñal', JSON.stringify(arrayToken[i].nombreAlumno));
+                 
                     }
                   }  
                  
-                  
+                  if (localStorage.getItem('x') == 'primero'){
+               let  y = 1;
+                     p.on('stream', friendStream => this.playVideo(friendStream, '1'));
+                     console.log("primertoken");
+                     y= "segundo"
+                   localStorage.setItem('x', "segundo");
+                    
+                     }
+                     else if(localStorage.getItem('x')=='segundo') {
+                        p.on('stream', segundo => this.playVideo(segundo, '2'));
+                        console.log("segundotoken");
+                       }
                 })
+                
        })
       .catch(err => console.log(err));
      
@@ -317,22 +330,7 @@ Vue.component('mostrarCamaras', {
 
     })
   },
-  /* getScreenConstraints : function(error, screen_constraints) {
-    if (error) {
-        return alert(error);
-    }
 
-    navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-    navigator.getUserMedia({
-        video: screen_constraints
-    }, function(stream) {
-        var video = document.querySelector('videoScr');
-        video.src = URL.createObjectURL(stream);
-        video.play();
-    }, function(error) {
-        alert(JSON.stringify(error, null, '\t'));
-    });
-},*/
 },
 
 created: function () {

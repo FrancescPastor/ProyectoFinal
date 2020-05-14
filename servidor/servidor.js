@@ -16,6 +16,7 @@ const url = 'mongodb://localhost:27017';
 // Database Name
 const dbName = 'webClass';
 
+var enviar = 0;
 /**
  * Usamos el sesion de express
  */
@@ -117,67 +118,35 @@ var tokenAlumn = "";
 var tokenProfe="";
 var arrayTokensAlumnos=[];
 var idAlumnoServidor =0;
+var tokenProfesorAlumno=[];
 
 io.on('connection', function (socket) { 
   
-  socket.on('tokenProfesor', function (data) {
-    tokenProfe = data;
+ 
 
-    MongoClient.connect(url, function (err, client) {
-      assert.equal(null, err);
-      console.log("Connected successfully to server");
-      const db = client.db(dbName);
-      /**
-       * llamamos a la funcion que comprueba el login
-       */
-      checkLogin(db, err, function () { });
-      client.close();
-     
-    });
-    var checkLogin = function (db, err, callback) {
-      db.collection('loginUsers').find({ email: data[0], password: data[1] }).toArray(function (err, result) {
-        if (err) throw err;
-        if (result.length > 0) {
-          socket.emit('userType', result[0].type);
-          req.session.user = result[0].email;
-          req.session.save();
-        }
-      });
-      assert.equal(err, null);
-      callback();
-    }
-
-  });
-  socket.emit('tokenProfesorToAlumno', tokenProfe);
 
   socket.on('tokenAlumno', function (data) {
     idAlumnoServidor++;
     tokenAlumn = data[1];
     if (data[1].length != 20){
-  
+
       arrayTokensAlumnos.push({nombreAlumno:data[0], token: data[1], idAlumno: idAlumnoServidor});
     }
   
   });
 
-socket.emit('listaAlumnos', arrayTokensAlumnos);
+  socket.emit('listaAlumnos', arrayTokensAlumnos);
 
-  /*
-  socket.on('tokenAlumno', function (data) {
-    token = data;
-   
-  });   
-  socket.on('tokenProfesor', function (data){
- 
-    tokenProfe = data;
-  })
-  setTimeout(()=>{
-    
-    socket.emit("tokenProfesorToAlumno",token);
-    console.log("ey profe"+token);
-   },90);
- */
+  socket.on('tokenProfesor', function (data) {
 
+    tokenAlumn = JSON.stringify(data[1]);
+    if (tokenAlumn.length != 20){
+      tokenProfesorAlumno = data;
+       console.log(tokenProfesorAlumno);
+    }
+  
+  });
+socket.emit('tokenConexion',tokenProfesorAlumno);
 
 });
 app.get("/registro", (req, res) => {
