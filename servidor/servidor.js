@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 const https = require('https');
+require('https').globalAgent.options.rejectUnauthorized = false;
 const session = require ('express-session') ;
 const cookieParser = require('cookie-parser');
 const path = require("path");
@@ -10,7 +11,11 @@ var bodyParser = require("body-parser");
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 var port = 8888;
-var io = require('socket.io').listen(app.listen(port));
+var privateKey = fs.readFileSync('./server.key').toString();
+var certificate = fs.readFileSync('./server.cert').toString();
+//var ca = fs.readFileSync('YOUR SSL CA').toString();
+
+var io = require('socket.io').listen(app.listen(port, {key:privateKey,cert:certificate}));
 // Connection URL
 const url = 'mongodb://localhost:27017';
 // Database Name
@@ -31,9 +36,9 @@ app.use (session({
  * hacer esl server https
  * */
 https.createServer({
-  key: fs.readFileSync('server.key'),
-  cert: fs.readFileSync('server.cert')
-}, app).listen(3000, () => {
+  key: fs.readFileSync('./server.key'),
+  cert: fs.readFileSync('./server.cert')
+}, app).listen(3000,"0.0.0.0", () => {
   console.log('Listening...')
 })
 
@@ -115,15 +120,15 @@ console.log(data);
  * esta es la ruta de registro que valida si el usuario esta en la bdd y si esta deja entrar
  */
 var tokenAlumn = "";
+
 var tokenProfe="";
 var arrayTokensAlumnos=[];
 var idAlumnoServidor =0;
+var idAlumnoServidorS =0;
 var tokenProfesorAlumno=[];
-
+var arrayTokensAlumnosStreaming = [];
+var tokenProfesorAlumnoScreen = [];
 io.on('connection', function (socket) { 
-  
- 
-
 
   socket.on('tokenAlumno', function (data) {
     idAlumnoServidor++;
@@ -142,11 +147,33 @@ io.on('connection', function (socket) {
     tokenAlumn = JSON.stringify(data[1]);
     if (tokenAlumn.length != 20){
       tokenProfesorAlumno = data;
-       console.log(tokenProfesorAlumno);
+     
     }
   
   });
 socket.emit('tokenConexion',tokenProfesorAlumno);
+
+socket.on('tokenAlumnoStreaming', function (data) {
+  idAlumnoServidorS++;
+
+  if (data[1].length != 20){
+    arrayTokensAlumnosStreaming.push({nombreAlumno:data[0], token: data[1], idAlumno: "s"+idAlumnoServidorS});
+  }
+});
+
+socket.emit('tokenAlumnoToProfeScreen', arrayTokensAlumnosStreaming);
+
+socket.on('tokenProfesorScreen', function (data) {
+console.log("screen");
+tokenprofeS = JSON.stringify(data[1]);
+if (tokenprofeS.length != 20){
+  tokenProfesorAlumnoScreen = data;
+ console.log(tokenProfesorAlumnoScreen);
+}
+
+});
+socket.emit('tokenProfeToAlumnoScreen', tokenProfesorAlumnoScreen);
+
 
 });
 app.get("/registro", (req, res) => {

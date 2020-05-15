@@ -1,12 +1,16 @@
 var tokenAlumn = "";
-//localStorage.setItem()
-if (localStorage.getItem("x") === null) {
-  localStorage.setItem("x",'primero');
-}
+
+var displayMediaOptions = {
+  video: {
+    cursor: "always"
+  },
+  audio: false
+};
+
 var listaAA = [];
 //let idAlumnoGlobal = 0;
 Vue.component('men', {
-    template: /*html*/ `
+  template: /*html*/ `
 <div>
 <p>hola crack</p>
 <p>hola crack</p>
@@ -14,18 +18,18 @@ Vue.component('men', {
 
   `,
 
-    data() {
+  data() {
 
-        return {
-            vacia: []
-        }
-    },
+    return {
+      vacia: []
+    }
+  },
 
 
 });
 
 Vue.component('subidaExamen', {
-    template: /*html*/ `
+  template: /*html*/ `
 <div>
   <form>
       <div class="form-row mb-8 col-md-4">
@@ -60,22 +64,22 @@ Vue.component('subidaExamen', {
 </div> 
   `,
 
-    data() {
+  data() {
 
-        return {
-            vacia: []
-        }
-    },
-    methods: {
-
-
+    return {
+      vacia: []
     }
+  },
+  methods: {
+
+
+  }
 
 
 });
 
 Vue.component('listaAlumnos', {
-    template: /*html*/ `
+  template: /*html*/ `
 <div>
   <form>
       <div class="form-row mb-8 col-md-4">
@@ -140,28 +144,28 @@ Vue.component('listaAlumnos', {
 </div> 
   `,
 
-    data() {
+  data() {
 
-        return {
-            arrayAlumnos: [
-                { id: 1, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
-            ]
-        }
-    },
-    methods: {
-
-        thisFileUpload() {
-            document.getElementById("file");
-
-
-        }
+    return {
+      arrayAlumnos: [
+        { id: 1, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
+      ]
     }
+  },
+  methods: {
+
+    thisFileUpload() {
+      document.getElementById("file");
+
+
+    }
+  }
 
 
 });
 
 Vue.component('mostrarCamaras', {
-    template: /*html*/ `
+  template: /*html*/ `
 <div>
 <video id="localVideo" autoplay playsinline controls="false"/>
 
@@ -170,196 +174,182 @@ Vue.component('mostrarCamaras', {
 <video id="videoScr" autoplay playsinline controls="false"/>
 
 
-  <div id="accordion">
-    <div class="card">
-      <div class="card-header" id="headingOne">
-        <h5 class="mb-0">
-          <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-            Camaras
-          </button>
-        </h5>
-      </div>
+<div id="accordion">
+  <div class="card">
+    <div class="card-header" id="headingOne">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Camaras
+        </button>
+      </h5>
+    </div>
 
-    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-      <div class="card-body">
-     
-        <div class="centroTab">
-          <table id="diseñoCamPant" class="table table-striped">
-              <thead>   
-              </thead>
-            <tbody>
-              <tr>
-                <td class="tamañoFilasPantCam"  v-for="listaAlumno in listaAA">
-                  <video class="tamañoFilasPantCam" v-bind:id="listaAlumno.idAlumno" autoplay playsinline controls="false"/>
-                </td>    
-              </tr>
-             </tbody>
+  <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+    <div class="card-body">
+   
+      <div class="centroTab">
+        <table id="diseñoCamPant" class="table table-striped">
+            <thead>   
+            </thead>
+          <tbody>
+            <tr>
+              <td class="tamañoFilasPantCam"  v-for="listaAlumno in listaAA">
+                <video class="tamañoFilasPantCam" v-bind:id="listaAlumno.idAlumno" autoplay playsinline controls="false"/>
+              </td>    
+            </tr>
+           </tbody>
 
-          </table>
-        </div>      
-      </div>
+        </table>
+      </div>      
     </div>
   </div>
+</div>
 
 
 
 </div>
 <form>
-    <div id="prueba">
-        <div  v-for="listaAlumno in listaAA">
-          <div id="iduno">
-            <button v-bind:id="listaAlumno.idAlumno" class="alumnoInfo"  v-text="listaAlumno.nombreAlumno"> </button>     
-        </div>
+  <div id="prueba">
+      <div  v-for="listaAlumno in listaAA">
+        <div id="iduno">
+          <button v-bind:id="listaAlumno.idAlumno" class="alumnoInfo"  v-text="listaAlumno.nombreAlumno"> </button>     
       </div>
-
     </div>
+
+  </div>
 </form>
 </div>
-  `,
+`,
 
-    data() {
-   
+  data() {
 
-        return {
-          form: {
-            id : ""
-          },
-          idAlumno:0,
-           listaAA :[],
-            listaCamaras: [
 
-                [   { id: 1, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-                    { id: 2, nombre: "f", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-                    { id: 3, nombre: "v", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-                    { id: 4, nombre: "c", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-                    { id: 5, nombre: "v", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
-                ],
-
-                [
-                    { id: 6, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-                    { id: 8, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
-                ]
-
-            ],
-
-        }
-       
-    },
-    methods: {
-     
-       
-      a :function (){
-        
-          if (localStorage.getItem('tokenAlumno')=== null){
-          localStorage.setItem([]);
-          }else {
-               var cogerArrayLocal = JSON.parse(localStorage.getItem('tokenAlumno'));
-          }
-           if (listaAA.length<cogerArrayLocal.length){
-             this.listaAA = cogerArrayLocal;
-          }
-       },
-      playVideo: function (stream, idVideo) {
-        const video = document.getElementById(idVideo);
-        video.srcObject = stream;
-        video.onloadedmetadata = function () {
-          video.play();
-        }
+    return {
+      form: {
+        id: ""
       },
+      idAlumno: 0,
+      listaAA: [],
+      listaCamaras: [
 
+        [{ id: 1, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
+        { id: 2, nombre: "f", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
+        { id: 3, nombre: "v", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
+        { id: 4, nombre: "c", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
+        { id: 5, nombre: "v", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
+        ],
+
+        [
+          { id: 6, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
+          { id: 8, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
+        ]
+
+      ],
+
+    }
+
+  },
+  methods: {
+
+
+    a: function () {
+
+      if (localStorage.getItem('tokenAlumno') === null) {
+        localStorage.setItem('tokenAlumnoScreen','[]');
+      } else {
+        var cogerArrayLocal = JSON.parse(localStorage.getItem('tokenAlumno'));
+      }
+      if (listaAA.length < cogerArrayLocal.length) {
+        this.listaAA = cogerArrayLocal;
+      }
+    },
+    playVideo: function (stream, idVideo) {
+      const video = document.getElementById(idVideo);
+      video.srcObject = stream;
+      video.onloadedmetadata = function () {
+        video.play();
+      }
+    },
+
+
+    openStream: function () {
+      navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+        .then(stream => {
+          this.playVideo(stream, 'localVideo')
+          const p = new SimplePeer({ initiator: location.hash === "#/", trickle: false, stream });
+
+          p.on('signal', token => {
+            txtMySignal.innerHTML = JSON.stringify(token);
+            info = [];
+            nombreAl1 = localStorage.getItem('alumnoNombreSeñal');
+            info.push(nombreAl1, token);
+            let socket = io.connect('https://192.168.1.138:8888');
+            socket.emit('tokenProfesor', info);
+
+          });
+
+
+          $(document).on('click', '.alumnoInfo', (e) => {
+
+
+            console.log("pruebarara");
+            console.log(e.currentTarget.id);
+
+
+            let arrayToken = JSON.parse(localStorage.getItem('tokenAlumno'));
+            for (i = 0; i < arrayToken.length; i++) {
+              if (arrayToken[i].idAlumno == e.currentTarget.id) {
+
+                let tokenA = arrayToken[i].token;
+                p.signal(tokenA);
+                localStorage.setItem('alumnoNombreSeñal', JSON.stringify(arrayToken[i].nombreAlumno));
+
+              }
+            }
+            for (rec = 0; rec < this.listaAA.length; rec++) {
+
+              if (this.listaAA[rec].idAlumno == e.currentTarget.id) {
+
+                let gh = JSON.parse(this.listaAA[rec].idAlumno);
+                p.on('stream', friendStream => this.playVideo(friendStream, gh));
+
+              }
+            }
+
+          })
+
+        })
+        .catch(err => console.log(err));
+
+    },
+
+
+    subirAlLocal: function () {
     
-  openStream: function () {
-    navigator.mediaDevices.getUserMedia({ audio: false, video: true })
-      .then(stream =>{ 
-        this.playVideo(stream, 'localVideo')
-        const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false, stream});
-   
-        p.on('signal', token =>{
-          txtMySignal.innerHTML = JSON.stringify(token);
-          info = [];
-          nombreAl1= localStorage.getItem('alumnoNombreSeñal');
-          info.push(nombreAl1, token);
-          let socket = io.connect('http://localhost:8888');
-          socket.emit('tokenProfesor', info);
-          
-        });
-        
-      
-     $(document).on('click','.alumnoInfo',(e)=>{
-   
-  
-        console.log("pruebarara");
-        console.log(e.currentTarget.id);
-              
+      let socket = io.connect('https://192.168.1.138:8888');
+      socket.on('listaAlumnos', function (data) {
+        localStorage.setItem('tokenAlumno', JSON.stringify(data));
 
-              let arrayToken = JSON.parse(localStorage.getItem('tokenAlumno'));
-                  for (i=0; i<arrayToken.length; i++){
-                    if(arrayToken[i].idAlumno==e.currentTarget.id){
+      })
+    },
 
-                      let tokenA = arrayToken[i].token;
-                      p.signal(tokenA);
-                      localStorage.setItem('alumnoNombreSeñal', JSON.stringify(arrayToken[i].nombreAlumno));
-                 
-                    }
-                  }  
-
-
-                  for (rec=0; rec<this.listaAA.length; rec++){
-                   
-                    if (this.listaAA[rec].idAlumno == e.currentTarget.id){
-                       console.log( this.listaAA[rec].idAlumno);
-                       let gh = JSON.parse(this.listaAA[rec].idAlumno);
-                       p.on('stream', friendStream => this.playVideo(friendStream, gh));
-                     
-                       }
-                         }
-                 
-            /*      if (localStorage.getItem('x') == 'primero'){
-                     let  y = 1;
-                     p.on('stream', friendStream => this.playVideo(friendStream, '1'));
-                     console.log("primertoken");
-                     y= "segundo"
-                   localStorage.setItem('x', "segundo");
-                    
-                     }
-                     else if(localStorage.getItem('x')=='segundo') {
-                        p.on('stream', segundo => this.playVideo(segundo, '2'));
-                        console.log("segundotoken");
-                       }*/
-                  
-                })
-                
-       })
-      .catch(err => console.log(err));
-     
-  },
- 
-
-  subirAlLocal : function (){
-    let socket = io.connect('http://localhost:8888');
-    socket.on('listaAlumnos', function(data) {
-    localStorage.setItem('tokenAlumno', JSON.stringify(data));
-
-    })
   },
 
-},
+  created: function () {
 
-created: function () {
+    this.openStream();
+    this.a();
+    this.listaAA = setInterval(this.a, 3000);
+    this.subirAlLocal();
+    setInterval(this.subirAlLocal, 3000);  
+    //  this.getScreenConstraints();
 
-                        this.openStream();
-                        this.a();
-                        this.listaAA=setInterval(this.a, 3000);
-                        this.subirAlLocal();
-                        setInterval(this.subirAlLocal, 3000);
-                      //  this.getScreenConstraints();
-                        
-}
-
+  }
 
 });
+
 Vue.component('mostrarCompartirPantalla', {
-    template: /*html*/ `
+  template: /*html*/ `
 <div>
   <div id="accordion">
     <div class="card">
@@ -374,19 +364,32 @@ Vue.component('mostrarCompartirPantalla', {
       <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
         <div class="card-body">
           <p>Yo molo</p>
+          <video id="videoPantalla"  autoplay playsinline controls="false"/>
+          <button @click="startCapture()">start</button>
+          <button @click="stopCapture()">stop</button>
+     
             <div class="centroTab">
               <table id="diseñoCamPant" class="table table-striped">
                   <thead>   
                   </thead>
                 <tbody>
-                  <tr v-for="pantalla in listaPantallas">
-                    <td class="tamañoFilasPantCam" v-for="idPantalla in pantalla">
-                      <video class="tamañoFilasPantCam" v-bind:id="idPantalla.id" autoplay playsinline controls="false"/>
-                    </td>    
-                  </tr>
+                   <tr>
+                      <td class="tamañoFilasPantCam"  v-for="listaS in listaStreaming">
+                        <video class="tamañoFilasPantCam" v-bind:id="listaS.idAlumno" autoplay playsinline controls="false"/>
+                      </td>    
+                   </tr>
                 </tbody>
               </table>
             </div>      
+            <div id="prueba">
+              <div  v-for="listaAlumnoS in listaStreaming">
+                <div id="iduno1">
+                  <button v-bind:id="listaAlumnoS.idAlumno" class="alumnoInfoScreen"  v-text="listaAlumnoS.nombreAlumno"> </button>     
+              </div>
+            
+           </div>
+           <textarea rows="3" width="300px" cols="50" id="txtMySignal1"></textarea>
+  </div>
           </div>
         </div>
       </div>
@@ -395,17 +398,126 @@ Vue.component('mostrarCompartirPantalla', {
 </div>
   `,
 
-    data() {
+  data() {
 
-        return {
-
-        }
-    },
-    methods: {
-      listaPantallas(){console.log("listapantallas");}
+    return {
+      listaStreaming: [],
     }
+  },
+
+  methods: {
+    listaPantallas() { console.log("listapantallas"); },
+
+    recogerLocalS: function () {
+
+      if (localStorage.getItem('tokenAlumnoScreen') === null) {
+        localStorage.setItem('tokenAlumnoScreen','[]');
+      } else {
+        var cogerArrayLocalS = JSON.parse(localStorage.getItem('tokenAlumnoScreen'));
+      }
+      if (listaAA.length < cogerArrayLocalS.length) {
+        this.listaStreaming = cogerArrayLocalS;
+      }
+    }, 
+    subirAlLocalScreen: function () {
+      let socket = io.connect('https://192.168.1.138:8888');
+      socket.on('tokenAlumnoToProfeScreen', function (data) {
+        localStorage.setItem('tokenAlumnoScreen', JSON.stringify(data));
+
+      })
+    },
+    startCapture: async function () {
+      const videoElem = document.getElementById("videoPantalla");
+    
+      try {
+        videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+
+      } catch (err) {
+        console.error("Error: " + err);
+      }
+    },
+    stopCapture: function (evt) {
+      const videoElem = document.getElementById("videoPantalla");
+      let tracks = videoElem.srcObject.getTracks();
+
+      tracks.forEach(track => track.stop());
+      videoElem.srcObject = null;
+    },
+    openStreaming: function () {
+      navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
+        .then(stream =>{ 
+          this.startCapture(stream, 'videoPantalla')
+          const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false, stream});
+           
+          p.on('signal', token =>{
+           txtMySignal1.innerHTML = JSON.stringify(token);
+           infoScr = [];
+           nombreS = localStorage.getItem('alumnoNombreSeñalScreen');
+           infoScr.push(nombreS, token);
+           let socket = io.connect('https://192.168.1.138:8888');
+           socket.emit('tokenProfesorScreen', infoScr);
+           
+        });
+
+        $(document).on('click', '.alumnoInfoScreen', (e) => {
 
 
+          console.log("pruebarara");
+          console.log(e.currentTarget.id);
+
+          let arrayTokenS = JSON.parse(localStorage.getItem('tokenAlumnoScreen'));
+          for (i = 0; i < arrayTokenS.length; i++) {
+            if (arrayTokenS[i].idAlumno == e.currentTarget.id) {
+
+              let tokenS = arrayTokenS[i].token;
+              p.signal(tokenS);
+              localStorage.setItem('alumnoNombreSeñalScreen', JSON.stringify(arrayTokenS[i].nombreAlumno));
+
+            }
+          }
+          for (yy = 0; yy < this.listaStreaming.length; yy++) {
+
+            if (this.listaStreaming[yy].idAlumno == e.currentTarget.id) {
+              
+              let idScreen = JSON.parse(this.listaStreaming[yy].idAlumno);
+              console.log("ID_");
+              console.log(idScreen);
+              p.on('stream', friendStream => this.startCapture(friendStream, idScreen));
+
+            }
+          }
+
+        })
+       
+      //  p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
+        })
+        .catch(err => console.log(err));
+    },
+    startCapture: async function (stream, idStream) {
+      const videoElem = document.getElementById(idStream);
+    
+      try {
+        videoElem.srcObject = await stream;
+
+      } catch (err) {
+        console.error("Error: " + err);
+      }
+    },
+    stopCapture: function (evt) {
+      const videoElem = document.getElementById("videoPantalla");
+      let tracks = videoElem.srcObject.getTracks();
+
+      tracks.forEach(track => track.stop());
+      videoElem.srcObject = null;
+    },
+  },
+  created : function (){
+    this.openStreaming();
+    this.subirAlLocalScreen();
+    this.listaStreaming = setInterval(this.subirAlLocalScreen, 3000);
+    this.recogerLocalS();
+    setInterval(this.recogerLocalS, 3000);     
+  }
 });
 
 Vue.component('registroAlumno', {
@@ -515,66 +627,66 @@ Vue.component('registroAlumno', {
 
   data() {
 
-      return {
-          vacia: [],
-          form: {
-              nombre: "",
-              apellido: "",
-              email: "",
-              contraseña: "",
-              ciudad: "",
-              direccion: "",
-              cp: "",
-              telefono: "",
-              tipo: "",
-              edad: "",
-              clase: "",
-              asignatura: ""
-          }
-
+    return {
+      vacia: [],
+      form: {
+        nombre: "",
+        apellido: "",
+        email: "",
+        contraseña: "",
+        ciudad: "",
+        direccion: "",
+        cp: "",
+        telefono: "",
+        tipo: "",
+        edad: "",
+        clase: "",
+        asignatura: ""
       }
+
+    }
   },
   methods: {
 
-      guardarAlumnoNuevo: function() {
+    guardarAlumnoNuevo: function () {
 
-          datosAlumno = [
-              this.nombre = this.form.nombre,
-              this.apellido = this.form.apellido,
-              this.email = this.form.email,
-              this.contraseña = this.form.contraseña,
-              this.ciudad = this.form.ciudad,
-              this.direccion = this.form.direccion,
-              this.cp = this.form.cp,
-              this.telefono = this.form.telefono,
-              this.tipo = "alumno",
-              this.edad = this.form.edad,
-              this.clase = this.form.clase,
-              this.asignatura = this.form.asignatura
-          ]
-          let registroUsuario = [];
-          registroUsuario.push(datosAlumno);
-          console.log(registroUsuario);
-          let socket = io.connect('http://localhost:8888');
-          socket.emit('registroAlumno', registroUsuario);
-      }
+      datosAlumno = [
+        this.nombre = this.form.nombre,
+        this.apellido = this.form.apellido,
+        this.email = this.form.email,
+        this.contraseña = this.form.contraseña,
+        this.ciudad = this.form.ciudad,
+        this.direccion = this.form.direccion,
+        this.cp = this.form.cp,
+        this.telefono = this.form.telefono,
+        this.tipo = "alumno",
+        this.edad = this.form.edad,
+        this.clase = this.form.clase,
+        this.asignatura = this.form.asignatura
+      ]
+      let registroUsuario = [];
+      registroUsuario.push(datosAlumno);
+      console.log(registroUsuario);
+      let socket = io.connect('https://192.168.1.138:8888');
+      socket.emit('registroAlumno', registroUsuario);
+    }
   }
 
 });
 const error = {
-    data: function() {
-        return {
-            url: window.location.hash
-        };
-    },
-    template: `
+  data: function () {
+    return {
+      url: window.location.hash
+    };
+  },
+  template: `
   <div>
     <p>URL no encaminada : {{url}} </p>
   </div>
   `
 };
 const subirExamen = {
-    template: `
+  template: `
   <div>
 
   <subidaExamen></subidaExamen>
@@ -582,7 +694,7 @@ const subirExamen = {
    `
 };
 const listaAlumnos = {
-    template: `
+  template: `
   <div>
 
   <listaAlumnos></listaAlumnos>
@@ -590,7 +702,7 @@ const listaAlumnos = {
    `
 };
 const monitorizacion = {
-    template: `
+  template: `
   <div>
     <mostrarCamaras></mostrarCamaras>
     <mostrarCompartirPantalla></mostrarCompartirPantalla>
@@ -604,33 +716,33 @@ const registroAlumnos = {
 };
 const rutes = {
 
-    '#/subirExamen': subirExamen,
-    '#/listaAlumnos': listaAlumnos,
-    '#/monitorizacion': monitorizacion,
-    '#/registroAlumnos': registroAlumnos,
+  '#/subirExamen': subirExamen,
+  '#/listaAlumnos': listaAlumnos,
+  '#/monitorizacion': monitorizacion,
+  '#/registroAlumnos': registroAlumnos,
 
 };
 
 
 var app = new Vue({
-    el: '#app',
-    data: {
-        rutaActual: window.location.hash,
-        rutes: rutes,
-        menuVisible: false,
+  el: '#app',
+  data: {
+    rutaActual: window.location.hash,
+    rutes: rutes,
+    menuVisible: false,
 
-    },
-    methods: {
-        navegar: function($event) {
-            this.rutaActual = $event.target.hash;
-        }
-    },
-    computed: {
-        vistaActual: function() {
-            return this.rutes[this.rutaActual] || error;
-        }
-    },
-    template: /*html*/ `
+  },
+  methods: {
+    navegar: function ($event) {
+      this.rutaActual = $event.target.hash;
+    }
+  },
+  computed: {
+    vistaActual: function () {
+      return this.rutes[this.rutaActual] || error;
+    }
+  },
+  template: /*html*/ `
   <div>
     <nav class="navbar navbar-expand-lg ">
       <a class="navbar-brand">Profesor</a>

@@ -1,6 +1,13 @@
 
  
   let tokenProfe = "";
+  var displayMediaOptions = {
+    video: {
+      cursor: "always"
+    },
+    audio: false
+  };
+  
   Vue.component('alumno', {
     template:/*html*/ `
   <div>
@@ -80,7 +87,88 @@
   
   });
   
+  Vue.component('mostrarCompartirPantalla', {
+    template: /*html*/ `
+      <div>
+          <video id="videoPantalla"  autoplay playsinline controls="false"/>
+          <button @click="startCapture()">start</button>
+          <button @click="stopCapture()">stop</button>
+          <video id="videoFriend"  autoplay playsinline controls="false"/>
+          <textarea rows="3" width="300px" cols="50" id="txtMySignal1"></textarea>
+          <button id="btn5">permitir profe ver pantalla</button>
+      </div>
+    `,
   
+    data() {
+  
+      return {
+  
+      }
+    },
+  
+    methods: {
+      openStreaming: function () {
+        navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
+          .then(stream =>{ 
+            this.startCapture(stream, 'videoPantalla')
+            const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false, stream});
+              console.log("entrado");
+            p.on('signal', token =>{
+             informacionStreamAlumno=[];
+             txtMySignal1.innerHTML = JSON.stringify(token);
+             let socket = io.connect('http://localhost:8888');
+             informacionStreamAlumno.push(localStorage.getItem('emailAlumn'));
+             informacionStreamAlumno.push(JSON.stringify(token));
+             console.log(informacionStreamAlumno);
+             socket.emit('tokenAlumnoStreaming',informacionStreamAlumno);
+
+
+             $('#btn5').click(()=>{
+                
+              let socket = io.connect('http://localhost:8888');
+              socket.on('tokenProfeToAlumnoScreen', function(data) {
+                console.log(data);
+              let emailComparar = JSON.parse(data[0]);
+              
+              if (emailComparar == localStorage.getItem('emailAlumn')){
+
+                p.signal(data[1]);
+              
+               }
+            
+                })
+            })
+          });
+    
+         
+          p.on('stream', friendStream => this.startCapture(friendStream, 'videoFriend'))
+          })
+          .catch(err => console.log(err));
+      },
+      startCapture: async function (stream, idStream) {
+        const videoElem = document.getElementById(idStream);
+      
+        try {
+          videoElem.srcObject = await stream;
+  
+        } catch (err) {
+          console.error("Error: " + err);
+        }
+      },
+      stopCapture: function (evt) {
+        const videoElem = document.getElementById("videoPantalla");
+        let tracks = videoElem.srcObject.getTracks();
+  
+        tracks.forEach(track => track.stop());
+        videoElem.srcObject = null;
+      },
+    },
+      created: function () {
+        this.openStreaming();
+       }
+
+    
+  });
   const error = {
     data: function () {
       return {
@@ -99,6 +187,7 @@
       <div>
       <p>Benvinguts a Vue.js</p>
       <alumno></alumno>
+      <mostrarCompartirPantalla></mostrarCompartirPantalla>
       </div>
     
       `
