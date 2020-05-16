@@ -283,7 +283,7 @@ Vue.component('mostrarCamaras', {
             info = [];
             nombreAl1 = localStorage.getItem('alumnoNombreSeñal');
             info.push(nombreAl1, token);
-            let socket = io.connect('https://192.168.1.138:8888');
+            let socket = io.connect('http://localhost:8888');
             socket.emit('tokenProfesor', info);
 
           });
@@ -326,7 +326,7 @@ Vue.component('mostrarCamaras', {
 
     subirAlLocal: function () {
     
-      let socket = io.connect('https://192.168.1.138:8888');
+      let socket = io.connect('http://localhost:8888');
       socket.on('listaAlumnos', function (data) {
         localStorage.setItem('tokenAlumno', JSON.stringify(data));
 
@@ -368,7 +368,7 @@ Vue.component('mostrarCompartirPantalla', {
           <button @click="startCapture()">start</button>
           <button @click="stopCapture()">stop</button>
      
-            <div class="centroTab">
+          <div class="centroTab">
               <table id="diseñoCamPant" class="table table-striped">
                   <thead>   
                   </thead>
@@ -420,7 +420,7 @@ Vue.component('mostrarCompartirPantalla', {
       }
     }, 
     subirAlLocalScreen: function () {
-      let socket = io.connect('https://192.168.1.138:8888');
+      let socket = io.connect('http://localhost:8888');
       socket.on('tokenAlumnoToProfeScreen', function (data) {
         localStorage.setItem('tokenAlumnoScreen', JSON.stringify(data));
 
@@ -454,7 +454,7 @@ Vue.component('mostrarCompartirPantalla', {
            infoScr = [];
            nombreS = localStorage.getItem('alumnoNombreSeñalScreen');
            infoScr.push(nombreS, token);
-           let socket = io.connect('https://192.168.1.138:8888');
+           let socket = io.connect('http://localhost:8888');
            socket.emit('tokenProfesorScreen', infoScr);
            
         });
@@ -667,7 +667,7 @@ Vue.component('registroAlumno', {
       let registroUsuario = [];
       registroUsuario.push(datosAlumno);
       console.log(registroUsuario);
-      let socket = io.connect('https://192.168.1.138:8888');
+      let socket = io.connect('http://localhost:8888');
       socket.emit('registroAlumno', registroUsuario);
     }
   }
