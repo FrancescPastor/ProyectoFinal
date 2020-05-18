@@ -33,6 +33,8 @@ Vue.component('registro', {
         sendForm() {
       
           if (this.validaType()) {
+            console.log("asd");
+           
             let dataUser = [];
             dataUser.push(this.form.email, this.form.password);
             localStorage.setItem('emailAlumn', this.form.email);
@@ -41,7 +43,7 @@ Vue.component('registro', {
             socket.emit('dataUser', dataUser);
             socket.on('userType',function (data){
               if (data == "alumno"){
-                window.location.href = "http://localhost:3000/alumno";
+                window.location.href = "https://localhost:3000/alumno";
               }
              else if (data == "profesor"){
                 window.location.href = "http://localhost:3000/profesor";
