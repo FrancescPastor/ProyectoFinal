@@ -73,7 +73,7 @@ body {
 }
 
 #botonGuardar {
-    background-color: rgb(119, 89, 143);
+    background-color:#61c1ecc9;
     color: white;
     border-color: rgb(83, 83, 83);
 }
@@ -91,4 +91,18 @@ body {
     border: 1px solid #999;
     width: 98%;
     max-width: 860px;
+}
+#botonEnviarExamen{
+    color: #fff;
+    background-color: #b52121;
+    border-color: #dc3545;
+    align-items: center;
+}
+#botonGuardarExamen{
+    background-color: #64bf88;
+}
+#botonAñadirPregunta{
+    background-color: rgba(226, 169, 110, 1);
+    color: white;
+    border-color: rgb(83, 83, 83);
 }

@@ -679,6 +679,12 @@ Vue.component('generarExamen', {
 <form  class="col-12 mt-2">
   <fieldset class="mb-5">
     <div v-show="examenok" class="form-group row">
+    <div class="col-lg-2"> 
+          <label for="nombreExamen">Nombre del examen:</label>
+        </div>
+        <div class="col-lg-2"> 
+          <input  class="form-control" type="text" v-model="nombreExamen"></input>  
+        </div>
         <div class="col-lg-1">
           <label for="materia">Materia:</label>
         </div>
@@ -689,12 +695,6 @@ Vue.component('generarExamen', {
             <option value="2">Sociales</option>
             <option value="3">Lengua</option>
           </select>
-        </div>
-        <div class="col-lg-2"> 
-          <label for="nombreExamen">Nombre del examen:</label>
-        </div>
-        <div class="col-lg-2"> 
-          <input  class="form-control" type="text" v-model="nombreExamen"></input>  
         </div>
         <div class="col-lg-1">
           <label for="materia">Aula</label>
@@ -708,12 +708,12 @@ Vue.component('generarExamen', {
           </select>
         </div>
         <div class="col-lg-2"> 
-          <button class="botonGuardar btn btn-success btn-block" @click="guardarInput">Guardar Examen</button>  
+          <button class="botonGuardar btn btn-success btn-block" id="botonGuardarExamen" @click="guardarInput">Guardar Examen</button>  
         </div>
       </div> 
     <div v-show="examenok" class="form-group row">
       <div class="col-lg-2"> 
-        <button id="botonPregunta" class="btn btn-block" @click="generarInputs">Añadir Pregunta</button>
+        <button id="botonPregunta" class="btn btn-block" id="botonAñadirPregunta" @click="generarInputs">Añadir Pregunta</button>
       </div> 
     </div>
     <div id="containerrr" v-show="examenok" class="row justify-content-center"> 
@@ -822,8 +822,8 @@ Vue.component('empezarExamen', {
         </div>
     </div>
   <div class="form-group row">  
-    <div class="col-lg-12"> 
-      <button v-show="!enviarExamen" class="btn btn-info btn-block" @click="enviarExamenAlAlumno">Enviar Exámen al Alumno</button>
+    <div class="col-md-4"> 
+      <button v-show="!enviarExamen" id ="botonEnviarExamen" class="btn btn-danger btn-block" @click="enviarExamenAlAlumno">Enviar Exámen al Alumno</button>
     </div>
   </div>
 </div>
