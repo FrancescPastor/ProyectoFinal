@@ -266,7 +266,217 @@ app.listen(app.get('puerto'), function () {
     callback();
   }
 */
+/**
+ * Guadar el examen realizado por el profesor
+ * **/
+io.on('connection', function(socket) {
 
+  socket.on('examen', function(textExamen) {
+      var listaPreguntasExamen = [];
+      nombreExamen = textExamen[0].nombreExamen;
+      nombreMateria = textExamen[0].nombreMateria;
+      nombreAula = textExamen[0].nombreAula;
+      listaPreguntasExamen = textExamen[0].preguntas;
+
+      MongoClient.connect(url, function(err, client) {
+          assert.equal(null, err);
+          const db = client.db(dbName);
+
+          insertarExamen(db, err, function() {});
+          client.close();
+      });
+
+      var insertarExamen = function(db, err, callback) {
+
+          for (i = 0; i < listaPreguntasExamen.length; i++) {
+              db.collection('examenes').insert({
+                  "nombreExamen": nombreExamen,
+                  "nombreMateria": nombreMateria,
+                  "nombreAula": nombreAula,
+                  "pregunta": listaPreguntasExamen[i].elementos
+
+              });
+          }
+          assert.equal(err, null);
+          console.log("correct");
+          callback();
+      }
+  });
+})
+
+/**
+* Mostrar la lista de examenes en el combo de realizar examen
+* **/
+io.on('connection', function(socket) {
+
+  MongoClient.connect(url, function(err, client) {
+      assert.equal(null, err);
+      const db = client.db(dbName);
+
+      mostrarExamenes(db, err, function() {});
+      client.close();
+  });
+  var mostrarExamenes = function(db, err, callback) {
+      var nombreDelExamen = [];
+      db.collection('examenes').find({}).toArray(function(err, result) {
+
+          for (i = 0; i < result.length; i++) {
+              let nom = result[i].nombreExamen;
+
+              if (!nombreDelExamen.includes(nom)) {
+                  nombreDelExamen.push(result[i].nombreExamen)
+              }
+
+          }
+
+          socket.emit('mostrarExamen', nombreDelExamen);
+      })
+
+
+  }
+})
+
+/**
+* Mostrar el examen completo seleccionado al profesor
+**/
+io.on('connection', function(socket) {
+
+  socket.on('mostrarExamenCompleto', function(nombreExamen) {
+
+      MongoClient.connect(url, function(err, client) {
+          assert.equal(null, err);
+          const db = client.db(dbName);
+
+          mostrarExamenesCompleto(db, err, function() {});
+          client.close();
+      });
+
+      var mostrarExamenesCompleto = function(db, err, callback) {
+          var examenCompleto = [];
+          db.collection('examenes').find({}).toArray(function(err, result) {
+
+              for (i = 0; i < result.length; i++) {
+                  if (result[i].nombreExamen == nombreExamen) {
+
+                      examenCompleto.push({ preguntas: result[i].pregunta })
+                  }
+              }
+
+              socket.emit('examenCompleto', examenCompleto);
+          })
+      }
+
+  })
+})
+
+/**
+* Enviar el examen completo seleccionado al alumno 
+**/
+var examenCompletoAlumno = [];
+var preguntasYnombre = [];
+io.on('connection', function(socket) {
+
+  socket.on('enviarExamenes', function(nombreExamen) {
+
+      MongoClient.connect(url, function(err, client) {
+          assert.equal(null, err);
+          const db = client.db(dbName);
+
+          enviarExamenAlumno(db, err, function() {});
+          client.close();
+      });
+
+      var enviarExamenAlumno = function(db, err, callback) {
+          examenCompletoAlumno = [];
+          preguntasYnombre = [];
+          db.collection('examenes').find({}).toArray(function(err, result) {
+
+              for (i = 0; i < result.length; i++) {
+
+                  if (result[i].nombreExamen == nombreExamen) {
+
+                      examenCompletoAlumno.push({ preguntas: result[i].pregunta })
+                  }
+              }
+              preguntasYnombre.push({ nombreExamen: nombreExamen, preguntas: examenCompletoAlumno, respuestas: "" })
+
+          })
+      }
+
+  })
+  socket.emit('examenCompletoAlumnos', preguntasYnombre);
+})
+
+/**
+* Recoger las respuestas del examen del alumno
+*/
+io.on('connection', function(socket) {
+
+  socket.on('respuestasAlumnoDelExamen', function(respuestasAlumno) {
+
+      MongoClient.connect(url, function(err, client) {
+          assert.equal(null, err);
+          const db = client.db(dbName);
+
+          recibirRespuestaExamen(db, err, function() {});
+          client.close();
+      });
+
+      var recibirRespuestaExamen = function(db, err, callback) {
+          console.log(respuestasAlumno[0].respuestasAlumno);
+          var email = respuestasAlumno[0].emailAlumno;
+          var nombreExamRealizado = respuestasAlumno[0].nombreExamen;
+          var respuestaExamRealizado = respuestasAlumno[0].respuestasAlumno;
+
+          for (i = 0; i < respuestaExamRealizado.length; i++) {
+              db.collection('examenesRealizados').insert({
+                  "emailAlumno": email,
+                  "nombreExamen": nombreExamRealizado,
+                  "preguntaExamen": respuestaExamRealizado[i].preguntas,
+                  "respuestasExamen": respuestaExamRealizado[i].respuestas
+              });
+          }
+      }
+  })
+})
+
+/** 
+* Recoger los nombres de los alumenos que pertenecen al examen demandado
+* */
+io.on('connection', function(socket) {
+
+  socket.on('nombreAlumnosDelExamenACorregir', function(nombreAlumnosDelExamenACorregir) {
+
+      MongoClient.connect(url, function(err, client) {
+          assert.equal(null, err);
+          const db = client.db(dbName);
+
+          recorgerNombresAlumnosExamen(db, err, function() {});
+          client.close();
+      });
+
+      var recorgerNombresAlumnosExamen = function(db, err, callback) {
+          let nombreAlumnosExamenReal = [];
+
+          db.collection('examenesRealizados').find({}).toArray(function(err, result) {
+
+              for (i = 0; i < result.length; i++) {
+
+                  if (result[i].nombreExamen == nombreAlumnosDelExamenACorregir) {
+
+                      if (!nombreAlumnosExamenReal.includes(result[i].emailAlumno)) {
+
+                          nombreAlumnosExamenReal.push(result[i].emailAlumno)
+                      }
+
+                  }
+              }
+              socket.emit('nombreAlumnosExamenReal', nombreAlumnosExamenReal);
+
+          })
+      }
+  })
+})
 
 
 

@@ -1,5 +1,5 @@
 var tokenAlumn = "";
-
+var x = 0;
 var displayMediaOptions = {
   video: {
     cursor: "always"
@@ -673,6 +673,324 @@ Vue.component('registroAlumno', {
   }
 
 });
+Vue.component('generarExamen', {
+  template: /*html*/ `
+<div>
+<form  class="col-12 mt-2">
+  <fieldset class="mb-5">
+    <div v-show="examenok" class="form-group row">
+        <div class="col-lg-1">
+          <label for="materia">Materia:</label>
+        </div>
+        <div class="col-lg-2"> 
+          <select class="custom-select" v-model="nombreMateria">
+            <option selected="true" value="">Ninguno/a</option>
+            <option value="1">Mates</option>
+            <option value="2">Sociales</option>
+            <option value="3">Lengua</option>
+          </select>
+        </div>
+        <div class="col-lg-2"> 
+          <label for="nombreExamen">Nombre del examen:</label>
+        </div>
+        <div class="col-lg-2"> 
+          <input  class="form-control" type="text" v-model="nombreExamen"></input>  
+        </div>
+        <div class="col-lg-1">
+          <label for="materia">Aula</label>
+        </div>
+        <div class="col-lg-2"> 
+          <select class="custom-select" v-model="nombreAula">
+            <option selected="true" value="">Ninguno/a</option>
+            <option value="1">Aula 1</option>
+            <option value="2">Aula 2</option>
+            <option value="3">Aula 3</option>
+          </select>
+        </div>
+        <div class="col-lg-2"> 
+          <button class="botonGuardar btn btn-success btn-block" @click="guardarInput">Guardar Examen</button>  
+        </div>
+      </div> 
+    <div v-show="examenok" class="form-group row">
+      <div class="col-lg-2"> 
+        <button id="botonPregunta" class="btn btn-block" @click="generarInputs">Añadir Pregunta</button>
+      </div> 
+    </div>
+    <div id="containerrr" v-show="examenok" class="row justify-content-center"> 
+      <div class="col-lg-12"  v-for="inputText in inputTexts"> 
+        <div class="form-group row">
+          <div class="col-lg-12"> 
+            <textarea v-bind:id="inputText.idInput" placeholder="Escriba aquí su pregunta..." v-model="inputText.elementos" v-text="inputText.elementos" rows="3"  column="5" class="form-control form-control-lg col-md-12"></textarea>
+          </div> 
+          <div class="col-lg-4"> 
+            <button v-show="examenok" class="botonBorrar btn btn-danger btn-block" v-bind:id="inputText.idInput" @click="borrarInput($event)">Eliminar Pregunta</button> 
+          </div> 
+        </div>
+      </div> 
+    </div> 
+    <div id="containerrr" v-show="!examenok" class="row justify-content-center"> 
+      <div class="form-group row">
+        <div class="col-lg-12"> 
+          <button  @click="volverHacerExamen" >Hacer Otro Examen</button> 
+          <p>Guardado con exito</p> 
+        </div> 
+      </div>
+    </div>  
+  </fieldset>
+</form>
+</div> 
+
+`,
+  data() {
+
+      return {
+          vacia: [],
+          counter: 0,
+          inputTexts: [],
+          examenok: true,
+          nombreMateria: "",
+          nombreExamen: "",
+          nombreAula: "",
+
+      }
+
+  },
+  methods: {
+      volverHacerExamen: function() {
+          window.location.reload();
+      },
+      generarInputs: function() {
+          x++;
+          this.inputTexts.push({ idInput: x, elementos: "" });
+      },
+      borrarInput: function(event) {
+          for (i = 0; i < this.inputTexts.length; i++) {
+              if (this.inputTexts[i].idInput == event.currentTarget.id) {
+                  var id = JSON.parse(i);
+                  this.inputTexts.splice(id, 1)
+              }
+          }
+      },
+      salvarExamen: function() {
+          localStorage.setItem("Examen", JSON.stringify(this.inputTexts))
+
+      },
+      guardarInput: function() {
+
+          var preguntasExamen = JSON.parse(localStorage.getItem("Examen"));
+          var informacionExamen = [];
+
+          informacionExamen.push({ nombreExamen: this.nombreExamen, nombreMateria: this.nombreMateria, nombreAula: this.nombreAula, preguntas: preguntasExamen });
+          let socket = io.connect('http://localhost:8888');
+          socket.emit('examen', informacionExamen)
+
+          this.examenok = false
+
+      }
+  },
+  created: function() {
+      setInterval(this.salvarExamen, 1000);
+
+  }
+});
+Vue.component('empezarExamen', {
+  template: /*html*/ `
+<div>
+<div class="col-12 mt-2 mb-5 ">
+<div class="form-group row">
+  <div class="col-lg-1">
+    <label for="materia">Materia:</label>
+  </div>
+  <div class="col-lg-2"> 
+    <select class="custom-select" v-model="nombreExamenAMostrar">
+      <option selected="true" value="">Ninguno/a</option>
+      <option v-for="nombre in listaNombresDeLosExamenes" v-text="nombre.nombre" ></option>
+    </select>
+  </div>
+  <div class="col-lg-2"> 
+    <button id="botonGuardar" class="btn btn-block" @click="mostrarExamenCompleto">Mostrar</button>
+  </div>
+</div>
+ <div class="form-group row">  
+    <div class="col-lg-12">   
+      <h1>{{nombreExamenAMostrar}}</h1>
+    </div>
+  </div>
+ <div class="form-group row">  
+        <div   class="col-lg-12">    
+          <p  id="preguntas" v-for="pregunta in listaPreguntasDeLosExamenes" for="nombre" v-text="pregunta.preguntas" ><b></b></p>
+        </div>
+    </div>
+  <div class="form-group row">  
+    <div class="col-lg-12"> 
+      <button v-show="!enviarExamen" class="btn btn-info btn-block" @click="enviarExamenAlAlumno">Enviar Exámen al Alumno</button>
+    </div>
+  </div>
+</div>
+</div> 
+
+`,
+
+  data() {
+
+      return {
+          vacia: [],
+          listaNombresDeLosExamenes: [],
+          nombreExamenAMostrar: "",
+          listaPreguntasDeLosExamenes: [],
+          enviarExamen: true
+      }
+  },
+  methods: {
+      mostrarExamenCompleto: function() {
+          var preguntasExamen = [];
+          this.nombreExamenAMostrar
+          let socket = io.connect('http://localhost:8888');
+
+          socket.emit('mostrarExamenCompleto', this.nombreExamenAMostrar);
+
+
+          socket.on('examenCompleto', function(examenesCompleto) {
+              preguntasExamen = examenesCompleto;
+          })
+
+          setTimeout(() => {
+              this.listaPreguntasDeLosExamenes = preguntasExamen;
+              this.enviarExamen = false;
+          }, 2000);
+
+
+      },
+
+      mostrarExamenesCombo: function() {
+          var nombres = [];
+          console.log("dentro");
+          let socket = io.connect('http://localhost:8888');
+
+          socket.on('mostrarExamen', function(mostrar) {
+              for (i = 0; i < mostrar.length; i++) {
+                  nombres.push({ nombre: mostrar[i] });
+              }
+          })
+
+          this.listaNombresDeLosExamenes = nombres
+      },
+
+      enviarExamenAlAlumno: function() {
+
+          let socket = io.connect('http://localhost:8888');
+
+          socket.emit('enviarExamenes', this.nombreExamenAMostrar);
+      }
+  },
+
+  created: function() {
+      this.mostrarExamenesCombo();
+
+  }
+});
+Vue.component('corregirExamen', {
+  template: /*html*/ `
+<div>
+<div class="col-12 mt-2 mb-5 ">
+<div class="form-group row">
+  <!--<div class="col-lg-1">
+    <button @click="recuperarNombreExamenes" for="examenPendiente">Examenes Pendientes De Corrección</button>
+  </div>-->
+  <div class="col-lg-4">
+    <ul>
+      <li class="list-group-item list-group-item-action list-group-item-dark" v-bind:id="pendientes.nombre" @click="mostrarAlumnosDelExamen($event)" v-text="pendientes.nombre" v-for="pendientes in listaExamenesPendientes"></li>
+    </ul> 
+  </div>
+  <!--<div class="col-lg-2"> 
+    <select class="custom-select" v-model="nombreExamenAMostrar">
+      <option selected="true" value="">Ninguno/a</option>
+      <option v-for="nombre in listaNombresDeLosExamenes" v-text="nombre.nombre" ></option>
+    </select>
+  </div>
+  <div class="col-lg-2"> 
+    <button id="botonGuardar" class="btn btn-block" @click="mostrarExamenCompleto">Mostrar</button>
+  </div>
+</div>
+ <div class="form-group row">  
+    <div class="col-lg-12">   
+      <h1>{{nombreExamenAMostrar}}</h1>
+    </div>
+  </div>
+ <div class="form-group row">  
+        <div   class="col-lg-12">    
+          <p  id="preguntas" v-for="pregunta in listaPreguntasDeLosExamenes" for="nombre" v-text="pregunta.preguntas" ><b></b></p>
+        </div>
+    </div>
+  <div class="form-group row">  
+    <div class="col-lg-12"> 
+      <button v-show="!enviarExamen" class="btn btn-info btn-block" @click="enviarExamenAlAlumno">Enviar Exámen al Alumno</button>
+    </div>
+  </div>-->
+  </div>
+</div>
+</div> 
+
+`,
+
+  data() {
+
+      return {
+          listaExamenesPendientes: [],
+          listaNombresEmailAlumnos: []
+
+      }
+  },
+  methods: {
+
+      recuperarNombreExamenes: function() {
+          var listaEx = []
+          let socket = io.connect('http://localhost:8888');
+          socket.on('mostrarExamen', function(mostrarExamen) {
+
+              for (i = 0; i < mostrarExamen.length; i++) {
+
+                  listaEx.push({ nombre: mostrarExamen[i] });
+
+              }
+
+          })
+
+          this.listaExamenesPendientes = listaEx;
+
+      },
+      mostrarAlumnosDelExamen: function(event) {
+          let nombreExamen = event.currentTarget.id;
+          let nombresEmailAlumnos = [];
+
+          let socket = io.connect('http://localhost:8888');
+
+          socket.emit('nombreAlumnosDelExamenACorregir', nombreExamen);
+
+          socket.on('nombreAlumnosExamenReal', function(nombresAlumnos) {
+
+              nombresEmailAlumnos = nombresAlumnos;
+              console.log(nombresAlumnos);
+          })
+
+          setTimeout(() => {
+              this.listaNombresEmailAlumnos = nombresEmailAlumnos
+          }, 2000);
+
+
+
+      }
+
+
+
+  },
+  created: function() {
+      this.recuperarNombreExamenes();
+
+  }
+
+
+});
 const error = {
   data: function () {
     return {
@@ -714,12 +1032,38 @@ const registroAlumnos = {
   <registroAlumno></registroAlumno>
   `
 };
+const generarExamenes = {
+  template: `
+<div>
+  <generarExamen></generarExamen>
+ 
+</div>
+ `
+};
+const empezarExamen = {
+  template: `
+<div>
+  <empezarExamen></empezarExamen>
+ 
+</div>
+ `
+};
+const corregirExamen = {
+  template: `
+<div>
+  <corregirExamen></corregirExamen>
+ 
+</div>
+ `
+};
 const rutes = {
 
-  '#/subirExamen': subirExamen,
   '#/listaAlumnos': listaAlumnos,
   '#/monitorizacion': monitorizacion,
   '#/registroAlumnos': registroAlumnos,
+  '#/generarExamenes': generarExamenes,
+  '#/empezarExamen': empezarExamen,
+  '#/corregirExamen': corregirExamen,
 
 };
 
@@ -743,7 +1087,7 @@ var app = new Vue({
     }
   },
   template: /*html*/ `
-  <div>
+ <div>
     <nav class="navbar navbar-expand-lg ">
       <a class="navbar-brand">Profesor</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -751,22 +1095,25 @@ var app = new Vue({
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-          <li class="nav-item active">
-            <a class="nav-link"  href="#/subirExamen" v-on:click="navegar">Examinar <span class="sr-only">(current)</span></a>
-          </li>
           <li class="nav-item">
             <a class="nav-link" href="#/listaAlumnos" v-on:click="navegar">Alumnos</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#/monitorizacion" v-on:click="navegar">Monitorizacion</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#/examenesRealizados" v-on:click="navegar">Examenes Realizados</a>
+            <li class="nav-item">
+            <a class="nav-link" href="#/registroAlumnos"  v-on:click="navegar">Registrar Alumnos</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#/registroAlumnos" v-on:click="navegar">Registrar Alumnos</a>
+            <a class="nav-link" href="#/generarExamenes"  v-on:click="navegar">Generar Exámen</a>
           </li>
-        <!--<li class="nav-item">
+           <li class="nav-item">
+            <a class="nav-link" href="#/empezarExamen"  v-on:click="navegar">Empezar Exámen</a>
+          </li>
+           <li class="nav-item">
+            <a class="nav-link" href="#/corregirExamen"  v-on:click="navegar">Corregir Exámen</a>
+          </li>
+          <!--<li class="nav-item">
             <a class="nav-link disabled" href="#">Disabled</a>
           </li>-->
         </ul>

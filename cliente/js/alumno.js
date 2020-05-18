@@ -169,6 +169,89 @@
 
     
   });
+  Vue.component('empezarExamenAlumno', {
+    template: /*html*/ `
+<div>
+
+ <div class="col-12 mt-2 mb-5 ">
+  <h1>Exámenes</h1>
+  <div class="form-group row"> 
+    <div class="col-lg-2"> 
+      <button v-show="mostrar" id="botonGuardar" class="btn btn-primary" @click="mostrarExamenCompletoAlumno">Empezar Exámen</button>
+    </div>
+    
+  </div>
+ 
+   <div class="form-group row">  
+      <div  v-for=" pregunta in listaPreguntasDeLosExamenes" class="col-lg-12">    
+        <p id="preguntas" for="nombre" v-text="pregunta.preguntas" ><b></b></p>   
+        <textarea v-model="pregunta.respuestas" placeholder="Escriba aquí su respuesta..." rows="3"  column="5" class="form-control form-control-lg col-md-12" ></textarea>
+      </div>
+    </div> 
+     <div class="col-lg-12"> 
+        <button v-show="!mostrar" class="btn btn-info btn-block" @click="guardarExamenAlumno">Finalizar Exámen</button>
+    </div>
+  </div>
+</div> 
+
+  `,
+
+    data() {
+
+        return {
+            nombreExamen: "",
+            listaPreguntasDeLosExamenes: [],
+            mostrar: true,
+            respuestasAlumno: [],
+
+        }
+    },
+    methods: {
+        mostrarExamenCompletoAlumno: function() {
+            var preguntasExamen = [];
+            var nombreE = "";
+            let socket = io.connect('http://localhost:8888');
+
+            socket.on('examenCompletoAlumnos', function(examenesCompletoAlumno) {
+                nombreE = examenesCompletoAlumno[0].nombreExamen;
+                preguntasExamen = examenesCompletoAlumno[0].preguntas;
+
+            })
+
+
+            setTimeout(() => {
+                this.nombreExamen = nombreE;
+                this.listaPreguntasDeLosExamenes = preguntasExamen;
+                this.mostrar = false;
+            }, 2000);
+
+
+
+        },
+        salvarRespuestasExamen: function() {
+            localStorage.setItem("RespuestasExamen", JSON.stringify(this.listaPreguntasDeLosExamenes))
+        },
+
+        guardarExamenAlumno: function() {
+            var examen = [];
+            var respuestasExamen = JSON.parse(localStorage.getItem("RespuestasExamen"));
+            var emailAlumno = localStorage.getItem("emailAlumn");
+
+            examen.push({ emailAlumno: emailAlumno, nombreExamen: this.nombreExamen, respuestasAlumno: respuestasExamen })
+
+            let socket = io.connect('http://localhost:8888');
+
+            socket.emit('respuestasAlumnoDelExamen', examen)
+        }
+    },
+
+    created: function() {
+        this.salvarRespuestasExamen();
+        setInterval(this.salvarRespuestasExamen, 90);
+
+    }
+});
+
   const error = {
     data: function () {
       return {
@@ -192,6 +275,14 @@
     
       `
   };
+  const empezarExamenAlumno = {
+    template: `
+      <div>
+      <empezarExamenAlumno></empezarExamenAlumno>
+      </div>
+    
+      `
+};
   const segundo = {
     template: `
       <div>
@@ -201,16 +292,11 @@
     
       `
   };
-  const contacte = {
-    template: `
-        <p>sergi.grau@fje.edu</p>
-      `
-  };
-  
+
   const rutes = {
     '#/': principal,
-    '#1/': segundo,
-    '#/contacte': contacte,
+    '#/empezarExamenAlumno': empezarExamenAlumno,
+
   
   
   };
@@ -233,31 +319,29 @@
         return this.rutes[this.rutaActual] || error;
       }
     },
-    template: `
-        <div>
-          <ul>
-            <li>
-              <a href="#/" 
-                v-on:click="navegar">
-                  Principal
-            
-              </a>
-            </li>
-            <li>
-              <a href="#/contacte" 
-                v-on:click="navegar">
-                  Contacte
-              </a>
-            </li>
-            <li>
-            <a href="#1/" 
-              v-on:click="navegar">
-                segundo
-            </a>
-          </li>
-          </ul>
-          <div v-bind:is="vistaActual">        
-          </div>
-        </div>
-        `
+    template: /*html*/ `
+    <div>
+        <nav class="navbar navbar-expand-lg ">
+  <a class="navbar-brand">Alumno</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span id="iconoMenu" class="fas fa-bars"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="#/empezarExamenAlumno" v-on:click="navegar">Exámenes Pendientes</a>
+      </li>
+       <li class="nav-item">
+        <a class="nav-link" href="#/" v-on:click="navegar">Principal</a>
+      </li>
+    <!--<li class="nav-item">
+        <a class="nav-link disabled" href="#">Disabled</a>
+      </li>-->
+    </ul>
+  </div>
+</nav>
+<div v-bind:is="vistaActual"> 
+</div>
+    </div>
+    `
   });

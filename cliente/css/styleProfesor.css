@@ -39,7 +39,7 @@ body {
 }
 
 #diseñoCamPant {
-    with: 80%
+    width: 80%
 }
 
 .tituloDirecto {
@@ -50,8 +50,42 @@ body {
     width: 300px;
     height: 200px;
 }
+
 #iconoMenu {
     color: white;
+}
+
+#editorTexto {
+    display: auto;
+    justify-content: center;
+    align-items: center;
+}
+
+.examenPregunta {
+    width: 1000px;
+    height: 200px;
+    display: flex;
+}
+
+.botonBorrar {
+    margin: 5px;
+    background-color: rgb(202, 73, 83);
+}
+
+#botonGuardar {
+    background-color: rgb(119, 89, 143);
+    color: white;
+    border-color: rgb(83, 83, 83);
+}
+
+#botonPregunta {
+    background-color: rgb(194, 192, 196);
+    color: white;
+    border-color: rgb(83, 83, 83);
+}
+
+#preguntas {
+    font-weight: bold;
 }
 #videoPantalla, #videoFriend {
     border: 1px solid #999;

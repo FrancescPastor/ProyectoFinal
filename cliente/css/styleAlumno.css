@@ -1,0 +1,30 @@
+body {
+    font-family: "Lato", sans-serif;
+}
+
+.tituloOscuro {
+    background: #676ba4;
+    color: white;
+}
+
+.thead {
+    height: 37px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.col-md-8 {
+    width: 66.66666667%;
+}
+
+#diseñoCamPant {
+    width: 80%
+}
+
+.tituloDirecto {
+    text-align: center;
+}
+
+#iconoMenu {
+    color: white;
+}
