@@ -73,7 +73,7 @@ body {
 }
 
 #botonGuardar {
-    background-color:#61c1ecc9;
+    background-color: #61c1ecc9;
     color: white;
     border-color: rgb(83, 83, 83);
 }
@@ -87,21 +87,26 @@ body {
 #preguntas {
     font-weight: bold;
 }
-#videoPantalla, #videoFriend {
+
+#videoPantalla,
+#videoFriend {
     border: 1px solid #999;
     width: 98%;
     max-width: 860px;
 }
-#botonEnviarExamen{
+
+#botonEnviarExamen {
     color: #fff;
     background-color: #b52121;
     border-color: #dc3545;
     align-items: center;
 }
-#botonGuardarExamen{
+
+#botonGuardarExamen {
     background-color: #64bf88;
 }
-#botonAñadirPregunta{
+
+#botonAñadirPregunta {
     background-color: rgba(226, 169, 110, 1);
     color: white;
     border-color: rgb(83, 83, 83);

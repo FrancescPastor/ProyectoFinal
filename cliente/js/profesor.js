@@ -892,43 +892,47 @@ Vue.component('empezarExamen', {
 Vue.component('corregirExamen', {
   template: /*html*/ `
 <div>
-<div class="col-12 mt-2 mb-5 ">
-<div class="form-group row">
-  <!--<div class="col-lg-1">
-    <button @click="recuperarNombreExamenes" for="examenPendiente">Examenes Pendientes De Corrección</button>
-  </div>-->
-  <div class="col-lg-4">
-    <ul>
-      <li class="list-group-item list-group-item-action list-group-item-dark" v-bind:id="pendientes.nombre" @click="mostrarAlumnosDelExamen($event)" v-text="pendientes.nombre" v-for="pendientes in listaExamenesPendientes"></li>
-    </ul> 
-  </div>
-  <!--<div class="col-lg-2"> 
-    <select class="custom-select" v-model="nombreExamenAMostrar">
-      <option selected="true" value="">Ninguno/a</option>
-      <option v-for="nombre in listaNombresDeLosExamenes" v-text="nombre.nombre" ></option>
-    </select>
-  </div>
-  <div class="col-lg-2"> 
-    <button id="botonGuardar" class="btn btn-block" @click="mostrarExamenCompleto">Mostrar</button>
-  </div>
-</div>
- <div class="form-group row">  
-    <div class="col-lg-12">   
-      <h1>{{nombreExamenAMostrar}}</h1>
+<form  class="col-12 mt-2">
+  <fieldset class="mb-5">
+    <div class="form-group row">
+      <div class="col-lg-4">
+        <ul>
+          <li class="list-group-item list-group-item-action list-group-item-light" v-bind:id="pendientes.nombre" @click="mostrarAlumnosDelExamen($event)" v-text="pendientes.nombre" v-for="pendientes in listaExamenesPendientes"></li>
+        </ul> 
+      </div>
+      <div class="col-lg-4">
+        <ul>
+          <li class="list-group-item list-group-item-action list-group-item-light" @click="mostraExamenAlumnoACorregir($event)" v-bind:id="gmail.nombre"  v-text="gmail.nombre" v-for="gmail in listaNombresEmailAlumnos"></li>
+        </ul> 
+      </div>
     </div>
-  </div>
- <div class="form-group row">  
-        <div   class="col-lg-12">    
-          <p  id="preguntas" v-for="pregunta in listaPreguntasDeLosExamenes" for="nombre" v-text="pregunta.preguntas" ><b></b></p>
+    <div class="form-group row">  
+      <div class=" exPendiente col-lg-12" v-for="examen in listaExamenACorregir" > 
+          <div class="col-lg-2">   
+            <h4  for="pregunta" v-text="examen.pregunta" ><b></b></h4>
+         </div>
+         <div class="col-lg-2"> 
+           <p  for="respuesta" v-text="examen.respuesta" ></p>
+          </div>
+        <div class="col-lg-4" > 
+          <label>Nota de la pregunta --></label>
+          <input type="number" v-model="examen.nota" ></input>
+          </div>
         </div>
     </div>
-  <div class="form-group row">  
-    <div class="col-lg-12"> 
-      <button v-show="!enviarExamen" class="btn btn-info btn-block" @click="enviarExamenAlAlumno">Enviar Exámen al Alumno</button>
+    <div v-if="notaFinal != 0" class="form-group row">  
+        <div class="col-lg-12"> 
+            <label>Nota Final Exámen :</label>
+            <h5>{{notaFinal}}</h5>
+        </div>
     </div>
-  </div>-->
-  </div>
-</div>
+     <div class="form-group row">  
+    <div class="col-lg-2"> 
+        <button class="botonGuardar btn btn-success btn-block" id="botonGuardarExamen" @click="guardarNotasExamen">Guardar Examen</button>  
+    </div>
+      </div>
+  </fieldset>
+</form>
 </div> 
 
 `,
@@ -937,12 +941,13 @@ Vue.component('corregirExamen', {
 
       return {
           listaExamenesPendientes: [],
-          listaNombresEmailAlumnos: []
+          listaNombresEmailAlumnos: [],
+          listaExamenACorregir: [],
+          notaFinal: 0
 
       }
   },
   methods: {
-
       recuperarNombreExamenes: function() {
           var listaEx = []
           let socket = io.connect('http://localhost:8888');
@@ -958,6 +963,7 @@ Vue.component('corregirExamen', {
 
           this.listaExamenesPendientes = listaEx;
 
+
       },
       mostrarAlumnosDelExamen: function(event) {
           let nombreExamen = event.currentTarget.id;
@@ -969,23 +975,86 @@ Vue.component('corregirExamen', {
 
           socket.on('nombreAlumnosExamenReal', function(nombresAlumnos) {
 
-              nombresEmailAlumnos = nombresAlumnos;
-              console.log(nombresAlumnos);
+
+              for (i = 0; i < nombresAlumnos.length; i++) {
+
+                  nombresEmailAlumnos.push({ nombre: nombresAlumnos[i] });
+
+              }
           })
 
           setTimeout(() => {
               this.listaNombresEmailAlumnos = nombresEmailAlumnos
-          }, 2000);
+          }, 90);
 
+          localStorage.setItem('ExamenPendiente', nombreExamen)
 
+      },
+      mostraExamenAlumnoACorregir: function(event) {
+          let gmailAlumno = event.currentTarget.id;
+          let nombreExamenPendiente = localStorage.getItem('ExamenPendiente');
+          let nombreExamenYGmailAlumno = [{ gmailAlumno: gmailAlumno, nombreExamenPendiente: nombreExamenPendiente }]
+          let examenesACorregir = [];
+
+          let socket = io.connect('http://localhost:8888');
+
+          socket.emit('examenAlumnoACorregir', nombreExamenYGmailAlumno);
+
+          socket.on('examenACorregir', function(examenACorregir) {
+
+              examenesACorregir = examenACorregir;
+
+          })
+          setTimeout(() => {
+              this.listaExamenACorregir = examenesACorregir;
+              console.log(this.listaExamenACorregir);
+          }, 90);
+
+          localStorage.setItem('NombreAlumnoDelExamen', JSON.stringify(nombreExamenYGmailAlumno));
+      },
+
+      guardarNotasExamen: function() {
+          let socket = io.connect('http://localhost:8888');
+          let notasAlumno = [];
+          let nombreAlumnoDelExamen = JSON.parse(localStorage.getItem('NombreAlumnoDelExamen'));
+          let notaFinalExamen = this.notaFinal;
+          let nombreExamenAndgmailAlumnoAndNotasAndNotaFinal = [{
+              listasNotasExamenes: notasAlumno,
+              nombreAlumnoDelExamen: nombreAlumnoDelExamen[0].gmailAlumno,
+              nombreDelExamen: nombreAlumnoDelExamen[0].nombreExamenPendiente,
+              notaFinalExamen: notaFinalExamen
+          }]
+
+          for (i = 0; i < this.listaExamenACorregir.length; i++) {
+              notasAlumno.push({ nota: this.listaExamenACorregir[i].nota })
+          }
+
+          socket.emit('examenCorregido', nombreExamenAndgmailAlumnoAndNotasAndNotaFinal);
+
+      },
+
+      calcularNotaFinalExamen: function() {
+          let nota = 0;
+          for (i = 0; i < this.listaExamenACorregir.length; i++) {
+
+              if (this.listaExamenACorregir[i].nota != "") {
+
+                  nota = parseInt(this.listaExamenACorregir[i].nota, 10) + nota;
+
+              }
+
+          }
+          this.notaFinal = nota;
 
       }
-
-
-
   },
+
+
   created: function() {
       this.recuperarNombreExamenes();
+      this.calcularNotaFinalExamen();
+      setInterval(this.calcularNotaFinalExamen, 90);
+
 
   }
 
