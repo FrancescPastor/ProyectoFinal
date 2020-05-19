@@ -167,13 +167,6 @@ Vue.component('listaAlumnos', {
 Vue.component('mostrarCamaras', {
   template: /*html*/ `
 <div>
-<video id="localVideo" autoplay playsinline controls="false"/>
-
-<textarea rows="3" width="300px" cols="50" id="txtMySignal"></textarea>
-<input type="text" placeholder="El token de tu amigo" ref="txtTextSignal"></input>
-<video id="videoScr" autoplay playsinline controls="false"/>
-
-
 <div id="accordion">
   <div class="card">
     <div class="card-header" id="headingOne">
@@ -204,9 +197,6 @@ Vue.component('mostrarCamaras', {
     </div>
   </div>
 </div>
-
-
-
 </div>
 <form>
   <div id="prueba">
@@ -275,11 +265,11 @@ Vue.component('mostrarCamaras', {
     openStream: function () {
       navigator.mediaDevices.getUserMedia({ audio: false, video: true })
         .then(stream => {
-          this.playVideo(stream, 'localVideo')
+          
           const p = new SimplePeer({ initiator: location.hash === "#/", trickle: false, stream });
 
           p.on('signal', token => {
-            txtMySignal.innerHTML = JSON.stringify(token);
+       
             info = [];
             nombreAl1 = localStorage.getItem('alumnoNombreSeñal');
             info.push(nombreAl1, token);
@@ -364,9 +354,7 @@ Vue.component('mostrarCompartirPantalla', {
       <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
         <div class="card-body">
           <p>Yo molo</p>
-          <video id="videoPantalla"  autoplay playsinline controls="false"/>
-          <button @click="startCapture()">start</button>
-          <button @click="stopCapture()">stop</button>
+       
      
           <div class="centroTab">
               <table id="diseñoCamPant" class="table table-striped">
@@ -388,7 +376,7 @@ Vue.component('mostrarCompartirPantalla', {
               </div>
             
            </div>
-           <textarea rows="3" width="300px" cols="50" id="txtMySignal1"></textarea>
+       
   </div>
           </div>
         </div>
@@ -404,7 +392,6 @@ Vue.component('mostrarCompartirPantalla', {
       listaStreaming: [],
     }
   },
-
   methods: {
     listaPantallas() { console.log("listapantallas"); },
 
@@ -444,13 +431,11 @@ Vue.component('mostrarCompartirPantalla', {
       videoElem.srcObject = null;
     },
     openStreaming: function () {
-      navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
-        .then(stream =>{ 
-          this.startCapture(stream, 'videoPantalla')
-          const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false, stream});
+        
+          const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false});
            
           p.on('signal', token =>{
-           txtMySignal1.innerHTML = JSON.stringify(token);
+          
            infoScr = [];
            nombreS = localStorage.getItem('alumnoNombreSeñalScreen');
            infoScr.push(nombreS, token);
@@ -460,10 +445,6 @@ Vue.component('mostrarCompartirPantalla', {
         });
 
         $(document).on('click', '.alumnoInfoScreen', (e) => {
-
-
-          console.log("pruebarara");
-          console.log(e.currentTarget.id);
 
           let arrayTokenS = JSON.parse(localStorage.getItem('tokenAlumnoScreen'));
           for (i = 0; i < arrayTokenS.length; i++) {
@@ -475,23 +456,24 @@ Vue.component('mostrarCompartirPantalla', {
 
             }
           }
+          
           for (yy = 0; yy < this.listaStreaming.length; yy++) {
 
             if (this.listaStreaming[yy].idAlumno == e.currentTarget.id) {
               
-              let idScreen = JSON.parse(this.listaStreaming[yy].idAlumno);
-              console.log("ID_");
-              console.log(idScreen);
-              p.on('stream', friendStream => this.startCapture(friendStream, idScreen));
+              let idScreen = this.listaStreaming[yy].idAlumno;
+           
+          
+              p.on('openStreaming',friendStream => this.startCapture(friendStream, idScreen));
 
             }
           }
 
         })
        
-      //  p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
-        })
-        .catch(err => console.log(err));
+     
+       
+       
     },
     startCapture: async function (stream, idStream) {
       const videoElem = document.getElementById(idStream);
@@ -1054,8 +1036,6 @@ Vue.component('corregirExamen', {
       this.recuperarNombreExamenes();
       this.calcularNotaFinalExamen();
       setInterval(this.calcularNotaFinalExamen, 90);
-
-
   }
 
 

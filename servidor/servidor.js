@@ -108,7 +108,7 @@ app.get("/profesor", (req, res) => {
         io.on('connection', function(socket) {
 
             socket.on('registroAlumno', function(data) {
-                console.log(data);
+              
             });
         })
         res.setHeader("Content-type", "text/html");
@@ -168,7 +168,7 @@ io.on('connection', function(socket) {
         tokenprofeS = JSON.stringify(data[1]);
         if (tokenprofeS.length != 20) {
             tokenProfesorAlumnoScreen = data;
-            console.log(tokenProfesorAlumnoScreen);
+         
         }
 
     });
@@ -551,7 +551,7 @@ io.on('connection', function(socket) {
                     x++;
                     notas = notas + "Pregunta" + "." + x + " " + "Puntuacion--> " + notasExamen[i].nota + " // ";
                 }
-                console.log(notas);
+             
             }
             db.collection('examenesNotas').insert({
                 "notas": notas,

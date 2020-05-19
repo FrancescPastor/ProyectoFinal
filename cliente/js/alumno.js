@@ -8,167 +8,7 @@
     audio: false
   };
   
-  Vue.component('alumno', {
-    template:/*html*/ `
-  <div>
-  
  
-  <button id="btn3">Conectarse</button>
-  
-  <video id="localVideo" autoplay playsinline controls="false"/>
-  <video id="friendStream" autoplay playsinline controls="false"/>
-  
-  <textarea rows="3" width="300px" cols="50" id="txtMySignal"></textarea>
-  <input type="text" placeholder="El token de tu amigo" ref="txtTextSignal"></input>
-
-  
-  </div> 
-  
-    `,
-  
-    data() {
-     
-   
-      return {
-        vacia: [],
-     }
-    },
-    methods: {
-    
-      playVideo: function (stream, idVideo) {
-        const video = document.getElementById(idVideo);
-        video.srcObject = stream;
-        video.onloadedmetadata = function () {
-          video.play();
-        }
-  
-      },
-      
-      openStream: function () {
-        navigator.mediaDevices.getUserMedia({ audio: false, video: true })
-          .then(stream =>{ 
-            this.playVideo(stream, 'localVideo')
-            const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false, stream});
-              console.log("entrado");
-            p.on('signal', token =>{
-              informacionAlumno=[];
-              txtMySignal.innerHTML = JSON.stringify(token);
-              let socket = io.connect('http://localhost:8888');
-              informacionAlumno.push(localStorage.getItem('emailAlumn'));
-              informacionAlumno.push(JSON.stringify(token));
-              socket.emit('tokenAlumno',informacionAlumno);
-
-            $('#btn3').click(()=>{
-                
-              let socket = io.connect('http://localhost:8888');
-              socket.on('tokenConexion', function(data) {
-              let emailComparar = JSON.parse(data[0]);
-              
-              if (emailComparar == localStorage.getItem('emailAlumn')){
-
-                p.signal(data[1]);
-              
-               }
-            
-                })
-            })
-
-          });
-    
-         
-          p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
-          })
-          .catch(err => console.log(err));
-      },
-    },
-    created: function () {
-     this.openStream();
-    }
-  
-  });
-  
-  Vue.component('mostrarCompartirPantalla', {
-    template: /*html*/ `
-      <div>
-          <video id="videoPantalla"  autoplay playsinline controls="false"/>
-          <button @click="startCapture()">start</button>
-          <button @click="stopCapture()">stop</button>
-          <video id="videoFriend"  autoplay playsinline controls="false"/>
-          <textarea rows="3" width="300px" cols="50" id="txtMySignal1"></textarea>
-          <button id="btn5">permitir profe ver pantalla</button>
-      </div>
-    `,
-  
-    data() {
-  
-      return {
-  
-      }
-    },
-  
-    methods: {
-      openStreaming: function () {
-        navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
-          .then(stream =>{ 
-            this.startCapture(stream, 'videoPantalla')
-            const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false, stream});
-              console.log("entrado");
-            p.on('signal', token =>{
-             informacionStreamAlumno=[];
-             txtMySignal1.innerHTML = JSON.stringify(token);
-             let socket = io.connect('http://localhost:8888');
-             informacionStreamAlumno.push(localStorage.getItem('emailAlumn'));
-             informacionStreamAlumno.push(JSON.stringify(token));
-             console.log(informacionStreamAlumno);
-             socket.emit('tokenAlumnoStreaming',informacionStreamAlumno);
-
-
-             $('#btn5').click(()=>{
-                
-              let socket = io.connect('http://localhost:8888');
-              socket.on('tokenProfeToAlumnoScreen', function(data) {
-                console.log(data);
-              let emailComparar = JSON.parse(data[0]);
-              
-              if (emailComparar == localStorage.getItem('emailAlumn')){
-
-                p.signal(data[1]);
-              
-               }
-            
-                })
-            })
-          });
-    
-         
-          p.on('stream', friendStream => this.startCapture(friendStream, 'videoFriend'))
-          })
-          .catch(err => console.log(err));
-      },
-      startCapture: async function (stream, idStream) {
-        const videoElem = document.getElementById(idStream);
-      
-        try {
-          videoElem.srcObject = await stream;
-  
-        } catch (err) {
-          console.error("Error: " + err);
-        }
-      },
-      stopCapture: function (evt) {
-        const videoElem = document.getElementById("videoPantalla");
-        let tracks = videoElem.srcObject.getTracks();
-  
-        tracks.forEach(track => track.stop());
-        videoElem.srcObject = null;
-      },
-    },
-      created: function () {
-        this.openStreaming();
-       }
-
-    
-  });
   Vue.component('empezarExamenAlumno', {
     template: /*html*/ `
 <div>
@@ -190,7 +30,13 @@
     </div> 
      <div class="col-lg-12"> 
         <button v-show="!mostrar" class="btn btn-info btn-block" @click="guardarExamenAlumno">Finalizar Exámen</button>
+       
     </div>
+    <div>
+     
+          <button id="btn5">permitir profe ver pantalla</button>
+          <button id="btn3">permitir profe ver camara</button>
+      </div>
   </div>
 </div> 
 
@@ -242,12 +88,90 @@
             let socket = io.connect('http://localhost:8888');
 
             socket.emit('respuestasAlumnoDelExamen', examen)
-        }
+        },
+        openStreaming: function () {
+          navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
+            .then(stream =>{ 
+          
+              const p = new SimplePeer ({initiator: location.hash === "#/empezarExamenAlumno", trickle: false, stream});
+                console.log("entrado");
+              p.on('signal', token =>{
+               informacionStreamAlumno=[];
+              
+               let socket = io.connect('http://localhost:8888');
+               informacionStreamAlumno.push(localStorage.getItem('emailAlumn'));
+               informacionStreamAlumno.push(JSON.stringify(token));
+               console.log(informacionStreamAlumno);
+               socket.emit('tokenAlumnoStreaming',informacionStreamAlumno);
+  
+  
+               $('#btn5').click(()=>{
+                  console.log("entrooo");
+                let socket = io.connect('http://localhost:8888');
+                socket.on('tokenProfeToAlumnoScreen', function(data) {
+                  console.log(data);
+                let emailComparar = JSON.parse(data[0]);
+                
+                if (emailComparar == localStorage.getItem('emailAlumn')){
+  
+                  p.signal(data[1]);
+                
+                 }           
+                  })
+              })
+            });
+      
+           
+         
+            })
+            .catch(err => console.log(err));
+        },
+        openStream: function () {
+          navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+            .then(stream =>{ 
+             
+              const p = new SimplePeer ({initiator: location.hash === "#/empezarExamenAlumno", trickle: false, stream});
+                console.log("entrado");
+              p.on('signal', token =>{
+                informacionAlumno=[];
+                
+                let socket = io.connect('http://localhost:8888');
+                informacionAlumno.push(localStorage.getItem('emailAlumn'));
+                informacionAlumno.push(JSON.stringify(token));
+                socket.emit('tokenAlumno',informacionAlumno);
+  
+              $('#btn3').click(()=>{
+                  
+                let socket = io.connect('http://localhost:8888');
+                socket.on('tokenConexion', function(data) {
+                let emailComparar = JSON.parse(data[0]);
+                
+                if (emailComparar == localStorage.getItem('emailAlumn')){
+  
+                  p.signal(data[1]);
+                
+                 }
+              
+                  })
+              })
+  
+            });
+      
+           
+         
+            })
+            .catch(err => console.log(err));
+        },
+       
+      
+        
     },
 
     created: function() {
         this.salvarRespuestasExamen();
         setInterval(this.salvarRespuestasExamen, 90);
+        this.openStreaming();
+        this.openStream();
 
     }
 });
@@ -265,16 +189,7 @@
       `
   };
   
-  const principal = {
-    template: `
-      <div>
-      <p>Benvinguts a Vue.js</p>
-      <alumno></alumno>
-      <mostrarCompartirPantalla></mostrarCompartirPantalla>
-      </div>
-    
-      `
-  };
+
   const empezarExamenAlumno = {
     template: `
       <div>
@@ -283,15 +198,7 @@
     
       `
 };
-  const segundo = {
-    template: `
-      <div>
-      <p>segundo</p>
-      <alumno></alumno>
-      </div>
-    
-      `
-  };
+
 
   const rutes = {
     '#/': principal,
@@ -331,12 +238,6 @@
       <li class="nav-item">
         <a class="nav-link" href="#/empezarExamenAlumno" v-on:click="navegar">Exámenes Pendientes</a>
       </li>
-       <li class="nav-item">
-        <a class="nav-link" href="#/" v-on:click="navegar">Principal</a>
-      </li>
-    <!--<li class="nav-item">
-        <a class="nav-link disabled" href="#">Disabled</a>
-      </li>-->
     </ul>
   </div>
 </nav>
