@@ -1,16 +1,15 @@
-var tokenAlumn = "";
+var tokenAlumn = ""; 
 var x = 0;
 var displayMediaOptions = {
-  video: {
-    cursor: "always"
-  },
-  audio: false
+    video: {
+        cursor: "always"
+    },
+    audio: false
 };
-
 var listaAA = [];
 //let idAlumnoGlobal = 0;
 Vue.component('men', {
-  template: /*html*/ `
+    template: /*html*/ `
 <div>
 <p>hola crack</p>
 <p>hola crack</p>
@@ -18,18 +17,17 @@ Vue.component('men', {
 
   `,
 
-  data() {
+    data() {
 
-    return {
-      vacia: []
-    }
-  },
+        return {
+            vacia: []
+        }
+    },
 
 
 });
-
 Vue.component('subidaExamen', {
-  template: /*html*/ `
+    template: /*html*/ `
 <div>
   <form>
       <div class="form-row mb-8 col-md-4">
@@ -64,22 +62,21 @@ Vue.component('subidaExamen', {
 </div> 
   `,
 
-  data() {
+    data() {
 
-    return {
-      vacia: []
+        return {
+            vacia: []
+        }
+    },
+    methods: {
+
+
     }
-  },
-  methods: {
-
-
-  }
 
 
 });
-
 Vue.component('listaAlumnos', {
-  template: /*html*/ `
+    template: /*html*/ `
 <div>
   <form>
       <div class="form-row mb-8 col-md-4">
@@ -144,28 +141,27 @@ Vue.component('listaAlumnos', {
 </div> 
   `,
 
-  data() {
+    data() {
 
-    return {
-      arrayAlumnos: [
-        { id: 1, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
-      ]
+        return {
+            arrayAlumnos: [
+                { id: 1, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
+            ]
+        }
+    },
+    methods: {
+
+        thisFileUpload() {
+            document.getElementById("file");
+
+
+        }
     }
-  },
-  methods: {
-
-    thisFileUpload() {
-      document.getElementById("file");
-
-
-    }
-  }
 
 
 });
-
 Vue.component('mostrarCamaras', {
-  template: /*html*/ `
+    template: /*html*/ `
 <div>
 <div id="accordion">
   <div class="card">
@@ -211,135 +207,134 @@ Vue.component('mostrarCamaras', {
 </div>
 `,
 
-  data() {
+    data() {
 
 
-    return {
-      form: {
-        id: ""
-      },
-      idAlumno: 0,
-      listaAA: [],
-      listaCamaras: [
+        return {
+            form: {
+                id: ""
+            },
+            idAlumno: 0,
+            listaAA: [],
+            listaCamaras: [
 
-        [{ id: 1, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-        { id: 2, nombre: "f", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-        { id: 3, nombre: "v", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-        { id: 4, nombre: "c", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-        { id: 5, nombre: "v", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
-        ],
+                [{ id: 1, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
+                    { id: 2, nombre: "f", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
+                    { id: 3, nombre: "v", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
+                    { id: 4, nombre: "c", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
+                    { id: 5, nombre: "v", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
+                ],
 
-        [
-          { id: 6, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-          { id: 8, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
-        ]
+                [
+                    { id: 6, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
+                    { id: 8, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
+                ]
 
-      ],
+            ],
+
+        }
+
+    },
+    methods: {
+
+
+        a: function() {
+
+            if (localStorage.getItem('tokenAlumno') === null) {
+                localStorage.setItem('tokenAlumnoScreen', '[]');
+            } else {
+                var cogerArrayLocal = JSON.parse(localStorage.getItem('tokenAlumno'));
+            }
+            if (listaAA.length < cogerArrayLocal.length) {
+                this.listaAA = cogerArrayLocal;
+            }
+        },
+        playVideo: function(stream, idVideo) {
+            const video = document.getElementById(idVideo);
+            video.srcObject = stream;
+            video.onloadedmetadata = function() {
+                video.play();
+            }
+        },
+
+
+        openStream: function() {
+            navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+                .then(stream => {
+
+                    const p = new SimplePeer({ initiator: location.hash === "#/", trickle: false, stream });
+
+                    p.on('signal', token => {
+
+                        info = [];
+                        nombreAl1 = localStorage.getItem('alumnoNombreSeñal');
+                        info.push(nombreAl1, token);
+                        let socket = io.connect('http://localhost:8888');
+                        socket.emit('tokenProfesor', info);
+
+                    });
+
+
+                    $(document).on('click', '.alumnoInfo', (e) => {
+
+
+                        console.log("pruebarara");
+                        console.log(e.currentTarget.id);
+
+
+                        let arrayToken = JSON.parse(localStorage.getItem('tokenAlumno'));
+                        for (i = 0; i < arrayToken.length; i++) {
+                            if (arrayToken[i].idAlumno == e.currentTarget.id) {
+
+                                let tokenA = arrayToken[i].token;
+                                p.signal(tokenA);
+                                localStorage.setItem('alumnoNombreSeñal', JSON.stringify(arrayToken[i].nombreAlumno));
+
+                            }
+                        }
+                        for (rec = 0; rec < this.listaAA.length; rec++) {
+
+                            if (this.listaAA[rec].idAlumno == e.currentTarget.id) {
+
+                                let gh = JSON.parse(this.listaAA[rec].idAlumno);
+                                p.on('stream', friendStream => this.playVideo(friendStream, gh));
+
+                            }
+                        }
+
+                    })
+
+                })
+                .catch(err => console.log(err));
+
+        },
+
+
+        subirAlLocal: function() {
+
+            let socket = io.connect('http://localhost:8888');
+            socket.on('listaAlumnos', function(data) {
+                localStorage.setItem('tokenAlumno', JSON.stringify(data));
+
+            })
+        },
+
+    },
+
+    created: function() {
+
+        this.openStream();
+        this.a();
+        this.listaAA = setInterval(this.a, 3000);
+        this.subirAlLocal();
+        setInterval(this.subirAlLocal, 3000);
+        //  this.getScreenConstraints();
 
     }
 
-  },
-  methods: {
-
-
-    a: function () {
-
-      if (localStorage.getItem('tokenAlumno') === null) {
-        localStorage.setItem('tokenAlumnoScreen','[]');
-      } else {
-        var cogerArrayLocal = JSON.parse(localStorage.getItem('tokenAlumno'));
-      }
-      if (listaAA.length < cogerArrayLocal.length) {
-        this.listaAA = cogerArrayLocal;
-      }
-    },
-    playVideo: function (stream, idVideo) {
-      const video = document.getElementById(idVideo);
-      video.srcObject = stream;
-      video.onloadedmetadata = function () {
-        video.play();
-      }
-    },
-
-
-    openStream: function () {
-      navigator.mediaDevices.getUserMedia({ audio: false, video: true })
-        .then(stream => {
-          
-          const p = new SimplePeer({ initiator: location.hash === "#/", trickle: false, stream });
-
-          p.on('signal', token => {
-       
-            info = [];
-            nombreAl1 = localStorage.getItem('alumnoNombreSeñal');
-            info.push(nombreAl1, token);
-            let socket = io.connect('http://localhost:8888');
-            socket.emit('tokenProfesor', info);
-
-          });
-
-
-          $(document).on('click', '.alumnoInfo', (e) => {
-
-
-            console.log("pruebarara");
-            console.log(e.currentTarget.id);
-
-
-            let arrayToken = JSON.parse(localStorage.getItem('tokenAlumno'));
-            for (i = 0; i < arrayToken.length; i++) {
-              if (arrayToken[i].idAlumno == e.currentTarget.id) {
-
-                let tokenA = arrayToken[i].token;
-                p.signal(tokenA);
-                localStorage.setItem('alumnoNombreSeñal', JSON.stringify(arrayToken[i].nombreAlumno));
-
-              }
-            }
-            for (rec = 0; rec < this.listaAA.length; rec++) {
-
-              if (this.listaAA[rec].idAlumno == e.currentTarget.id) {
-
-                let gh = JSON.parse(this.listaAA[rec].idAlumno);
-                p.on('stream', friendStream => this.playVideo(friendStream, gh));
-
-              }
-            }
-
-          })
-
-        })
-        .catch(err => console.log(err));
-
-    },
-
-
-    subirAlLocal: function () {
-    
-      let socket = io.connect('http://localhost:8888');
-      socket.on('listaAlumnos', function (data) {
-        localStorage.setItem('tokenAlumno', JSON.stringify(data));
-
-      })
-    },
-
-  },
-
-  created: function () {
-
-    this.openStream();
-    this.a();
-    this.listaAA = setInterval(this.a, 3000);
-    this.subirAlLocal();
-    setInterval(this.subirAlLocal, 3000);  
-    //  this.getScreenConstraints();
-
-  }
-
 });
-
 Vue.component('mostrarCompartirPantalla', {
-  template: /*html*/ `
+    template: /*html*/ `
 <div>
   <div id="accordion">
     <div class="card">
@@ -386,124 +381,125 @@ Vue.component('mostrarCompartirPantalla', {
 </div>
   `,
 
-  data() {
+    data() {
 
-    return {
-      listaStreaming: [],
-    }
-  },
-  methods: {
-    listaPantallas() { console.log("listapantallas"); },
-
-    recogerLocalS: function () {
-
-      if (localStorage.getItem('tokenAlumnoScreen') === null) {
-        localStorage.setItem('tokenAlumnoScreen','[]');
-      } else {
-        var cogerArrayLocalS = JSON.parse(localStorage.getItem('tokenAlumnoScreen'));
-      }
-      if (listaAA.length < cogerArrayLocalS.length) {
-        this.listaStreaming = cogerArrayLocalS;
-      }
-    }, 
-    subirAlLocalScreen: function () {
-      let socket = io.connect('http://localhost:8888');
-      socket.on('tokenAlumnoToProfeScreen', function (data) {
-        localStorage.setItem('tokenAlumnoScreen', JSON.stringify(data));
-
-      })
+        return {
+            listaStreaming: [],
+        }
     },
-    startCapture: async function () {
-      const videoElem = document.getElementById("videoPantalla");
-    
-      try {
-        videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+    methods: {
+        listaPantallas() { console.log("listapantallas"); },
 
-      } catch (err) {
-        console.error("Error: " + err);
-      }
-    },
-    stopCapture: function (evt) {
-      const videoElem = document.getElementById("videoPantalla");
-      let tracks = videoElem.srcObject.getTracks();
+        recogerLocalS: function() {
 
-      tracks.forEach(track => track.stop());
-      videoElem.srcObject = null;
-    },
-    openStreaming: function () {
-        
-          const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false});
-           
-          p.on('signal', token =>{
-          
-           infoScr = [];
-           nombreS = localStorage.getItem('alumnoNombreSeñalScreen');
-           infoScr.push(nombreS, token);
-           let socket = io.connect('http://localhost:8888');
-           socket.emit('tokenProfesorScreen', infoScr);
-           
-        });
-
-        $(document).on('click', '.alumnoInfoScreen', (e) => {
-
-          let arrayTokenS = JSON.parse(localStorage.getItem('tokenAlumnoScreen'));
-          for (i = 0; i < arrayTokenS.length; i++) {
-            if (arrayTokenS[i].idAlumno == e.currentTarget.id) {
-
-              let tokenS = arrayTokenS[i].token;
-              p.signal(tokenS);
-              localStorage.setItem('alumnoNombreSeñalScreen', JSON.stringify(arrayTokenS[i].nombreAlumno));
-
+            if (localStorage.getItem('tokenAlumnoScreen') === null) {
+                localStorage.setItem('tokenAlumnoScreen', '[]');
+            } else {
+                var cogerArrayLocalS = JSON.parse(localStorage.getItem('tokenAlumnoScreen'));
             }
-          }
-          
-          for (yy = 0; yy < this.listaStreaming.length; yy++) {
+            if (listaAA.length < cogerArrayLocalS.length) {
+                this.listaStreaming = cogerArrayLocalS;
+            }
+        },
+        subirAlLocalScreen: function() {
+            let socket = io.connect('http://localhost:8888');
+            socket.on('tokenAlumnoToProfeScreen', function(data) {
+                localStorage.setItem('tokenAlumnoScreen', JSON.stringify(data));
 
-            if (this.listaStreaming[yy].idAlumno == e.currentTarget.id) {
+            })
+        },
+        startCapture: async function() {
+            const videoElem = document.getElementById("videoPantalla");
+
+            try {
+                videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+
+            } catch (err) {
+                console.error("Error: " + err);
+            }
+        },
+        stopCapture: function(evt) {
+            const videoElem = document.getElementById("videoPantalla");
+            let tracks = videoElem.srcObject.getTracks();
+
+            tracks.forEach(track => track.stop());
+            videoElem.srcObject = null;
+        },
+        openStreaming: function () {
+          navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
+            .then(stream =>{ 
+              const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false, stream});
+               
+              p.on('signal', token =>{
               
-              let idScreen = this.listaStreaming[yy].idAlumno;
-           
-          
-              p.on('openStreaming',friendStream => this.startCapture(friendStream, idScreen));
-
-            }
-          }
-
-        })
-       
-     
-       
-       
-    },
-    startCapture: async function (stream, idStream) {
-      const videoElem = document.getElementById(idStream);
+               infoScr = [];
+               nombreS = localStorage.getItem('alumnoNombreSeñalScreen');
+               infoScr.push(nombreS, token);
+               let socket = io.connect('http://localhost:8888');
+               socket.emit('tokenProfesorScreen', infoScr);
+               
+            });
     
-      try {
-        videoElem.srcObject = await stream;
+            $(document).on('click', '.alumnoInfoScreen', (e) => {
+  
+    
+              let arrayTokenS = JSON.parse(localStorage.getItem('tokenAlumnoScreen'));
+              for (i = 0; i < arrayTokenS.length; i++) {
+                if (arrayTokenS[i].idAlumno == e.currentTarget.id) {
+    
+                  let tokenS = arrayTokenS[i].token;
+                  p.signal(tokenS);
+                  localStorage.setItem('alumnoNombreSeñalScreen', JSON.stringify(arrayTokenS[i].nombreAlumno));
+    
+                }
+              }
+              
+              for (yy = 0; yy < this.listaStreaming.length; yy++) {
+    
+                if (this.listaStreaming[yy].idAlumno == e.currentTarget.id) {
+                  
+                  let idScreen = this.listaStreaming[yy].idAlumno;
+                  console.log("ID_");
+              
+                  p.on('stream', friendStream => this.startCapture(friendStream, idScreen));
+    
+                }
+              }
+    
+            })
+           
+          //  p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
+            })
+            .catch(err => console.log(err));
+        },
+        startCapture: async function(stream, idStream) {
+            const videoElem = document.getElementById(idStream);
 
-      } catch (err) {
-        console.error("Error: " + err);
-      }
-    },
-    stopCapture: function (evt) {
-      const videoElem = document.getElementById("videoPantalla");
-      let tracks = videoElem.srcObject.getTracks();
+            try {
+                videoElem.srcObject = await stream;
 
-      tracks.forEach(track => track.stop());
-      videoElem.srcObject = null;
+            } catch (err) {
+                console.error("Error: " + err);
+            }
+        },
+        stopCapture: function(evt) {
+            const videoElem = document.getElementById("videoPantalla");
+            let tracks = videoElem.srcObject.getTracks();
+
+            tracks.forEach(track => track.stop());
+            videoElem.srcObject = null;
+        },
     },
-  },
-  created : function (){
-    this.openStreaming();
-    this.subirAlLocalScreen();
-    this.listaStreaming = setInterval(this.subirAlLocalScreen, 3000);
-    this.recogerLocalS();
-    setInterval(this.recogerLocalS, 3000);     
-  }
+    created: function() {
+        this.openStreaming();
+        this.subirAlLocalScreen();
+        this.listaStreaming = setInterval(this.subirAlLocalScreen, 3000);
+        this.recogerLocalS();
+        setInterval(this.recogerLocalS, 3000);
+    }
 });
-
 Vue.component('registroAlumno', {
-  template: /*html*/ `
+    template: /*html*/ `
 <div>
 <form @submit.prevent="guardarAlumnoNuevo()" class="col-12 mt-2">
   <fieldset class="mb-5">
@@ -607,56 +603,56 @@ Vue.component('registroAlumno', {
 </div> 
 `,
 
-  data() {
+    data() {
 
-    return {
-      vacia: [],
-      form: {
-        nombre: "",
-        apellido: "",
-        email: "",
-        contraseña: "",
-        ciudad: "",
-        direccion: "",
-        cp: "",
-        telefono: "",
-        tipo: "",
-        edad: "",
-        clase: "",
-        asignatura: ""
-      }
+        return {
+            vacia: [],
+            form: {
+                nombre: "",
+                apellido: "",
+                email: "",
+                contraseña: "",
+                ciudad: "",
+                direccion: "",
+                cp: "",
+                telefono: "",
+                tipo: "",
+                edad: "",
+                clase: "",
+                asignatura: ""
+            }
 
+        }
+    },
+    methods: {
+
+        guardarAlumnoNuevo: function() {
+
+            datosAlumno = [
+                this.nombre = this.form.nombre,
+                this.apellido = this.form.apellido,
+                this.email = this.form.email,
+                this.contraseña = this.form.contraseña,
+                this.ciudad = this.form.ciudad,
+                this.direccion = this.form.direccion,
+                this.cp = this.form.cp,
+                this.telefono = this.form.telefono,
+                this.tipo = "alumno",
+                this.edad = this.form.edad,
+                this.clase = this.form.clase,
+                this.asignatura = this.form.asignatura
+            ]
+            let registroUsuario = [];
+            registroUsuario.push(datosAlumno);
+            console.log(registroUsuario);
+            let socket = io.connect('http://localhost:8888');
+            socket.emit('registroAlumno', registroUsuario);
+        }
     }
-  },
-  methods: {
-
-    guardarAlumnoNuevo: function () {
-
-      datosAlumno = [
-        this.nombre = this.form.nombre,
-        this.apellido = this.form.apellido,
-        this.email = this.form.email,
-        this.contraseña = this.form.contraseña,
-        this.ciudad = this.form.ciudad,
-        this.direccion = this.form.direccion,
-        this.cp = this.form.cp,
-        this.telefono = this.form.telefono,
-        this.tipo = "alumno",
-        this.edad = this.form.edad,
-        this.clase = this.form.clase,
-        this.asignatura = this.form.asignatura
-      ]
-      let registroUsuario = [];
-      registroUsuario.push(datosAlumno);
-      console.log(registroUsuario);
-      let socket = io.connect('http://localhost:8888');
-      socket.emit('registroAlumno', registroUsuario);
-    }
-  }
 
 });
 Vue.component('generarExamen', {
-  template: /*html*/ `
+    template: /*html*/ `
 <div>
 <form  class="col-12 mt-2">
   <fieldset class="mb-5">
@@ -723,60 +719,60 @@ Vue.component('generarExamen', {
 </div> 
 
 `,
-  data() {
+    data() {
 
-      return {
-          vacia: [],
-          counter: 0,
-          inputTexts: [],
-          examenok: true,
-          nombreMateria: "",
-          nombreExamen: "",
-          nombreAula: "",
+        return {
+            vacia: [],
+            counter: 0,
+            inputTexts: [],
+            examenok: true,
+            nombreMateria: "",
+            nombreExamen: "",
+            nombreAula: "",
 
-      }
+        }
 
-  },
-  methods: {
-      volverHacerExamen: function() {
-          window.location.reload();
-      },
-      generarInputs: function() {
-          x++;
-          this.inputTexts.push({ idInput: x, elementos: "" });
-      },
-      borrarInput: function(event) {
-          for (i = 0; i < this.inputTexts.length; i++) {
-              if (this.inputTexts[i].idInput == event.currentTarget.id) {
-                  var id = JSON.parse(i);
-                  this.inputTexts.splice(id, 1)
-              }
-          }
-      },
-      salvarExamen: function() {
-          localStorage.setItem("Examen", JSON.stringify(this.inputTexts))
+    },
+    methods: {
+        volverHacerExamen: function() {
+            window.location.reload();
+        },
+        generarInputs: function() {
+            x++;
+            this.inputTexts.push({ idInput: x, elementos: "" });
+        },
+        borrarInput: function(event) {
+            for (i = 0; i < this.inputTexts.length; i++) {
+                if (this.inputTexts[i].idInput == event.currentTarget.id) {
+                    var id = JSON.parse(i);
+                    this.inputTexts.splice(id, 1)
+                }
+            }
+        },
+        salvarExamen: function() {
+            localStorage.setItem("Examen", JSON.stringify(this.inputTexts))
 
-      },
-      guardarInput: function() {
+        },
+        guardarInput: function() {
 
-          var preguntasExamen = JSON.parse(localStorage.getItem("Examen"));
-          var informacionExamen = [];
+            var preguntasExamen = JSON.parse(localStorage.getItem("Examen"));
+            var informacionExamen = [];
 
-          informacionExamen.push({ nombreExamen: this.nombreExamen, nombreMateria: this.nombreMateria, nombreAula: this.nombreAula, preguntas: preguntasExamen });
-          let socket = io.connect('http://localhost:8888');
-          socket.emit('examen', informacionExamen)
+            informacionExamen.push({ nombreExamen: this.nombreExamen, nombreMateria: this.nombreMateria, nombreAula: this.nombreAula, preguntas: preguntasExamen });
+            let socket = io.connect('http://localhost:8888');
+            socket.emit('examen', informacionExamen)
 
-          this.examenok = false
+            this.examenok = false
 
-      }
-  },
-  created: function() {
-      setInterval(this.salvarExamen, 1000);
+        }
+    },
+    created: function() {
+        setInterval(this.salvarExamen, 1000);
 
-  }
+    }
 });
 Vue.component('empezarExamen', {
-  template: /*html*/ `
+    template: /*html*/ `
 <div>
 <div class="col-12 mt-2 mb-5 ">
 <div class="form-group row">
@@ -813,73 +809,74 @@ Vue.component('empezarExamen', {
 
 `,
 
-  data() {
+    data() {
 
-      return {
-          vacia: [],
-          listaNombresDeLosExamenes: [],
-          nombreExamenAMostrar: "",
-          listaPreguntasDeLosExamenes: [],
-          enviarExamen: true
-      }
-  },
-  methods: {
-      mostrarExamenCompleto: function() {
-          var preguntasExamen = [];
-          this.nombreExamenAMostrar
-          let socket = io.connect('http://localhost:8888');
+        return {
+            vacia: [],
+            listaNombresDeLosExamenes: [],
+            nombreExamenAMostrar: "",
+            listaPreguntasDeLosExamenes: [],
+            enviarExamen: true
+        }
+    },
+    methods: {
+        mostrarExamenCompleto: function() {
+            var preguntasExamen = [];
+            this.nombreExamenAMostrar
+            let socket = io.connect('http://localhost:8888');
 
-          socket.emit('mostrarExamenCompleto', this.nombreExamenAMostrar);
-
-
-          socket.on('examenCompleto', function(examenesCompleto) {
-              preguntasExamen = examenesCompleto;
-          })
-
-          setTimeout(() => {
-              this.listaPreguntasDeLosExamenes = preguntasExamen;
-              this.enviarExamen = false;
-          }, 2000);
+            socket.emit('mostrarExamenCompleto', this.nombreExamenAMostrar);
 
 
-      },
+            socket.on('examenCompleto', function(examenesCompleto) {
+                preguntasExamen = examenesCompleto;
+            })
 
-      mostrarExamenesCombo: function() {
-          var nombres = [];
-          console.log("dentro");
-          let socket = io.connect('http://localhost:8888');
+            setTimeout(() => {
+                this.listaPreguntasDeLosExamenes = preguntasExamen;
+                this.enviarExamen = false;
+            }, 2000);
 
-          socket.on('mostrarExamen', function(mostrar) {
-              for (i = 0; i < mostrar.length; i++) {
-                  nombres.push({ nombre: mostrar[i] });
-              }
-          })
 
-          this.listaNombresDeLosExamenes = nombres
-      },
+        },
 
-      enviarExamenAlAlumno: function() {
+        mostrarExamenesCombo: function() {
+            var nombres = [];
+            console.log("dentro");
+            let socket = io.connect('http://localhost:8888');
 
-          let socket = io.connect('http://localhost:8888');
+            socket.on('mostrarExamen', function(mostrar) {
+                for (i = 0; i < mostrar.length; i++) {
+                    nombres.push({ nombre: mostrar[i] });
+                }
+            })
 
-          socket.emit('enviarExamenes', this.nombreExamenAMostrar);
-      }
-  },
+            this.listaNombresDeLosExamenes = nombres
+        },
 
-  created: function() {
-      this.mostrarExamenesCombo();
+        enviarExamenAlAlumno: function() {
 
-  }
+            let socket = io.connect('http://localhost:8888');
+
+            socket.emit('enviarExamenes', this.nombreExamenAMostrar);
+        }
+    },
+
+    created: function() {
+        this.mostrarExamenesCombo();
+
+    }
 });
 Vue.component('corregirExamen', {
-  template: /*html*/ `
+    template: /*html*/ `
 <div>
-<form  class="col-12 mt-2">
-  <fieldset class="mb-5">
-    <div class="form-group row">
+<!--Lista de examenes y lista de alumnos con examenes a corregir-->
+<form v-show="!noListasSiExamen" class="col-12 mt-2">
+  <fieldset v-show="noExamen" class="mb-5">
+    <div  class="form-group row">
       <div class="col-lg-4">
         <ul>
-          <li class="list-group-item list-group-item-action list-group-item-light" v-bind:id="pendientes.nombre" @click="mostrarAlumnosDelExamen($event)" v-text="pendientes.nombre" v-for="pendientes in listaExamenesPendientes"></li>
+          <li  class="list-group-item list-group-item-action list-group-item-light" v-bind:id="pendientes.nombre" @click="mostrarAlumnosDelExamen($event)" v-text="pendientes.nombre" v-for="pendientes in listaExamenesPendientes"></li>
         </ul> 
       </div>
       <div class="col-lg-4">
@@ -887,31 +884,60 @@ Vue.component('corregirExamen', {
           <li class="list-group-item list-group-item-action list-group-item-light" @click="mostraExamenAlumnoACorregir($event)" v-bind:id="gmail.nombre"  v-text="gmail.nombre" v-for="gmail in listaNombresEmailAlumnos"></li>
         </ul> 
       </div>
-    </div>
-    <div class="form-group row">  
-      <div class=" exPendiente col-lg-12" v-for="examen in listaExamenACorregir" > 
-          <div class="col-lg-2">   
-            <h4  for="pregunta" v-text="examen.pregunta" ><b></b></h4>
-         </div>
-         <div class="col-lg-2"> 
-           <p  for="respuesta" v-text="examen.respuesta" ></p>
-          </div>
-        <div class="col-lg-4" > 
-          <label>Nota de la pregunta --></label>
-          <input type="number" v-model="examen.nota" ></input>
-          </div>
+    </div> 
+  </fieldset>
+</form>
+
+<!--Examen Para Corregir-->
+<form v-show="noListasSiExamen" class="col-12 mt-2">
+  <fieldset v-show="noExamen" class="mb-5">
+   <div  class="form-group row">  
+        <div class="col-lg-1 m-3"> 
+            <button class="botonVolver btn btn-secondary btn-block" @click="volverAListado">Volver</button>  
         </div>
     </div>
+    <div class="exPendiente card card-block m-4 text-auto" v-for="examen in listaExamenACorregir" > 
+      <div class="form-group row">  
+          <div class="col-lg-12 m-2">   
+              <h4 for="pregunta" v-text="examen.pregunta" ><b></b></h4>
+          </div>
+      </div>
+      <div class="form-group row">
+          <div class="col-lg-12  m-2"> 
+            <p  for="respuesta" v-text="examen.respuesta" ></p>
+          </div>
+      </div>
+      <div class="form-group row ">
+          <div class="col-lg-11 text-right" > 
+              <label><b>Nota de la pregunta --></b></label>
+              <input type="number" step="0.01" v-model="examen.nota" ></input>
+          </div>
+      </div>
+    </div>
     <div v-if="notaFinal != 0" class="form-group row">  
-        <div class="col-lg-12"> 
-            <label>Nota Final Exámen :</label>
+        <div class="col-lg-12 w-50 text-center"> 
+            <label><b>Nota Final Exámen :</b></label>
             <h5>{{notaFinal}}</h5>
         </div>
     </div>
-     <div class="form-group row">  
-    <div class="col-lg-2"> 
-        <button class="botonGuardar btn btn-success btn-block" id="botonGuardarExamen" @click="guardarNotasExamen">Guardar Examen</button>  
+    <div  class="form-group row">  
+        <div class="col-lg-2 m-5"> 
+            <button class="botonGuardar btn btn-success btn-block" id="botonGuardarExamen" @click="guardarNotasExamen">Guardar Examen</button>  
+        </div>
     </div>
+  </fieldset>
+</form>
+
+<!--No hay examenes a corregir-->
+<form v-show="!noExamen" class="col-12 mt-2">
+  <fieldset class="mb-5">
+      <div class="form-group row h-100">
+        <div class="col-lg-12 my-auto"> 
+          <div class=" text-center"> 
+            <h1 id="tituloNoExamn" class="card card-block w-100 text-center">No hay examen pendientes de corrección</h1>
+           <!-- <img src="../img/profesor.jpg" class="rounded mx-auto d-block"></img>-->
+          </div>
+        </div>
       </div>
   </fieldset>
 </form>
@@ -919,141 +945,148 @@ Vue.component('corregirExamen', {
 
 `,
 
-  data() {
+    data() {
 
-      return {
-          listaExamenesPendientes: [],
-          listaNombresEmailAlumnos: [],
-          listaExamenACorregir: [],
-          notaFinal: 0
+        return {
+            listaExamenesPendientes: [],
+            listaNombresEmailAlumnos: [],
+            listaExamenACorregir: [],
+            notaFinal: 0,
+            noExamen: false,
+            noListasSiExamen: false
 
-      }
-  },
-  methods: {
-      recuperarNombreExamenes: function() {
-          var listaEx = []
-          let socket = io.connect('http://localhost:8888');
-          socket.on('mostrarExamen', function(mostrarExamen) {
+        }
+    },
+    methods: {
+        recuperarNombreExamenes: function() {
+            var listaEx = []
+            let socket = io.connect('http://localhost:8888');
+            socket.on('mostrarExamen', function(mostrarExamen) {
 
-              for (i = 0; i < mostrarExamen.length; i++) {
+                for (i = 0; i < mostrarExamen.length; i++) {
 
-                  listaEx.push({ nombre: mostrarExamen[i] });
+                    listaEx.push({ nombre: mostrarExamen[i] });
 
-              }
+                }
 
-          })
+            })
 
-          this.listaExamenesPendientes = listaEx;
+            this.listaExamenesPendientes = listaEx;
+            this.noExamen = true
 
+        },
+        mostrarAlumnosDelExamen: function(event) {
+            let nombreExamen = event.currentTarget.id;
+            let nombresEmailAlumnos = [];
 
-      },
-      mostrarAlumnosDelExamen: function(event) {
-          let nombreExamen = event.currentTarget.id;
-          let nombresEmailAlumnos = [];
+            let socket = io.connect('http://localhost:8888');
 
-          let socket = io.connect('http://localhost:8888');
+            socket.emit('nombreAlumnosDelExamenACorregir', nombreExamen);
 
-          socket.emit('nombreAlumnosDelExamenACorregir', nombreExamen);
-
-          socket.on('nombreAlumnosExamenReal', function(nombresAlumnos) {
-
-
-              for (i = 0; i < nombresAlumnos.length; i++) {
-
-                  nombresEmailAlumnos.push({ nombre: nombresAlumnos[i] });
-
-              }
-          })
-
-          setTimeout(() => {
-              this.listaNombresEmailAlumnos = nombresEmailAlumnos
-          }, 90);
-
-          localStorage.setItem('ExamenPendiente', nombreExamen)
-
-      },
-      mostraExamenAlumnoACorregir: function(event) {
-          let gmailAlumno = event.currentTarget.id;
-          let nombreExamenPendiente = localStorage.getItem('ExamenPendiente');
-          let nombreExamenYGmailAlumno = [{ gmailAlumno: gmailAlumno, nombreExamenPendiente: nombreExamenPendiente }]
-          let examenesACorregir = [];
-
-          let socket = io.connect('http://localhost:8888');
-
-          socket.emit('examenAlumnoACorregir', nombreExamenYGmailAlumno);
-
-          socket.on('examenACorregir', function(examenACorregir) {
-
-              examenesACorregir = examenACorregir;
-
-          })
-          setTimeout(() => {
-              this.listaExamenACorregir = examenesACorregir;
-              console.log(this.listaExamenACorregir);
-          }, 90);
-
-          localStorage.setItem('NombreAlumnoDelExamen', JSON.stringify(nombreExamenYGmailAlumno));
-      },
-
-      guardarNotasExamen: function() {
-          let socket = io.connect('http://localhost:8888');
-          let notasAlumno = [];
-          let nombreAlumnoDelExamen = JSON.parse(localStorage.getItem('NombreAlumnoDelExamen'));
-          let notaFinalExamen = this.notaFinal;
-          let nombreExamenAndgmailAlumnoAndNotasAndNotaFinal = [{
-              listasNotasExamenes: notasAlumno,
-              nombreAlumnoDelExamen: nombreAlumnoDelExamen[0].gmailAlumno,
-              nombreDelExamen: nombreAlumnoDelExamen[0].nombreExamenPendiente,
-              notaFinalExamen: notaFinalExamen
-          }]
-
-          for (i = 0; i < this.listaExamenACorregir.length; i++) {
-              notasAlumno.push({ nota: this.listaExamenACorregir[i].nota })
-          }
-
-          socket.emit('examenCorregido', nombreExamenAndgmailAlumnoAndNotasAndNotaFinal);
-
-      },
-
-      calcularNotaFinalExamen: function() {
-          let nota = 0;
-          for (i = 0; i < this.listaExamenACorregir.length; i++) {
-
-              if (this.listaExamenACorregir[i].nota != "") {
-
-                  nota = parseInt(this.listaExamenACorregir[i].nota, 10) + nota;
-
-              }
-
-          }
-          this.notaFinal = nota;
-
-      }
-  },
+            socket.on('nombreAlumnosExamenReal', function(nombresAlumnos) {
 
 
-  created: function() {
-      this.recuperarNombreExamenes();
-      this.calcularNotaFinalExamen();
-      setInterval(this.calcularNotaFinalExamen, 90);
-  }
+                for (i = 0; i < nombresAlumnos.length; i++) {
+
+                    nombresEmailAlumnos.push({ nombre: nombresAlumnos[i] });
+
+                }
+            })
+
+            setTimeout(() => {
+                this.listaNombresEmailAlumnos = nombresEmailAlumnos
+            }, 90);
+
+            localStorage.setItem('ExamenPendiente', nombreExamen)
+
+        },
+        mostraExamenAlumnoACorregir: function(event) {
+            let gmailAlumno = event.currentTarget.id;
+            let nombreExamenPendiente = localStorage.getItem('ExamenPendiente');
+            let nombreExamenYGmailAlumno = [{ gmailAlumno: gmailAlumno, nombreExamenPendiente: nombreExamenPendiente }]
+            let examenesACorregir = [];
+
+            let socket = io.connect('http://localhost:8888');
+
+            socket.emit('examenAlumnoACorregir', nombreExamenYGmailAlumno);
+
+            socket.on('examenACorregir', function(examenACorregir) {
+
+                examenesACorregir = examenACorregir;
+
+            })
+            setTimeout(() => {
+                this.listaExamenACorregir = examenesACorregir;
+                console.log(this.listaExamenACorregir);
+            }, 90);
+
+            localStorage.setItem('NombreAlumnoDelExamen', JSON.stringify(nombreExamenYGmailAlumno));
+            this.noListasSiExamen = true;
+        },
+
+        guardarNotasExamen: function() {
+            let socket = io.connect('http://localhost:8888');
+            let notasAlumno = [];
+            let nombreAlumnoDelExamen = JSON.parse(localStorage.getItem('NombreAlumnoDelExamen'));
+            let notaFinalExamen = this.notaFinal;
+            let nombreExamenAndgmailAlumnoAndNotasAndNotaFinal = [{
+                listasNotasExamenes: notasAlumno,
+                nombreAlumnoDelExamen: nombreAlumnoDelExamen[0].gmailAlumno,
+                nombreDelExamen: nombreAlumnoDelExamen[0].nombreExamenPendiente,
+                notaFinalExamen: notaFinalExamen
+            }]
+
+            for (i = 0; i < this.listaExamenACorregir.length; i++) {
+                notasAlumno.push({ nota: this.listaExamenACorregir[i].nota })
+            }
+
+            socket.emit('examenCorregido', nombreExamenAndgmailAlumnoAndNotasAndNotaFinal);
+
+        },
+
+        calcularNotaFinalExamen: function() {
+            let nota = 0.0;
+            for (i = 0; i < this.listaExamenACorregir.length; i++) {
+
+                if (this.listaExamenACorregir[i].nota != "") {
+
+                    nota = parseFloat(this.listaExamenACorregir[i].nota, 10) + nota;
+
+                }
+
+            }
+            this.notaFinal = nota;
+
+        },
+        volverAListado: function() {
+            this.noListasSiExamen = false;
+
+        }
+    },
+
+    created: function() {
+        this.recuperarNombreExamenes();
+        this.calcularNotaFinalExamen();
+        setInterval(this.calcularNotaFinalExamen, 90);
+    }
 
 
 });
+
 const error = {
-  data: function () {
-    return {
-      url: window.location.hash
-    };
-  },
-  template: `
+    data: function() {
+        return {
+            url: window.location.hash
+        };
+    },
+    template: `
   <div>
     <p>URL no encaminada : {{url}} </p>
   </div>
   `
 };
 const subirExamen = {
-  template: `
+    template: `
   <div>
 
   <subidaExamen></subidaExamen>
@@ -1061,7 +1094,7 @@ const subirExamen = {
    `
 };
 const listaAlumnos = {
-  template: `
+    template: `
   <div>
 
   <listaAlumnos></listaAlumnos>
@@ -1069,7 +1102,7 @@ const listaAlumnos = {
    `
 };
 const monitorizacion = {
-  template: `
+    template: `
   <div>
     <mostrarCamaras></mostrarCamaras>
     <mostrarCompartirPantalla></mostrarCompartirPantalla>
@@ -1077,12 +1110,12 @@ const monitorizacion = {
    `
 };
 const registroAlumnos = {
-  template: `
+    template: `
   <registroAlumno></registroAlumno>
   `
 };
 const generarExamenes = {
-  template: `
+    template: `
 <div>
   <generarExamen></generarExamen>
  
@@ -1090,7 +1123,7 @@ const generarExamenes = {
  `
 };
 const empezarExamen = {
-  template: `
+    template: `
 <div>
   <empezarExamen></empezarExamen>
  
@@ -1098,7 +1131,7 @@ const empezarExamen = {
  `
 };
 const corregirExamen = {
-  template: `
+    template: `
 <div>
   <corregirExamen></corregirExamen>
  
@@ -1107,35 +1140,33 @@ const corregirExamen = {
 };
 const rutes = {
 
-  '#/listaAlumnos': listaAlumnos,
-  '#/monitorizacion': monitorizacion,
-  '#/registroAlumnos': registroAlumnos,
-  '#/generarExamenes': generarExamenes,
-  '#/empezarExamen': empezarExamen,
-  '#/corregirExamen': corregirExamen,
+    '#/listaAlumnos': listaAlumnos,
+    '#/monitorizacion': monitorizacion,
+    '#/registroAlumnos': registroAlumnos,
+    '#/generarExamenes': generarExamenes,
+    '#/empezarExamen': empezarExamen,
+    '#/corregirExamen': corregirExamen,
 
 };
-
-
 var app = new Vue({
-  el: '#app',
-  data: {
-    rutaActual: window.location.hash,
-    rutes: rutes,
-    menuVisible: false,
+    el: '#app',
+    data: {
+        rutaActual: window.location.hash,
+        rutes: rutes,
+        menuVisible: false,
 
-  },
-  methods: {
-    navegar: function ($event) {
-      this.rutaActual = $event.target.hash;
-    }
-  },
-  computed: {
-    vistaActual: function () {
-      return this.rutes[this.rutaActual] || error;
-    }
-  },
-  template: /*html*/ `
+    },
+    methods: {
+        navegar: function($event) {
+            this.rutaActual = $event.target.hash;
+        }
+    },
+    computed: {
+        vistaActual: function() {
+            return this.rutes[this.rutaActual] || error;
+        }
+    },
+    template: /*html*/ `
  <div>
     <nav class="navbar navbar-expand-lg ">
       <a class="navbar-brand">Profesor</a>

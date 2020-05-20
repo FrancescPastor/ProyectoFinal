@@ -192,6 +192,8 @@ app.get("/registro", (req, res) => {
 
             });
             var insertarAlumno = function(db, err, callback) {
+
+                
                 db.collection('RegistroUsuarios').insertOne({
                     "nombre": data[0],
                     "apellidos": data[1],
@@ -208,6 +210,8 @@ app.get("/registro", (req, res) => {
 
 
                 });
+
+                
                 assert.equal(err, null);
                 console.log("correct");
                 callback();
@@ -287,24 +291,49 @@ io.on('connection', function(socket) {
             const db = client.db(dbName);
 
             insertarExamen(db, err, function() {});
+           
             client.close();
+
+
         });
 
         var insertarExamen = function(db, err, callback) {
-
-            for (i = 0; i < listaPreguntasExamen.length; i++) {
-                db.collection('examenes').insert({
-                    "nombreExamen": nombreExamen,
-                    "nombreMateria": nombreMateria,
-                    "nombreAula": nombreAula,
-                    "pregunta": listaPreguntasExamen[i].elementos,
-                });
-
-
-            }
+            let existe = 0;
+       
+            db.collection('examenes').find({ nombreExamen: nombreExamen}).toArray(function(err, result) {
+          
+                if (result.length > 0) {
+                 console.log("existe");
+                 existe = 1;
+                }
+                else if(!result.length >0){
+                existe=0;
+                console.log("noexiste");
+               
+                        }
+                       
+                    })
+         
             assert.equal(err, null);
-            console.log("correct");
             callback();
+       
+                comprobarNombre(db, err,existe, function() {})
+            
+        
+  }
+        
+        var comprobarNombre = function (db, err, existe, callback){       
+            if (existe == 0 ){     
+                    for (i = 0; i < listaPreguntasExamen.length; i++) {
+                        db.collection('examenes').insertOne({
+                            "nombreExamen": nombreExamen,
+                            "nombreMateria": nombreMateria,
+                            "nombreAula": nombreAula,
+                            "pregunta": listaPreguntasExamen[i].elementos,
+                        });
+                    }}
+                assert.equal(err, null); 
+                callback();
         }
     });
 })
@@ -530,20 +559,21 @@ io.on('connection', function(socket) {
 io.on('connection', function(socket) {
 
     socket.on('examenCorregido', function(examenCorregido) {
-
+        let nombreAlumno = examenCorregido[0].nombreAlumnoDelExamen;
+        let nombreExamen = examenCorregido[0].nombreDelExamen;
         MongoClient.connect(url, function(err, client) {
             assert.equal(null, err);
             const db = client.db(dbName);
 
             guardarExamenCorregido(db, err, function() {});
+            borrarExamenCorregido(db, err, function() {});
             client.close();
         });
 
         var guardarExamenCorregido = function(db, err, callback) {
             let notas = "";
             let notasExamen = examenCorregido[0].listasNotasExamenes;
-            let nombreAlumno = examenCorregido[0].nombreAlumnoDelExamen;
-            let nombreExamen = examenCorregido[0].nombreDelExamen;
+           
             let notaFinalExamen = examenCorregido[0].notaFinalExamen;
             let x = 0;
             for (i = 0; i < notasExamen.length; i++) {
@@ -561,6 +591,12 @@ io.on('connection', function(socket) {
 
             });
 
+            assert.equal(err, null);
+            console.log("correct");
+            callback();
+        }
+        var borrarExamenCorregido = function(db, err, callback) {
+            db.collection('examenesRealizados').deleteMany({emailAlumno:nombreAlumno,nombreExamen: nombreExamen})
             assert.equal(err, null);
             console.log("correct");
             callback();

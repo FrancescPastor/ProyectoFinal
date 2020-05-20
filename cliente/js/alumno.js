@@ -201,7 +201,7 @@
 
 
   const rutes = {
-    '#/': principal,
+
     '#/empezarExamenAlumno': empezarExamenAlumno,
 
   
