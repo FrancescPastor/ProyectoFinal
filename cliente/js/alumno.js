@@ -25,7 +25,7 @@
    <div class="form-group row">  
       <div  v-for=" pregunta in listaPreguntasDeLosExamenes" class="col-lg-12">    
         <p id="preguntas" for="nombre" v-text="pregunta.preguntas" ><b></b></p>   
-        <textarea v-model="pregunta.respuestas" placeholder="Escriba aquí su respuesta..." rows="3"  column="5" class="form-control form-control-lg col-md-12" ></textarea>
+        <textarea  v-on:keydown="keymonitor" v-model="pregunta.respuestas" placeholder="Escriba aquí su respuesta..." rows="3"  column="5" class="form-control form-control-lg col-md-12" ></textarea>
       </div>
     </div> 
      <div class="col-lg-12"> 
@@ -53,6 +53,13 @@
         }
     },
     methods: {
+      keymonitor: function(event) {
+        //PARTE PAU DESCOMENTA SI QUIERS Q VAYA
+     /*   this.name=event.key;
+        console.log(this.name);
+        let socket = io.connect('http://localhost:8888');
+        socket.emit ('caracter', this.name);*/
+      },
         mostrarExamenCompletoAlumno: function() {
             var preguntasExamen = [];
             var nombreE = "";

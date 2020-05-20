@@ -277,7 +277,40 @@ app.listen(app.get('puerto'), function () {
  * Guadar el examen realizado por el profesor
  * **/
 io.on('connection', function(socket) {
+    socket.on('comprobarNombreExamen', function(comprobarNombreExamen) {
+console.log(comprobarNombreExamen);
+MongoClient.connect(url, function(err, client) {
+    assert.equal(null, err);
+    const db = client.db(dbName);
 
+    comprobarNombre(db, err, function() {}) 
+   
+    client.close();
+    function comprobarNombre(db, err, callback){
+        let existe = 0;
+           
+        db.collection('examenes').find({ nombreExamen: comprobarNombreExamen}).toArray(function(err, result) {
+      
+            if (result.length > 0) {
+            socket.emit('comprobacionNombre','existe');
+             console.log("existe");
+            
+            }
+            else if(!result.length >0){
+            existe=0;
+            console.log("noexiste");
+            socket.emit('comprobacionNombre','noexiste');
+                    }
+                   
+                })
+     
+        assert.equal(err, null);
+        callback();
+     
+      }
+
+});
+})
     socket.on('examen', function(textExamen) {
         var listaPreguntasExamen = [];
         nombreExamen = textExamen[0].nombreExamen;
@@ -289,52 +322,31 @@ io.on('connection', function(socket) {
         MongoClient.connect(url, function(err, client) {
             assert.equal(null, err);
             const db = client.db(dbName);
-
-            insertarExamen(db, err, function() {});
+            //comprobarNombre(db, err, function() {});
+            insertarExamen(db, err, function() {}) 
            
             client.close();
 
 
         });
 
-        var insertarExamen = function(db, err, callback) {
-            let existe = 0;
-       
-            db.collection('examenes').find({ nombreExamen: nombreExamen}).toArray(function(err, result) {
-          
-                if (result.length > 0) {
-                 console.log("existe");
-                 existe = 1;
+
+     function insertarExamen(db, err, callback){
+        
+                for (i = 0; i < listaPreguntasExamen.length; i++) {
+                    db.collection('examenes').insertOne({
+                        "nombreExamen": nombreExamen,
+                        "nombreMateria": nombreMateria,
+                        "nombreAula": nombreAula,
+                        "pregunta": listaPreguntasExamen[i].elementos,
+                    });
                 }
-                else if(!result.length >0){
-                existe=0;
-                console.log("noexiste");
-               
-                        }
-                       
-                    })
-         
-            assert.equal(err, null);
+            assert.equal(err, null); 
             callback();
+     }  
+      
        
-                comprobarNombre(db, err,existe, function() {})
-            
-        
-  }
-        
-        var comprobarNombre = function (db, err, existe, callback){       
-            if (existe == 0 ){     
-                    for (i = 0; i < listaPreguntasExamen.length; i++) {
-                        db.collection('examenes').insertOne({
-                            "nombreExamen": nombreExamen,
-                            "nombreMateria": nombreMateria,
-                            "nombreAula": nombreAula,
-                            "pregunta": listaPreguntasExamen[i].elementos,
-                        });
-                    }}
-                assert.equal(err, null); 
-                callback();
-        }
+
     });
 })
 
@@ -603,3 +615,40 @@ io.on('connection', function(socket) {
         }
     })
 })
+
+
+
+
+
+
+//PARTE PAU
+
+/*
+var arrayData = [];
+var x = false;
+
+io.on('connection', function (socket) {
+
+    socket.on('caracter', function (data) {
+      let caracter = data;
+      console.log(caracter);
+      date = new Date();
+      arrayData.push(date);
+      console.log(arrayData);
+      if (caracter == "Control") {
+        x = true;
+        console.log(x)
+      }
+      if (x==true && caracter!="Control"){
+        if(caracter=='v'){
+        console.log("control+v detectat");
+        }
+        else{
+          x=false;
+          console.log(x);
+        } 
+      }
+  
+      
+    });
+  })*/

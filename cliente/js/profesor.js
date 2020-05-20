@@ -688,10 +688,14 @@ Vue.component('generarExamen', {
         <div class="col-lg-2"> 
           <button class="botonGuardar btn btn-success btn-block" id="botonGuardarExamen" @click="guardarInput">Guardar Examen</button>  
         </div>
+        
       </div> 
     <div v-show="examenok" class="form-group row">
       <div class="col-lg-2"> 
-        <button id="botonPregunta" class="btn btn-block" id="botonAñadirPregunta" @click="generarInputs">Añadir Pregunta</button>
+        <button class="btn btn-block" id="botonAñadirPregunta" @click="generarInputs">Añadir Pregunta</button>
+      </div> 
+      <div class="col-lg-2"> 
+        <button class="btn btn-block" @click="comprobarNombre">Comprobar nombre examen</button>
       </div> 
     </div>
     <div id="containerrr" v-show="examenok" class="row justify-content-center"> 
@@ -734,6 +738,18 @@ Vue.component('generarExamen', {
 
     },
     methods: {
+      comprobarNombre: function (){
+        let sepuede = "";
+        let socket = io.connect('http://localhost:8888');
+        socket.emit('comprobarNombreExamen',this.nombreExamen);
+
+        socket.on('comprobacionNombre', function(examenesCompleto) {
+        sepuede = examenesCompleto;
+      })
+         setTimeout(() => {
+               console.log(sepuede);
+            }, 600);
+      },
         volverHacerExamen: function() {
             window.location.reload();
         },
@@ -976,7 +992,7 @@ Vue.component('corregirExamen', {
 
         },
         mostrarAlumnosDelExamen: function(event) {
-            let nombreExamen = event.currentTarget.id;
+            let nombreExamen = event.currentTarget.id; 
             let nombresEmailAlumnos = [];
 
             let socket = io.connect('http://localhost:8888');
