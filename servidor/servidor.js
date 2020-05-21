@@ -1,4 +1,4 @@
-var express = require('express');
+var express = require('express'); 
 var app = express();
 const https = require('https');
 require('https').globalAgent.options.rejectUnauthorized = false;
@@ -108,7 +108,7 @@ app.get("/profesor", (req, res) => {
         io.on('connection', function(socket) {
 
             socket.on('registroAlumno', function(data) {
-              
+
             });
         })
         res.setHeader("Content-type", "text/html");
@@ -168,7 +168,7 @@ io.on('connection', function(socket) {
         tokenprofeS = JSON.stringify(data[1]);
         if (tokenprofeS.length != 20) {
             tokenProfesorAlumnoScreen = data;
-         
+
         }
 
     });
@@ -177,58 +177,7 @@ io.on('connection', function(socket) {
 
 });
 app.get("/registro", (req, res) => {
-    io.on('connection', function(socket) {
-        socket.on('dataUser', function(data) {
-            MongoClient.connect(url, function(err, client) {
-                assert.equal(null, err);
-                console.log("Connected successfully to server");
-                const db = client.db(dbName);
-                /**
-                 * llamamos a la funcion que comprueba el login
-                 */
-                insertarAlumno(db, err, function() {});
-                insertarRegistro(db, err, function() {});
-                client.close();
 
-            });
-            var insertarAlumno = function(db, err, callback) {
-
-                
-                db.collection('RegistroUsuarios').insertOne({
-                    "nombre": data[0],
-                    "apellidos": data[1],
-                    "email": data[2],
-                    "password": data[3],
-                    "ciudad": data[4],
-                    "direccion": data[5],
-                    "cp": data[6],
-                    "telefono": data[7],
-                    "tipo": data[8],
-                    "fechaNacimiento": data[9],
-                    "clase": data[10],
-                    "asignatura": data[11],
-
-
-                });
-
-                
-                assert.equal(err, null);
-                console.log("correct");
-                callback();
-            }
-            var insertarRegistro = function(db, err, callback) {
-                db.collection('loginUsers').insertOne({
-                    "email": data[2],
-                    "password": data[3],
-                    "type": data[8]
-                });
-                assert.equal(err, null);
-                console.log("correct");
-                callback();
-            }
-
-        });
-    })
     res.setHeader("Content-type", "text/html");
     res.sendFile(path.join(__dirname, '../cliente', 'registro.html'));
 })
@@ -274,43 +223,101 @@ app.listen(app.get('puerto'), function () {
 // Subir variables globales arriba 17/05/2020
 
 /**
+ * Registro de los alumnos
+ */
+io.on('connection', function(socket) {
+    socket.on('registroAlumno', function(data) {
+
+        MongoClient.connect(url, function(err, client) {
+            assert.equal(null, err);
+            console.log("Connected successfully to server");
+            const db = client.db(dbName);
+            /**
+             * llamamos a la funcion que comprueba el login
+             */
+            insertarAlumno(db, err, function() {});
+            insertarRegistro(db, err, function() {});
+            client.close();
+
+        });
+        var insertarAlumno = function(db, err, callback) {
+
+
+            db.collection('RegistroUsuarios').insertOne({
+                "nombre": data[0][0],
+                "apellidos": data[0][1],
+                "email": data[0][2],
+                "password": data[0][3],
+                "ciudad": data[0][4],
+                "direccion": data[0][5],
+                "cp": data[0][6],
+                "telefono": data[0][7],
+                "tipo": data[0][8],
+                "fechaNacimiento": data[0][9],
+                "clase": data[0][10],
+                "asignatura": data[0][11],
+            });
+
+
+            assert.equal(err, null);
+            console.log("correct");
+            callback();
+        }
+        var insertarRegistro = function(db, err, callback) {
+            db.collection('loginUsers').insertOne({
+                "email": data[2],
+                "password": data[3],
+                "type": data[8]
+            });
+            assert.equal(err, null);
+            console.log("correct");
+            callback();
+        }
+
+    });
+})
+
+
+
+
+/**
  * Guadar el examen realizado por el profesor
  * **/
 io.on('connection', function(socket) {
     socket.on('comprobarNombreExamen', function(comprobarNombreExamen) {
-console.log(comprobarNombreExamen);
-MongoClient.connect(url, function(err, client) {
-    assert.equal(null, err);
-    const db = client.db(dbName);
+        console.log(comprobarNombreExamen);
+        MongoClient.connect(url, function(err, client) {
+            assert.equal(null, err);
+            const db = client.db(dbName);
 
-    comprobarNombre(db, err, function() {}) 
-   
-    client.close();
-    function comprobarNombre(db, err, callback){
-        let existe = 0;
-           
-        db.collection('examenes').find({ nombreExamen: comprobarNombreExamen}).toArray(function(err, result) {
-      
-            if (result.length > 0) {
-            socket.emit('comprobacionNombre','existe');
-             console.log("existe");
-            
-            }
-            else if(!result.length >0){
-            existe=0;
-            console.log("noexiste");
-            socket.emit('comprobacionNombre','noexiste');
+            comprobarNombre(db, err, function() {})
+
+            client.close();
+
+            function comprobarNombre(db, err, callback) {
+                let existe = 0;
+
+                db.collection('examenes').find({ nombreExamen: comprobarNombreExamen }).toArray(function(err, result) {
+
+                    if (result.length > 0) {
+                        socket.emit('comprobacionNombre', 'existe');
+                        console.log("existe");
+
+                    } else if (!result.length > 0) {
+                        existe = 0;
+                        console.log("noexiste");
+                        socket.emit('comprobacionNombre', 'noexiste');
                     }
-                   
-                })
-     
-        assert.equal(err, null);
-        callback();
-     
-      }
 
-});
-})
+                })
+
+                assert.equal(err, null);
+                callback();
+
+            }
+
+        });
+    })
     socket.on('examen', function(textExamen) {
         var listaPreguntasExamen = [];
         nombreExamen = textExamen[0].nombreExamen;
@@ -323,29 +330,29 @@ MongoClient.connect(url, function(err, client) {
             assert.equal(null, err);
             const db = client.db(dbName);
             //comprobarNombre(db, err, function() {});
-            insertarExamen(db, err, function() {}) 
-           
+            insertarExamen(db, err, function() {})
+
             client.close();
 
 
         });
 
 
-     function insertarExamen(db, err, callback){
-        
-                for (i = 0; i < listaPreguntasExamen.length; i++) {
-                    db.collection('examenes').insertOne({
-                        "nombreExamen": nombreExamen,
-                        "nombreMateria": nombreMateria,
-                        "nombreAula": nombreAula,
-                        "pregunta": listaPreguntasExamen[i].elementos,
-                    });
-                }
-            assert.equal(err, null); 
+        function insertarExamen(db, err, callback) {
+
+            for (i = 0; i < listaPreguntasExamen.length; i++) {
+                db.collection('examenes').insertOne({
+                    "nombreExamen": nombreExamen,
+                    "nombreMateria": nombreMateria,
+                    "nombreAula": nombreAula,
+                    "pregunta": listaPreguntasExamen[i].elementos,
+                });
+            }
+            assert.equal(err, null);
             callback();
-     }  
-      
-       
+        }
+
+
 
     });
 })
@@ -484,7 +491,35 @@ io.on('connection', function(socket) {
         }
     })
 })
+/**
+ * Mostrar la lista de examenes Realizdos en el combo de realizar examen
+ * **/
+io.on('connection', function(socket) {
 
+    MongoClient.connect(url, function(err, client) {
+        assert.equal(null, err);
+        const db = client.db(dbName);
+
+        mostrarExamenesRealizados(db, err, function() {});
+        client.close();
+    });
+    var mostrarExamenesRealizados = function(db, err, callback) {
+        var nombreDelExamenRealizados = [];
+        db.collection('examenesRealizados').find({}).toArray(function(err, result) {
+
+            for (i = 0; i < result.length; i++) {
+                let nom = result[i].nombreExamen;
+
+                if (!nombreDelExamenRealizados.includes(nom)) {
+                    nombreDelExamenRealizados.push(result[i].nombreExamen)
+                }
+            }
+            socket.emit('mostrarExamenRealizados', nombreDelExamenRealizados);
+        })
+
+
+    }
+})
 /** 
  * Recoger los nombres de los alumenos que pertenecen al examen demandado
  * */
@@ -585,7 +620,7 @@ io.on('connection', function(socket) {
         var guardarExamenCorregido = function(db, err, callback) {
             let notas = "";
             let notasExamen = examenCorregido[0].listasNotasExamenes;
-           
+
             let notaFinalExamen = examenCorregido[0].notaFinalExamen;
             let x = 0;
             for (i = 0; i < notasExamen.length; i++) {
@@ -593,7 +628,7 @@ io.on('connection', function(socket) {
                     x++;
                     notas = notas + "Pregunta" + "." + x + " " + "Puntuacion--> " + notasExamen[i].nota + " // ";
                 }
-             
+
             }
             db.collection('examenesNotas').insert({
                 "notas": notas,
@@ -608,7 +643,7 @@ io.on('connection', function(socket) {
             callback();
         }
         var borrarExamenCorregido = function(db, err, callback) {
-            db.collection('examenesRealizados').deleteMany({emailAlumno:nombreAlumno,nombreExamen: nombreExamen})
+            db.collection('examenesRealizados').deleteMany({ emailAlumno: nombreAlumno, nombreExamen: nombreExamen })
             assert.equal(err, null);
             console.log("correct");
             callback();
@@ -616,8 +651,95 @@ io.on('connection', function(socket) {
     })
 })
 
+//20/05/2020 pasar a fran
+
+io.on('connection', function(socket) {
+
+    socket.on('listaAlumnos', function(claseAlumnos) {
+
+        MongoClient.connect(url, function(err, client) {
+            assert.equal(null, err);
+            const db = client.db(dbName);
+
+            recuperarListaAlumnoXClase(db, err, function() {});
+            client.close();
+        });
+
+        var recuperarListaAlumnoXClase = function(db, err, callback) {
+            let listaAlumnosXClase = [];
+
+            db.collection('RegistroUsuarios').find({ clase: claseAlumnos }).toArray(function(err, result) {
+
+                for (i = 0; i < result.length; i++) {
+
+                    let nom = result[i].nombre;
+                    let apellidos = result[i].apellidos;
+                    let email = result[i].email;
+                    let ciudad = result[i].ciudad;
+                    let direccion = result[i].direccion;
+                    let cp = result[i].cp;
+                    let fechaNac = result[i].fechaNacimiento;
+                    let telefono = result[i].telefono;
+
+                    listaAlumnosXClase.push({ nombre: nom, apellidos: apellidos, email: email, ciudad: ciudad, direccion: direccion, cp: cp, fechaNacimiento: fechaNac, telefono: telefono })
+
+                }
+
+                socket.emit("alumnoInformacion", listaAlumnosXClase);
+            });
 
 
+            assert.equal(err, null);
+            callback();
+        }
+
+    })
+})
+
+/**
+ * Recuperar las notas de un alumno
+ */
+
+io.on('connection', function(socket) {
+
+    socket.on('idEmailAlumno', function(idEmailAlumno) {
+
+        MongoClient.connect(url, function(err, client) {
+            assert.equal(null, err);
+            const db = client.db(dbName);
+
+            recuperarListaNotasAlumno(db, err, function() {});
+            client.close();
+        });
+
+        var recuperarListaNotasAlumno = function(db, err, callback) {
+            let listaNotasAlumnos = [];
+
+            db.collection('examenesNotas').find({ nombreAlumno: idEmailAlumno }).toArray(function(err, result) {
+
+                for (i = 0; i < result.length; i++) {
+
+                    let nombreExamen = result[i].nombreExamen;
+                    let nombreAlumno = result[i].nombreAlumno;
+                    let notaFinal = result[i].notaFinalExamen;
+                    let notas = result[i].notas;
+
+
+                    listaNotasAlumnos.push({ nombreExamen: nombreExamen, nombreAlumno: nombreAlumno, notaFinal: notaFinal, notas: notas })
+
+        
+                }
+                
+                socket.emit("listaNotasAlumnos", listaNotasAlumnos);
+            });
+
+
+            assert.equal(err, null);
+            callback();
+        }
+
+    })
+})
 
 
 

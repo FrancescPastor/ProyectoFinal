@@ -1,4 +1,5 @@
-var tokenAlumn = ""; 
+
+var tokenAlumn = "";
 var x = 0;
 var displayMediaOptions = {
     video: {
@@ -81,81 +82,125 @@ Vue.component('listaAlumnos', {
   <form>
       <div class="form-row mb-8 col-md-4">
         <label for="clase">Clase</label>
-        <select class="form-control" id="clase">
+        <select class="form-control" id="clase" v-model="clase">
           <option selected>Ninguno</option>
           <option value="1">Clase 1</option>
           <option value="2">Clase 2</option>
           <option value="3">Clase 3</option>
         </select>
         </div><br/>
-
       <div class="form-group mb-3 col-md-4">
-      <button type="submit" class="btn btn-secondary"><i class="fas fa-eye"></i>&nbsp;Mostrar</button>
+      <button type="submit" @click="mostrarListaAlumnosXClases" class="btn btn-secondary"><i class="fas fa-eye"></i>&nbsp;Mostrar</button>
       </div> 
    </form>
-   <div class="centroTab">
-     <table id="tablaListaAlumno" class="table table-striped">
-         <thead>
-            <tr class="tituloOscuro">
-              <th scope="col">ID</th>
-              <th scope="col">Nombre</th>
-              <th scope="col">Apellidos</th>
-              <th scope="col">Años</th>
-              <th scope="col">Ciudad</th>
-              <th scope="col">Télefono</th>
-               <th scope="col">Calificaciones</th>
-            </tr>
-        </thead>
-     <tbody>
-       <tr  v-for="arrayAlumno in arrayAlumnos">
-              <td v-bind:id="arrayAlumno.id" v-text="arrayAlumno.id"></td>
-              <td v-bind:id="arrayAlumno.id" v-text="arrayAlumno.nombre"></td>
-              <td v-bind:id="arrayAlumno.id" v-text="arrayAlumno.apellido"></td>
-              <td v-bind:id="arrayAlumno.id" v-text="arrayAlumno.años"></td>
-              <td v-bind:id="arrayAlumno.id" v-text="arrayAlumno.ciudad"></td>
-              <td v-bind:id="arrayAlumno.id" v-text="arrayAlumno.telefono"></td>
-              <td><button class="btn btn-secondary"><i class="fas fa-clipboard-list" style="width:20px"></i>&nbsp;Notas</button></td>
-        </tr>
-      </tbody>
-    </table>
-</div>
-
-<div class="col-md-8">
-  <div class="panel panel-default has-shadow">
-    <div class="panel-body">
-      <div class="row">
-        <div class="col-md-12">
-          <form action="/create-exam" role="form" id="ExamAddForm" method="post" accept-charset="utf-8">
-            <div class="col-sm-4">
-              <div class="form-group">
-                <label for="ExamName">Nombre del examen</label> 
-                <input name="data[Exam][name]" class="form-control" required="required" type="text" id="ExamName">
-              </div>
-            </div>
-          </form>
-        </div> 
-      </div> 
+<!--Tabla listado de los alumnos-->
+  <div  v-show="notasok" class="container  justify-content-center" >
+    <div class="col-md-12">
+      <table id="tablaListaAlumno" class="table table-striped float-left">
+          <thead>
+              <tr class="tituloOscuro">
+                <th scope="col-2">Email</th>
+                <th scope="col-2">Nombre</th>
+                <th scope="col-2">Apellidos</th>
+                <th scope="col-2">F.Nacimiento</th>
+                <th scope="col-2">Ciudad</th>
+                <th scope="col-2">Télefono</th>
+                <th scope="col-2">Calificaciones</th>
+              </tr>
+          </thead>
+      <tbody>
+        <tr  v-for="arrayAlumno in inforAlumnoListado">
+                <td v-bind:id="arrayAlumno.email" v-text="arrayAlumno.email"></td>
+                <td v-bind:id="arrayAlumno.email" v-text="arrayAlumno.nombre"></td>
+                <td v-bind:id="arrayAlumno.email" v-text="arrayAlumno.apellidos"></td>
+                <td v-bind:id="arrayAlumno.email" v-text="arrayAlumno.fechaNacimiento"></td>
+                <td v-bind:id="arrayAlumno.email" v-text="arrayAlumno.ciudad"></td>
+                <td v-bind:id="arrayAlumno.email" v-text="arrayAlumno.telefono"></td>
+                <td><button @click="mostrarNotasAlumno($event)" v-bind:id="arrayAlumno.email" data-toggle="modal" data-target=".bd-example-modal-xl" class="btn btn-secondary"><i class="fas fa-clipboard-list" style="width:20px"></i>&nbsp;Notas</button></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
-</div>
+  <div v-show="!notasok" class="container  justify-content-center" >
+    <div class="col-md-12">
+      <table id="tablaListaAlumno" class="table table-striped float-left">
+          <thead>
+              <tr class="tituloOscuro">
+                <th scope="col-2">Nombre Alumno</th>
+                <th scope="col-2">Examen</th>
+                <th scope="col-2">Nota Final</th>
+              </tr>
+          </thead>
+      <tbody>
+        <tr  v-for="notasAlumn in notasAlumnoListado">
+                <td v-text="notasAlumn.nombreAlumno"></td>
+                <td v-text="notasAlumn.nombreExamen"></td>
+                <td v-text="notasAlumn.notaFinal"></td>              
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div> 
   `,
 
     data() {
 
         return {
-            arrayAlumnos: [
-                { id: 1, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
-            ]
+            clase: "",
+            inforAlumnoListado: [],
+            notasAlumnoListado: [],
+            notasok : true
         }
     },
     methods: {
+        mostrarListaAlumnosXClases: function() {
+            let socket = io.connect('http://localhost:8888');
+            let clases = this.clase;
+            let inforAlumno = [];
+            socket.emit('listaAlumnos', clases);
 
-        thisFileUpload() {
-            document.getElementById("file");
+            socket.on('alumnoInformacion', function(alumnoInfo) {
 
+                inforAlumno = alumnoInfo
+                console.log(alumnoInfo)
+            })
 
+            setTimeout(() => {
+                this.inforAlumnoListado = inforAlumno
+                console.log(this.inforAlumnoListado);
+            }, 150);
+            this.notasok = true;
+        },
+
+        mostrarNotasAlumno: function(event) {
+            let socket = io.connect('http://localhost:8888');
+            let idEmailAlumno = event.currentTarget.id;
+            let inforNotasAlumno = [];
+            socket.emit('idEmailAlumno', idEmailAlumno);
+
+            socket.on('listaNotasAlumnos', function(listaNotasAlumnos) {
+
+                inforNotasAlumno = listaNotasAlumnos
+                
+
+            })
+
+            setTimeout(() => {
+                this.notasAlumnoListado = inforNotasAlumno
+                console.log(this.notasAlumnoListado);
+            }, 150);
+            this.notasok = false;
+            $("#exampleModal").modal("show");
+        },
+      
+        notas: function() {
+
+            $("#exampleModal").modal("show");
         }
+
+
     }
 
 
@@ -425,52 +470,52 @@ Vue.component('mostrarCompartirPantalla', {
             tracks.forEach(track => track.stop());
             videoElem.srcObject = null;
         },
-        openStreaming: function () {
-          navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
-            .then(stream =>{ 
-              const p = new SimplePeer ({initiator: location.hash === "#/", trickle: false, stream});
-               
-              p.on('signal', token =>{
-              
-               infoScr = [];
-               nombreS = localStorage.getItem('alumnoNombreSeñalScreen');
-               infoScr.push(nombreS, token);
-               let socket = io.connect('http://localhost:8888');
-               socket.emit('tokenProfesorScreen', infoScr);
-               
-            });
-    
-            $(document).on('click', '.alumnoInfoScreen', (e) => {
-  
-    
-              let arrayTokenS = JSON.parse(localStorage.getItem('tokenAlumnoScreen'));
-              for (i = 0; i < arrayTokenS.length; i++) {
-                if (arrayTokenS[i].idAlumno == e.currentTarget.id) {
-    
-                  let tokenS = arrayTokenS[i].token;
-                  p.signal(tokenS);
-                  localStorage.setItem('alumnoNombreSeñalScreen', JSON.stringify(arrayTokenS[i].nombreAlumno));
-    
-                }
-              }
-              
-              for (yy = 0; yy < this.listaStreaming.length; yy++) {
-    
-                if (this.listaStreaming[yy].idAlumno == e.currentTarget.id) {
-                  
-                  let idScreen = this.listaStreaming[yy].idAlumno;
-                  console.log("ID_");
-              
-                  p.on('stream', friendStream => this.startCapture(friendStream, idScreen));
-    
-                }
-              }
-    
-            })
-           
-          //  p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
-            })
-            .catch(err => console.log(err));
+        openStreaming: function() {
+            navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
+                .then(stream => {
+                    const p = new SimplePeer({ initiator: location.hash === "#/", trickle: false, stream });
+
+                    p.on('signal', token => {
+
+                        infoScr = [];
+                        nombreS = localStorage.getItem('alumnoNombreSeñalScreen');
+                        infoScr.push(nombreS, token);
+                        let socket = io.connect('http://localhost:8888');
+                        socket.emit('tokenProfesorScreen', infoScr);
+
+                    });
+
+                    $(document).on('click', '.alumnoInfoScreen', (e) => {
+
+
+                        let arrayTokenS = JSON.parse(localStorage.getItem('tokenAlumnoScreen'));
+                        for (i = 0; i < arrayTokenS.length; i++) {
+                            if (arrayTokenS[i].idAlumno == e.currentTarget.id) {
+
+                                let tokenS = arrayTokenS[i].token;
+                                p.signal(tokenS);
+                                localStorage.setItem('alumnoNombreSeñalScreen', JSON.stringify(arrayTokenS[i].nombreAlumno));
+
+                            }
+                        }
+
+                        for (yy = 0; yy < this.listaStreaming.length; yy++) {
+
+                            if (this.listaStreaming[yy].idAlumno == e.currentTarget.id) {
+
+                                let idScreen = this.listaStreaming[yy].idAlumno;
+                                console.log("ID_");
+
+                                p.on('stream', friendStream => this.startCapture(friendStream, idScreen));
+
+                            }
+                        }
+
+                    })
+
+                    //  p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
+                })
+                .catch(err => console.log(err));
         },
         startCapture: async function(stream, idStream) {
             const videoElem = document.getElementById(idStream);
@@ -600,6 +645,26 @@ Vue.component('registroAlumno', {
     </div> 
   </fieldset>
 </form>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Información Exámen</h5>
+            <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>-->
+        </div>
+        <div class="modal-body">
+          Alumno Guardado Correctamente
+        </div>
+        <div class="modal-footer">
+          <button type="button" @click="refresh" class="btn btn-success" data-dismiss="modal">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div> 
 `,
 
@@ -625,6 +690,9 @@ Vue.component('registroAlumno', {
         }
     },
     methods: {
+        refresh: function() {
+            window.location.reload();
+        },
 
         guardarAlumnoNuevo: function() {
 
@@ -647,6 +715,8 @@ Vue.component('registroAlumno', {
             console.log(registroUsuario);
             let socket = io.connect('http://localhost:8888');
             socket.emit('registroAlumno', registroUsuario);
+
+            $("#exampleModal").modal("show");
         }
     }
 
@@ -654,72 +724,100 @@ Vue.component('registroAlumno', {
 Vue.component('generarExamen', {
     template: /*html*/ `
 <div>
-<form  class="col-12 mt-2">
-  <fieldset class="mb-5">
-    <div v-show="examenok" class="form-group row">
-    <div class="col-lg-2"> 
-          <label for="nombreExamen">Nombre del examen:</label>
-        </div>
-        <div class="col-lg-2"> 
-          <input  class="form-control" type="text" v-model="nombreExamen"></input>  
-        </div>
-        <div class="col-lg-1">
-          <label for="materia">Materia:</label>
-        </div>
-        <div class="col-lg-2"> 
-          <select class="custom-select" v-model="nombreMateria">
-            <option selected="true" value="">Ninguno/a</option>
-            <option value="1">Mates</option>
-            <option value="2">Sociales</option>
-            <option value="3">Lengua</option>
-          </select>
-        </div>
-        <div class="col-lg-1">
-          <label for="materia">Aula</label>
-        </div>
-        <div class="col-lg-2"> 
-          <select class="custom-select" v-model="nombreAula">
-            <option selected="true" value="">Ninguno/a</option>
-            <option value="1">Aula 1</option>
-            <option value="2">Aula 2</option>
-            <option value="3">Aula 3</option>
-          </select>
-        </div>
-        <div class="col-lg-2"> 
-          <button class="botonGuardar btn btn-success btn-block" id="botonGuardarExamen" @click="guardarInput">Guardar Examen</button>  
-        </div>
-        
+  <form  class="col-12 mt-2">
+    <fieldset class="mb-5">
+    <!--Comprobar Nombre del examen-->
+      <div v-show="examenok" class="form-group row">
+          <div class="col-lg-2"> 
+            <label v-show="compNombre"  for="nombreExamen">Nombre del exámen:</label>
+          </div>
+          <div v-show="compNombre"  class="col-lg-2"> 
+            <input class="form-control"required="required" type="text" v-model="nombreExamen"></input>  
+          </div>
+          <div v-show="compNombre" class="col-lg-2"> 
+              <button class="btn btn-success" id="botonAñadirPregunta"  @click="comprobarNombre">Comprobar nombre exámen</button>
+            </div> 
       </div> 
-    <div v-show="examenok" class="form-group row">
-      <div class="col-lg-2"> 
-        <button class="btn btn-block" id="botonAñadirPregunta" @click="generarInputs">Añadir Pregunta</button>
-      </div> 
-      <div class="col-lg-2"> 
-        <button class="btn btn-block" @click="comprobarNombre">Comprobar nombre examen</button>
-      </div> 
-    </div>
-    <div id="containerrr" v-show="examenok" class="row justify-content-center"> 
-      <div class="col-lg-12"  v-for="inputText in inputTexts"> 
-        <div class="form-group row">
-          <div class="col-lg-12"> 
-            <textarea v-bind:id="inputText.idInput" placeholder="Escriba aquí su pregunta..." v-model="inputText.elementos" v-text="inputText.elementos" rows="3"  column="5" class="form-control form-control-lg col-md-12"></textarea>
-          </div> 
-          <div class="col-lg-4"> 
-            <button v-show="examenok" class="botonBorrar btn btn-danger btn-block" v-bind:id="inputText.idInput" @click="borrarInput($event)">Eliminar Pregunta</button> 
-          </div> 
-        </div>
-      </div> 
-    </div> 
-    <div id="containerrr" v-show="!examenok" class="row justify-content-center"> 
-      <div class="form-group row">
-        <div class="col-lg-12"> 
-          <button  @click="volverHacerExamen" >Hacer Otro Examen</button> 
-          <p>Guardado con exito</p> 
+      <!--Generar Preguntas examen-->
+      <div v-show="examenok" class="form-group row">  
+          <div v-show="!compNombre" class="col-lg-1">
+            <label for="materia">Materia:</label>
+          </div>
+          <div v-show="!compNombre" class="col-lg-2"> 
+            <select  class="custom-select" v-model="nombreMateria">
+              <option selected="true" value="">Ninguno/a</option>
+              <option  value="1">Mates</option>
+              <option  value="2">Sociales</option>
+              <option  value="3">Lengua</option>
+            </select>
+          </div>
+          <div v-show="!compNombre" class="col-lg-1">
+            <label for="materia">Aula</label>
+          </div>
+          <div v-show="!compNombre" class="col-lg-2"> 
+            <select  class="custom-select" v-model="nombreAula">
+              <option selected="true" value="">Ninguno/a</option>
+              <option  value="1">Aula 1</option>
+              <option  value="2">Aula 2</option>
+              <option  value="3">Aula 3</option>
+            </select>
+          </div>
+          <div v-show="!compNombre" class="col-lg-3"> 
+            <button v-show="mostrarBotonGuardar" class="botonGuardar btn btn-success btn-block" id="botonGuardarExamen" @click="guardarInput">Guardar Examen</button>  
+          </div>       
+        </div> 
+      <div v-show="examenok" class="form-group row">
+        <div v-show="!compNombre" class="col-lg-2"> 
+          <button class="btn btn-block" id="botonAñadirPregunta" @click="generarInputs">Añadir Pregunta</button>
         </div> 
       </div>
-    </div>  
-  </fieldset>
-</form>
+      <div id="containerrr" v-show="examenok" class="row justify-content-center"> 
+        <div class="col-lg-12"  v-for="inputText in inputTexts"> 
+          <div class="form-group row">
+            <div class="col-lg-12"> 
+              <textarea  required="required" v-bind:id="inputText.idInput" placeholder="Escriba aquí su pregunta..." v-model="inputText.elementos" v-text="inputText.elementos" rows="3"  column="5" class="form-control form-control-lg col-md-12"></textarea>
+            </div> 
+            <div class="col-lg-4"> 
+              <button v-show="examenok" class="botonBorrar btn btn-danger btn-block" v-bind:id="inputText.idInput" @click="borrarInput($event)">Eliminar Pregunta</button> 
+            </div> 
+          </div>
+        </div> 
+      </div> 
+      <!--Examen Generado Correctamente, Informativo-->
+      <div v-show="!examenok" class="col-12 mt-2 mb-5">
+        <div class="col-lg-12 my-auto">
+            <button class="btn btn-secondary" v-show="!examenok" @click="volverHacerExamen" >Hacer Otro Examen</button></br>
+        </div> 
+          <div class="form-group row h-100">
+            <div class="col-lg-12 my-auto"> 
+              <div class=" text-center"> 
+                <h1 id="tituloNoExamn" class="card card-block w-100 text-center">Exámen Guardado Correctamente</h1>
+              </div>
+            </div>
+          </div>
+      </div>
+    </fieldset>
+  </form>
+
+  <!--Modal Informativa de que el nombre ya existe o no se ha introducido-->
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Información Exámen</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+        El nombre introducido existe o es vacio, prueba a introducir uno diferente o a introducir alguno.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div> 
 
 `,
@@ -733,29 +831,45 @@ Vue.component('generarExamen', {
             nombreMateria: "",
             nombreExamen: "",
             nombreAula: "",
+            compNombre: true,
+            alert: true,
+            mostrarBotonGuardar: false
 
         }
 
     },
     methods: {
-      comprobarNombre: function (){
-        let sepuede = "";
-        let socket = io.connect('http://localhost:8888');
-        socket.emit('comprobarNombreExamen',this.nombreExamen);
+        comprobarNombre: function() {
+            let nombreOK = "";
+            let socket = io.connect('http://localhost:8888');
+            socket.emit('comprobarNombreExamen', this.nombreExamen);
 
-        socket.on('comprobacionNombre', function(examenesCompleto) {
-        sepuede = examenesCompleto;
-      })
-         setTimeout(() => {
-               console.log(sepuede);
+            socket.on('comprobacionNombre', function(examenesCompleto) {
+                nombreOK = examenesCompleto;
+            })
+            setTimeout(() => {
+                if (nombreOK == "noexiste") {
+                    this.compNombre = false;
+                    $("#exampleModal").hide();
+
+                } else if (nombreOK != "noexiste") {
+                    this.compNombre = true;
+                    $("#exampleModal").modal("show");
+                    this.alert = false;
+
+                }
+
             }, 600);
-      },
+
+
+        },
         volverHacerExamen: function() {
             window.location.reload();
         },
         generarInputs: function() {
             x++;
             this.inputTexts.push({ idInput: x, elementos: "" });
+            this.mostrarBotonGuardar = true;
         },
         borrarInput: function(event) {
             for (i = 0; i < this.inputTexts.length; i++) {
@@ -811,8 +925,8 @@ Vue.component('empezarExamen', {
     </div>
   </div>
  <div class="form-group row">  
-        <div   class="col-lg-12">    
-          <p  id="preguntas" v-for="pregunta in listaPreguntasDeLosExamenes" for="nombre" v-text="pregunta.preguntas" ><b></b></p>
+        <div class="col-lg-12">    
+          <p id="preguntas" v-for="pregunta in listaPreguntasDeLosExamenes" for="nombre" v-text="pregunta.preguntas" ><b></b></p>
         </div>
     </div>
   <div class="form-group row">  
@@ -821,6 +935,26 @@ Vue.component('empezarExamen', {
     </div>
   </div>
 </div>
+
+ <!--Modal Informativa de que el nombre ya existe o no se ha introducido-->
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Información Envio</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+        <p><b>Exámen enviado al alumno correctamente</b></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" data-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div> 
 
 `,
@@ -875,6 +1009,8 @@ Vue.component('empezarExamen', {
             let socket = io.connect('http://localhost:8888');
 
             socket.emit('enviarExamenes', this.nombreExamenAMostrar);
+
+            $("#exampleModal").modal("show");
         }
     },
 
@@ -892,13 +1028,14 @@ Vue.component('corregirExamen', {
     <div  class="form-group row">
       <div class="col-lg-4">
         <ul>
-          <li  class="list-group-item list-group-item-action list-group-item-light" v-bind:id="pendientes.nombre" @click="mostrarAlumnosDelExamen($event)" v-text="pendientes.nombre" v-for="pendientes in listaExamenesPendientes"></li>
+          <li class="list-group-item list-group-item-action list-group-item-secondary text-dark" v-bind:id="pendientes.nombre" @click="mostrarAlumnosDelExamen($event)" v-text="pendientes.nombre" v-for="pendientes in listaExamenesPendientes"></li>
         </ul> 
       </div>
       <div class="col-lg-4">
         <ul>
-          <li class="list-group-item list-group-item-action list-group-item-light" @click="mostraExamenAlumnoACorregir($event)" v-bind:id="gmail.nombre"  v-text="gmail.nombre" v-for="gmail in listaNombresEmailAlumnos"></li>
+          <li class="list-group-item list-group-item-action list-group-item-secondary text-dark" @click="mostraExamenAlumnoACorregir($event)" v-bind:id="gmail.nombre"  v-text="gmail.nombre" v-for="gmail in listaNombresEmailAlumnos"></li>
         </ul> 
+        
       </div>
     </div> 
   </fieldset>
@@ -912,6 +1049,13 @@ Vue.component('corregirExamen', {
             <button class="botonVolver btn btn-secondary btn-block" @click="volverAListado">Volver</button>  
         </div>
     </div>
+       <div  class="form-group row">  
+          <div class="col-lg-12 m-5"> 
+             <h1 class="text-center">{{nombreExamen}}</h1>
+             <p>Gmail del Alumno: </p> 
+             <legend class="text-uppercase font-size-sm font-weight-bold"> {{nombreAlumno}}</legend> 
+          </div>
+    </div>
     <div class="exPendiente card card-block m-4 text-auto" v-for="examen in listaExamenACorregir" > 
       <div class="form-group row">  
           <div class="col-lg-12 m-2">   
@@ -920,7 +1064,7 @@ Vue.component('corregirExamen', {
       </div>
       <div class="form-group row">
           <div class="col-lg-12  m-2"> 
-            <p  for="respuesta" v-text="examen.respuesta" ></p>
+            <p for="respuesta" v-text="examen.respuesta" ></p>
           </div>
       </div>
       <div class="form-group row ">
@@ -957,6 +1101,26 @@ Vue.component('corregirExamen', {
       </div>
   </fieldset>
 </form>
+ <!--Modal Informativa de que el nombre ya existe o no se ha introducido-->
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Información Exámen</h5>
+            <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>-->
+        </div>
+        <div class="modal-body">
+         Exámen Corregido Guardado Correctamente
+        </div>
+        <div class="modal-footer">
+          <button type="button" @click="volverAListado" class="btn btn-success" data-dismiss="modal">Volver a la Lista</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div> 
 
 `,
@@ -969,19 +1133,29 @@ Vue.component('corregirExamen', {
             listaExamenACorregir: [],
             notaFinal: 0,
             noExamen: false,
-            noListasSiExamen: false
+            noListasSiExamen: false,
+            nombreExamen: "",
+            nombreAlumno: "",
+            examenOk: false
 
         }
     },
     methods: {
+        recuperarNombreAlumnoYNombreExamno: function() {
+            var nombreExamen = JSON.parse(localStorage.getItem('NombreAlumnoDelExamen'));
+            this.nombreExamen = nombreExamen[0].nombreExamenPendiente;
+            this.nombreAlumno = nombreExamen[0].gmailAlumno;
+
+
+        },
         recuperarNombreExamenes: function() {
             var listaEx = []
             let socket = io.connect('http://localhost:8888');
-            socket.on('mostrarExamen', function(mostrarExamen) {
+            socket.on('mostrarExamenRealizados', function(mostrarExamenRealizados) {
 
-                for (i = 0; i < mostrarExamen.length; i++) {
+                for (i = 0; i < mostrarExamenRealizados.length; i++) {
 
-                    listaEx.push({ nombre: mostrarExamen[i] });
+                    listaEx.push({ nombre: mostrarExamenRealizados[i] });
 
                 }
 
@@ -992,7 +1166,7 @@ Vue.component('corregirExamen', {
 
         },
         mostrarAlumnosDelExamen: function(event) {
-            let nombreExamen = event.currentTarget.id; 
+            let nombreExamen = event.currentTarget.id;
             let nombresEmailAlumnos = [];
 
             let socket = io.connect('http://localhost:8888');
@@ -1011,7 +1185,7 @@ Vue.component('corregirExamen', {
 
             setTimeout(() => {
                 this.listaNombresEmailAlumnos = nombresEmailAlumnos
-            }, 90);
+            }, 100);
 
             localStorage.setItem('ExamenPendiente', nombreExamen)
 
@@ -1034,12 +1208,11 @@ Vue.component('corregirExamen', {
             setTimeout(() => {
                 this.listaExamenACorregir = examenesACorregir;
                 console.log(this.listaExamenACorregir);
-            }, 90);
+            }, 200);
 
             localStorage.setItem('NombreAlumnoDelExamen', JSON.stringify(nombreExamenYGmailAlumno));
             this.noListasSiExamen = true;
         },
-
         guardarNotasExamen: function() {
             let socket = io.connect('http://localhost:8888');
             let notasAlumno = [];
@@ -1057,9 +1230,8 @@ Vue.component('corregirExamen', {
             }
 
             socket.emit('examenCorregido', nombreExamenAndgmailAlumnoAndNotasAndNotaFinal);
-
+            $("#exampleModal").modal("show");
         },
-
         calcularNotaFinalExamen: function() {
             let nota = 0.0;
             for (i = 0; i < this.listaExamenACorregir.length; i++) {
@@ -1083,7 +1255,9 @@ Vue.component('corregirExamen', {
     created: function() {
         this.recuperarNombreExamenes();
         this.calcularNotaFinalExamen();
+        this.recuperarNombreAlumnoYNombreExamno();
         setInterval(this.calcularNotaFinalExamen, 90);
+        setInterval(this.recuperarNombreAlumnoYNombreExamno, 90);
     }
 
 
