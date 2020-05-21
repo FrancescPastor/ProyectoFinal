@@ -83,7 +83,7 @@ Vue.component('listaAlumnos', {
       <div class="form-row mb-8 col-md-4">
         <label for="clase">Clase</label>
         <select class="form-control" id="clase" v-model="clase">
-          <option selected>Ninguno</option>
+          <option value = "" selected>Ninguno</option>
           <option value="1">Clase 1</option>
           <option value="2">Clase 2</option>
           <option value="3">Clase 3</option>
@@ -95,7 +95,7 @@ Vue.component('listaAlumnos', {
    </form>
 <!--Tabla listado de los alumnos-->
   <div  v-show="notasok" class="container  justify-content-center" >
-    <div class="col-md-12">
+    <div class="col-md-12" v-show="listaAlumno">
       <table id="tablaListaAlumno" class="table table-striped float-left">
           <thead>
               <tr class="tituloOscuro">
@@ -151,7 +151,8 @@ Vue.component('listaAlumnos', {
             clase: "",
             inforAlumnoListado: [],
             notasAlumnoListado: [],
-            notasok : true
+            notasok : true,
+            listaAlumno : false
         }
     },
     methods: {
@@ -172,6 +173,7 @@ Vue.component('listaAlumnos', {
                 console.log(this.inforAlumnoListado);
             }, 150);
             this.notasok = true;
+            this.listaAlumno = true;
         },
 
         mostrarNotasAlumno: function(event) {
@@ -319,9 +321,7 @@ Vue.component('mostrarCamaras', {
 
                     });
 
-
                     $(document).on('click', '.alumnoInfo', (e) => {
-
 
                         console.log("pruebarara");
                         console.log(e.currentTarget.id);
