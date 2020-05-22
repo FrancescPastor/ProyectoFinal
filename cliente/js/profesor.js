@@ -1,5 +1,5 @@
 
-var tokenAlumn = "";
+var tokenAlumn = ""; 
 var x = 0;
 var displayMediaOptions = {
     video: {
