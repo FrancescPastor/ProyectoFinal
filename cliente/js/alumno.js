@@ -1,53 +1,47 @@
-let tokenProfe = ""; 
+let tokenProfe = "";
 var displayMediaOptions = {
     video: {
         cursor: "always"
     },
     audio: false
 };
-
+var oneTime = 0;
+var oneTimeCamara = 0;
 
 Vue.component('empezarExamenAlumno', {
     template: /*html*/ `
 <div>
+
   <form class="col-12 mt-2">
     <fieldset class="mb-5">
-      <h1>Listado de Exámenes Pendientes</h1>
-      <div class="form-group row">
+      <h1 class="text-center">Listado de Exámenes Pendientes</h1>
+      <div  v-show="lista" class="form-group row">
         <div class="col-lg-4">
-          <ul>
-            <li v-if="examen.estado == 0" class="list-group-item list-group-item-action list-group-item-secondary text-dark" v-bind:id="examen.nombreExam" v-for="examen in listaExamenesTotal" v-text="examen.nombreExam" ></li>
-            <li v-if="examen.estado == 1" class="list-group-item list-group-item-action list-group-item-success text-dark" v-bind:id="examen.nombreExam" v-for="examen in listaExamenesTotal" v-text="examen.nombreExam" ></li> 
-        </ul> 
-        </div>
-        <div class="col-lg-4">
-          <ul>
-            <li><button v-show="mostrar" id="botonGuardar" class="btn btn-primary" @click="mostrarExamenCompletoAlumno">Empezar Exámen</button></li>
-          </ul> 
+             <ul>
+                <li v-if="examen.estado == 0" class="list-group-item list-group-item-secondary text-dark" disabled v-bind:id="examen.nombreExam" v-for="examen in listaExamenesTotal" v-text="examen.nombreExam" ></li>
+                <li v-if="examen.estado == 1" class="list-group-item list-group-item-success text-dark" disabled v-bind:id="examen.nombreExam" v-for="examen in listaExamenesTotal" v-text="examen.nombreExam" ></li> 
+                <li v-if="examen.estado == 2" class="parpadea text list-group-item list-group-item-action list-group-item-danger text-light" v-bind:id="examen.nombreExam" v-for="examen in listaExamenesTotal" v-text="'Realizar el Exámen: ' + examen.nombreExam " @click="mostrarExamenCompletoAlumno"></li> 
+            </ul> 
         </div>
       </div> 
     </fieldset>
   </form>
+  <form v-show="noListasSiExamen" class="col-12 mt-2">
+  <fieldset v-show="noExamen" class="mb-5">   
 
-
-    
-              
-              <div class="form-group row">  
-                <div  v-for=" pregunta in listaPreguntasDeLosExamenes" class="col-lg-12">    
-                  <p id="preguntas" for="nombre" v-text="pregunta.preguntas" ><b></b></p>   
-                  <textarea  v-on:keydown="keymonitor" v-model="pregunta.respuestas" placeholder="Escriba aquí su respuesta..." rows="3"  column="5" class="form-control form-control-lg col-md-12" ></textarea>
-                </div>
-              </div> 
-                <div class="col-lg-12"> 
-                    <button v-show="!mostrar" class="btn btn-info btn-block" @click="guardarExamenAlumno">Finalizar Exámen</button>
-                  
-                </div>
-                <div>
-                
-                      <button id="btn5">permitir profe ver pantalla</button>
-                      <button id="btn3">permitir profe ver camara</button>
-                  </div>
+            <div v-show="!lista" class="form-group row">  
+            <div  v-for=" pregunta in listaPreguntasDeLosExamenes" class="col-lg-12">    
+                <p id="preguntas" for="nombre" v-text="pregunta.preguntas" ><b></b></p>   
+                <textarea  v-on:keydown="keymonitor" v-model="pregunta.respuestas" placeholder="Escriba aquí su respuesta..." rows="3"  column="5" class="form-control form-control-lg col-md-12" ></textarea>
+            </div>
+            <div class="col-lg-12"> 
+                <button v-show="!mostrar" class="btn btn-info btn-block" @click="guardarExamenAlumno">Finalizar Exámen</button>
+            </div>
+            </div> 
+         
+             
   </div>
+
 </div> 
 
   `,
@@ -64,7 +58,12 @@ Vue.component('empezarExamenAlumno', {
             nombreAlumno: "",
             apellidoAlumno: "",
             listaExamenesTotal: [],
-            listaExamenesRealizados: []
+            listaExamenesRealizados: [],
+            lista: true,
+            preguntas: false,
+            camara: false,
+            pantalla: false
+
 
 
         }
@@ -78,6 +77,7 @@ Vue.component('empezarExamenAlumno', {
                socket.emit ('caracter', this.name);*/
         },
         mostrarExamenCompletoAlumno: function() {
+            this.permitirConexiones();
             var preguntasExamen = [];
             var nombreE = "";
             let socket = io.connect('http://localhost:8888');
@@ -88,11 +88,16 @@ Vue.component('empezarExamenAlumno', {
 
             })
 
-
             setTimeout(() => {
                 this.nombreExamen = nombreE;
                 this.listaPreguntasDeLosExamenes = preguntasExamen;
                 this.mostrar = false;
+                this.lista = false;
+                if (this.lista == false) {
+                    this.preguntas = false;
+                    this.camara = true;
+                    this.pantalla = true;
+                }
             }, 2000);
 
 
@@ -113,6 +118,7 @@ Vue.component('empezarExamenAlumno', {
             socket.emit('respuestasAlumnoDelExamen', examen)
         },
         recuperarDatosAlumno: function() {
+           
             let emailAlumno = localStorage.getItem("emailAlumn");
             let nombre = "";
             let apellido = "";
@@ -174,8 +180,8 @@ Vue.component('empezarExamenAlumno', {
 
                 for (i = 0; i < listadoExamenesRealizados.length; i++) {
 
-                 //   examenesRealizadosXAlumno.push({ nombreRealizadoExamen: listadoExamenesRealizados[i] });
-                 examenesRealizadosXAlumno = listadoExamenesRealizados;
+                    //   examenesRealizadosXAlumno.push({ nombreRealizadoExamen: listadoExamenesRealizados[i] });
+                    examenesRealizadosXAlumno = listadoExamenesRealizados;
                 }
             });
 
@@ -185,25 +191,36 @@ Vue.component('empezarExamenAlumno', {
 
         },
         estadoExamen: function() {
+            var nombreE = "";
+            let socket = io.connect('http://localhost:8888');
 
-            console.log("paula")
-           
-      
-            for (i = 0; i < this.listaExamenesTotal.length; i++) {
-                if (this.listaExamenesRealizados.includes(this.listaExamenesTotal[i].nombreExam)){
-                console.log(this.listaExamenesTotal[i].nombreExam);
-                this.listaExamenesTotal[i].estado = 1;
+            socket.on('examenCompletoAlumnos', function(examenesCompletoAlumno) {
+
+                if (examenesCompletoAlumno.length != 0) {
+
+                    nombreE = examenesCompletoAlumno[0].nombreExamen;
                 }
-        
-             
 
-            }
+            })
 
-            console.log(this.listaExamenesTotal);
+            setTimeout(() => {
+                for (i = 0; i < this.listaExamenesTotal.length; i++) {
+
+                    if (this.listaExamenesRealizados.includes(this.listaExamenesTotal[i].nombreExam)) {
+
+                        this.listaExamenesTotal[i].estado = 1;
+                    }
+                    if (nombreE == this.listaExamenesTotal[i].nombreExam) {
+
+                        this.listaExamenesTotal[i].estado = 2;
+                    }
+                }
+            }, 2000);
+
 
         },
-
-       /* openStreaming: function() {
+        /**pantalla */
+        openStreaming: function() {
             navigator.mediaDevices.getDisplayMedia(displayMediaOptions)
                 .then(stream => {
 
@@ -217,29 +234,31 @@ Vue.component('empezarExamenAlumno', {
                         informacionStreamAlumno.push(JSON.stringify(token));
                         console.log(informacionStreamAlumno);
                         socket.emit('tokenAlumnoStreaming', informacionStreamAlumno);
-
-
-                        $('#btn5').click(() => {
-                            console.log("entrooo");
+                        setInterval(() => {
+                           
                             let socket = io.connect('http://localhost:8888');
                             socket.on('tokenProfeToAlumnoScreen', function(data) {
                                 console.log(data);
+                                if (data!=0) {
                                 let emailComparar = JSON.parse(data[0]);
 
                                 if (emailComparar == localStorage.getItem('emailAlumn')) {
-
-                                    p.signal(data[1]);
-
+                                    if (oneTime== 0) {
+                                             p.signal(data[1]);
+                                    oneTime= 1;
                                 }
+                                }}
                             })
-                        })
+                        }, 900);
+                        
+                   
+                         
+                       
                     });
-
-
-
                 })
                 .catch(err => console.log(err));
         },
+        /**camara */
         openStream: function() {
             navigator.mediaDevices.getUserMedia({ audio: false, video: true })
                 .then(stream => {
@@ -254,20 +273,23 @@ Vue.component('empezarExamenAlumno', {
                         informacionAlumno.push(JSON.stringify(token));
                         socket.emit('tokenAlumno', informacionAlumno);
 
-                        $('#btn3').click(() => {
+                        setInterval(() => {
 
                             let socket = io.connect('http://localhost:8888');
                             socket.on('tokenConexion', function(data) {
+                                if (data!=0) {
                                 let emailComparar = JSON.parse(data[0]);
 
                                 if (emailComparar == localStorage.getItem('emailAlumn')) {
-
+                                    if (oneTimeCamara == 0) {
                                     p.signal(data[1]);
-
+                                    oneTimeCamara=1;
+                                    }
                                 }
-
+                            }
                             })
-                        })
+                        }, 900);
+                       
 
                     });
 
@@ -275,18 +297,22 @@ Vue.component('empezarExamenAlumno', {
 
                 })
                 .catch(err => console.log(err));
-        },*/
-
+        },
+permitirConexiones : function () {
+    this.openStreaming();
+    this.openStream();
+}
     },
 
     created: function() {
         this.salvarRespuestasExamen();
         setInterval(this.salvarRespuestasExamen, 90);
-     //   this.openStreaming();
-     //   this.openStream();
+       
         this.recuperarDatosAlumno();
         this.estadoExamen();
         setInterval(this.estadoExamen, 2000);
+
+
 
 
     }

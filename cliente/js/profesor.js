@@ -220,37 +220,39 @@ Vue.component('mostrarCamaras', {
       </h5>
     </div>
 
-  <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-    <div class="card-body">
-   
-      <div class="centroTab">
-        <table id="diseñoCamPant" class="table table-striped">
-            <thead>   
-            </thead>
-          <tbody>
-            <tr>
-              <td class="tamañoFilasPantCam"  v-for="listaAlumno in listaAA">
-                <video class="tamañoFilasPantCam" v-bind:id="listaAlumno.idAlumno" autoplay playsinline controls="false"/>
-              </td>    
-            </tr>
-           </tbody>
+  <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+          <div class="card-body">
+              <div class="centroTab">
+                          <table id="diseñoCamPant" class="table table-striped">
+                              <thead>   
+                              </thead>
+                            <tbody>
+                              <tr>
+                                <td class="tamañoFilasPantCam"  v-for="listaAlumno in listaAA">
+                                  <video class="tamañoFilasPantCam" v-bind:id="listaAlumno.idAlumno" autoplay playsinline controls="false"/>
+                                </td>    
+                              </tr>
+                            </tbody>
 
-        </table>
-      </div>      
-    </div>
+                          </table>
+                </div>   
+                <div id="prueba">
+                  <div  v-for="listaAlumno in listaAA">
+                    <div id="iduno">
+                      <button v-bind:id="listaAlumno.idAlumno" class="alumnoInfo"  v-text="listaAlumno.nombreAlumno"> </button>     
+                  </div>
+                </div>
+              </div>
+        </div>
+        
   </div>
 </div>
-</div>
-<form>
-  <div id="prueba">
-      <div  v-for="listaAlumno in listaAA">
-        <div id="iduno">
-          <button v-bind:id="listaAlumno.idAlumno" class="alumnoInfo"  v-text="listaAlumno.nombreAlumno"> </button>     
-      </div>
-    </div>
 
-  </div>
-</form>
+
+
+
+</div>
+
 </div>
 `,
 
@@ -262,23 +264,7 @@ Vue.component('mostrarCamaras', {
                 id: ""
             },
             idAlumno: 0,
-            listaAA: [],
-            listaCamaras: [
-
-                [{ id: 1, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-                    { id: 2, nombre: "f", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-                    { id: 3, nombre: "v", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-                    { id: 4, nombre: "c", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-                    { id: 5, nombre: "v", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
-                ],
-
-                [
-                    { id: 6, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 },
-                    { id: 8, nombre: "paula", apellido: "tur", años: 25, ciudad: "Barcelona", telefono: 680361666 }
-                ]
-
-            ],
-
+            listaAA: []
         }
 
     },
@@ -293,8 +279,12 @@ Vue.component('mostrarCamaras', {
                 var cogerArrayLocal = JSON.parse(localStorage.getItem('tokenAlumno'));
             }
             if (listaAA.length < cogerArrayLocal.length) {
+              console.log(cogerArrayLocal);
                 this.listaAA = cogerArrayLocal;
+            } else{
+              this.listaAA=[];  
             }
+          //  console.log(this.listaAA);
         },
         playVideo: function(stream, idVideo) {
             const video = document.getElementById(idVideo);
@@ -367,13 +357,13 @@ Vue.component('mostrarCamaras', {
     },
 
     created: function() {
+    
 
         this.openStream();
         this.a();
         this.listaAA = setInterval(this.a, 3000);
         this.subirAlLocal();
         setInterval(this.subirAlLocal, 3000);
-        //  this.getScreenConstraints();
 
     }
 
@@ -393,9 +383,6 @@ Vue.component('mostrarCompartirPantalla', {
 
       <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
         <div class="card-body">
-          <p>Yo molo</p>
-       
-     
           <div class="centroTab">
               <table id="diseñoCamPant" class="table table-striped">
                   <thead>   
@@ -444,6 +431,8 @@ Vue.component('mostrarCompartirPantalla', {
             }
             if (listaAA.length < cogerArrayLocalS.length) {
                 this.listaStreaming = cogerArrayLocalS;
+            }else{
+              this.listaStreaming=[];  
             }
         },
         subirAlLocalScreen: function() {
