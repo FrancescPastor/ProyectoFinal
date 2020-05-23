@@ -12,36 +12,34 @@ Vue.component('empezarExamenAlumno', {
     template: /*html*/ `
 <div>
 
-  <form class="col-12 mt-2">
-    <fieldset class="mb-5">
-      <h1 class="text-center">Listado de Exámenes Pendientes</h1>
-      <div  v-show="lista" class="form-group row">
-        <div class="col-lg-4">
-             <ul>
-                <li v-if="examen.estado == 0" class="list-group-item list-group-item-secondary text-dark" disabled v-bind:id="examen.nombreExam" v-for="examen in listaExamenesTotal" v-text="examen.nombreExam" ></li>
-                <li v-if="examen.estado == 1" class="list-group-item list-group-item-success text-dark" disabled v-bind:id="examen.nombreExam" v-for="examen in listaExamenesTotal" v-text="examen.nombreExam" ></li> 
-                <li v-if="examen.estado == 2" class="parpadea text list-group-item list-group-item-action list-group-item-danger text-light" v-bind:id="examen.nombreExam" v-for="examen in listaExamenesTotal" v-text="'Realizar el Exámen: ' + examen.nombreExam " @click="mostrarExamenCompletoAlumno"></li> 
-            </ul> 
-        </div>
+<form class="col-12 mt-2">
+  <fieldset class="mb-5">
+    <h1 class="text-center">Listado de Exámenes Pendientes</h1>
+    <div  v-show="lista" class="form-group row">
+      <div class="col-lg-4">
+           <ul>
+              <li v-if="examen.estado == 0" class="list-group-item list-group-item-secondary text-dark" disabled v-bind:id="examen.nombreExam" v-for="examen in listaExamenesTotal" v-text="examen.nombreExam" ></li>
+              <li v-if="examen.estado == 1" class="list-group-item list-group-item-success text-dark" disabled v-bind:id="examen.nombreExam" v-for="examen in listaExamenesTotal" v-text="examen.nombreExam" ></li> 
+              <li v-if="examen.estado == 2" class="parpadea text list-group-item list-group-item-action list-group-item-danger text-light" v-bind:id="examen.nombreExam" v-for="examen in listaExamenesTotal" v-text="'Realizar el Exámen: ' + examen.nombreExam " @click="mostrarExamenCompletoAlumno"></li> 
+          </ul> 
+      </div>
+    </div> 
+  </fieldset>
+</form>
+
+<form  v-show="!lista" class="col-12 mt-2">
+  <fieldset v-show="!mostrar" class="mb-5">   
+      <div class="form-group row">  
+          <div  v-for=" pregunta in listaPreguntasDeLosExamenes" class="col-lg-12">    
+              <p id="preguntas" for="nombre" v-text="pregunta.preguntas" ><b></b></p>   
+              <textarea  v-on:keydown="keymonitor" v-model="pregunta.respuestas" placeholder="Escriba aquí su respuesta..." rows="3"  column="5" class="form-control form-control-lg col-md-12" ></textarea>
+          </div>
+          <div class="col-lg-12"> 
+              <button v-show="!mostrar" class="btn btn-info btn-block" @click="guardarExamenAlumno">Finalizar Exámen</button>
+          </div>
       </div> 
-    </fieldset>
-  </form>
-  <form v-show="noListasSiExamen" class="col-12 mt-2">
-  <fieldset v-show="noExamen" class="mb-5">   
-
-            <div v-show="!lista" class="form-group row">  
-            <div  v-for=" pregunta in listaPreguntasDeLosExamenes" class="col-lg-12">    
-                <p id="preguntas" for="nombre" v-text="pregunta.preguntas" ><b></b></p>   
-                <textarea  v-on:keydown="keymonitor" v-model="pregunta.respuestas" placeholder="Escriba aquí su respuesta..." rows="3"  column="5" class="form-control form-control-lg col-md-12" ></textarea>
-            </div>
-            <div class="col-lg-12"> 
-                <button v-show="!mostrar" class="btn btn-info btn-block" @click="guardarExamenAlumno">Finalizar Exámen</button>
-            </div>
-            </div> 
-         
-             
-  </div>
-
+   </fieldset>
+</form>                 
 </div> 
 
   `,
@@ -93,11 +91,6 @@ Vue.component('empezarExamenAlumno', {
                 this.listaPreguntasDeLosExamenes = preguntasExamen;
                 this.mostrar = false;
                 this.lista = false;
-                if (this.lista == false) {
-                    this.preguntas = false;
-                    this.camara = true;
-                    this.pantalla = true;
-                }
             }, 2000);
 
 
@@ -114,7 +107,7 @@ Vue.component('empezarExamenAlumno', {
             examen.push({ emailAlumno: emailAlumno, nombreExamen: this.nombreExamen, respuestasAlumno: respuestasExamen })
 
             let socket = io.connect('http://localhost:8888');
-
+            this.lista = true;
             socket.emit('respuestasAlumnoDelExamen', examen)
         },
         recuperarDatosAlumno: function() {
@@ -205,14 +198,17 @@ Vue.component('empezarExamenAlumno', {
 
             setTimeout(() => {
                 for (i = 0; i < this.listaExamenesTotal.length; i++) {
-
+                   
                     if (this.listaExamenesRealizados.includes(this.listaExamenesTotal[i].nombreExam)) {
 
                         this.listaExamenesTotal[i].estado = 1;
                     }
                     if (nombreE == this.listaExamenesTotal[i].nombreExam) {
-
+                     
                         this.listaExamenesTotal[i].estado = 2;
+                    }
+                    if (nombreE == this.listaExamenesTotal[i].nombreExam&&this.listaExamenesRealizados.includes(this.listaExamenesTotal[i].nombreExam)) {
+                        this.listaExamenesTotal[i].estado = 1;
                     }
                 }
             }, 2000);
@@ -311,7 +307,7 @@ permitirConexiones : function () {
         this.recuperarDatosAlumno();
         this.estadoExamen();
         setInterval(this.estadoExamen, 2000);
-
+        setInterval(this.recuperarDatosAlumno, 2000);
 
 
 
