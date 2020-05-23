@@ -307,7 +307,7 @@ permitirConexiones : function () {
         this.recuperarDatosAlumno();
         this.estadoExamen();
         setInterval(this.estadoExamen, 2000);
-        setInterval(this.recuperarDatosAlumno, 2000);
+        setInterval(this.recuperarDatosAlumno, 60000);
 
 
 
