@@ -28,3 +28,23 @@ body {
 #iconoMenu {
     color: white;
 }
+
+  
+h1 {
+    font-weight: normal;
+  }
+  
+  .reloj {
+    display: inline-block;
+    font-size: 1.5em;
+    list-style-type: none;
+    padding: 1em;
+    text-transform: uppercase;
+  }
+  
+ .tiempo {
+    display: block;
+    font-size: 4.5rem;
+  }
+  
+  

@@ -103,6 +103,13 @@ app.get("/alumno", (req, res) => {
     // authAlumno(req, res,  function(){});
 
 })
+
+app.get("/administrador", (req, res) => {
+    res.setHeader("Content-type", "text/html");
+    res.sendFile(path.join(__dirname, '../cliente', 'administrador.html'));
+    // authAlumno(req, res,  function(){});
+
+})
 app.get("/profesor", (req, res) => {
     res.setHeader("Content-Type", "text/html; charset=utf-8");  
     res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
@@ -276,7 +283,58 @@ io.on('connection', function(socket) {
 
     });
 })
+/**
+ * Registro de los profesores
+ */
+io.on('connection', function(socket) {
+    socket.on('registroProfesor', function(data) {
 
+        MongoClient.connect(url, function(err, client) {
+            assert.equal(null, err);
+            console.log("Connected successfully to server");
+            const db = client.db(dbName);
+            /**
+             * llamamos a la funcion que comprueba el login
+             */
+            insertarProfesor(db, err, function() {});
+            insertarRegistroProfesor(db, err, function() {});
+            client.close();
+
+        });
+        var insertarProfesor = function(db, err, callback) {
+
+
+            db.collection('RegistroUsuarios').insertOne({
+                "nombre": data[0][0],
+                "apellidos": data[0][1],
+                "email": data[0][2],
+                "password": data[0][3],
+                "ciudad": data[0][4],
+                "direccion": data[0][5],
+                "cp": data[0][6],
+                "telefono": data[0][7],
+                "tipo": data[0][8],
+                "fechaNacimiento": data[0][9],
+            });
+
+
+            assert.equal(err, null);
+            console.log("correct");
+            callback();
+        }
+        var insertarRegistroProfesor = function(db, err, callback) {
+            db.collection('loginUsers').insertOne({
+                "email": data[2],
+                "password": data[3],
+                "type": data[8]
+            });
+            assert.equal(err, null);
+            console.log("correct");
+            callback();
+        }
+
+    });
+})
 /**
  * Guadar el examen realizado por el profesor
  * **/
@@ -412,15 +470,62 @@ io.on('connection', function(socket) {
 
     })
 })
+var temps = 0;
+
+toHour = 0;
+toMinute = 0;
+toSecond = 0;
+//cuenta atras
+function countDown(){
+
+    
+	toSecond=toSecond-1;
+
+	if(toSecond<0){
+		toSecond=59;
+		toMinute=toMinute-1;
+	}
+
+	
+	if(toMinute<0){
+
+		toMinute=59;
+		toHour=toHour-1;
+	}
+
+
+	if(toHour<0){
+	
+	}
+	else{
+	  setTimeout(countDown,1000);
+    }
+    if (toHour == 0 && toMinute == 0 && toSecond== 0){
+toHour = 0;
+toSecond = 0;
+toMinute = 0;
+    }
+}
 
 /**
  * Enviar el examen completo seleccionado al alumno 
  **/
+preguntasYnombre = [];
 var examenCompletoAlumno = [];
 var preguntasYnombre = [];
 io.on('connection', function(socket) {
 
-    socket.on('enviarExamenes', function(nombreExamen) {
+    socket.on('enviarExamenes', function(nombreExamenYtimmer) {
+        nombreExamen = nombreExamenYtimmer[0].nombreExamen;
+        duracionExamen = nombreExamenYtimmer[0].duracion;
+        
+        let x = duracionExamen.split(":",2);
+        let hora = parseInt(x[0]);
+        let minuto = parseInt(x[1])
+        toHour = hora;
+        toMinute = minuto;
+        countDown();
+        console.log(hora, minuto);
 
         MongoClient.connect(url, function(err, client) {
             assert.equal(null, err);
@@ -431,23 +536,26 @@ io.on('connection', function(socket) {
         });
 
         var enviarExamenAlumno = function(db, err, callback) {
+           
             examenCompletoAlumno = [];
-            preguntasYnombre = [];
+           preguntasYnombre = [];
             db.collection('examenes').find({}).toArray(function(err, result) {
 
                 for (i = 0; i < result.length; i++) {
-
                     if (result[i].nombreExamen == nombreExamen) {
-
                         examenCompletoAlumno.push({ preguntas: result[i].pregunta })
                     }
                 }
-                preguntasYnombre.push({ nombreExamen: nombreExamen, preguntas: examenCompletoAlumno, respuestas: "" })
+                preguntasYnombre.push({ nombreExamen: nombreExamen, preguntas: examenCompletoAlumno, respuestas: ""})
 
             })
         }
 
     })
+
+
+    tiempo = [{hora: toHour, minuto: toMinute, segundos: toSecond}];
+    socket.emit('temps', tiempo);
     socket.emit('examenCompletoAlumnos', preguntasYnombre);
 })
 

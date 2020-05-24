@@ -38,8 +38,29 @@ Vue.component('empezarExamenAlumno', {
               <button v-show="!mostrar" class="btn btn-info btn-block" @click="guardarExamenAlumno">Finalizar Exámen</button>
           </div>
       </div> 
-   </fieldset>
-</form>                 
+ 
+   <div class="container">
+ 
+ <ul>
+
+   <li class ="reloj"><span class="tiempo" id="hours"><h1>{{horas}}</h1></span>Horas</li>
+   <li class ="reloj"><span class="tiempo" id="minutes"><h1>{{minutos}}</h1></span>Minutos</li>
+   <li class ="reloj"><span class="tiempo" id="seconds"><h1>{{segundos}}</h1></span>Segundos</li>
+ </ul>
+ </div>
+ </fieldset>
+</form>
+<form v-show="finTiempo" class="col-12 mt-2">
+  <fieldset  class="mb-5">  
+    <div class="form-group row">  
+        <p>El tiempo ha finalizado</p>
+        <div class="col-lg-4"> 
+              <button class="btn btn-info btn-block" @click="guardarExamenAlumno">Guardar Exámen</button>
+          </div>
+    </div>
+    
+  </fieldset>
+</form>              
 </div> 
 
   `,
@@ -60,8 +81,11 @@ Vue.component('empezarExamenAlumno', {
             lista: true,
             preguntas: false,
             camara: false,
-            pantalla: false
-
+            pantalla: false,
+            horas: 0,
+            minutos:0,
+            segundos:0,
+            finTiempo: false
 
 
         }
@@ -79,18 +103,32 @@ Vue.component('empezarExamenAlumno', {
             var preguntasExamen = [];
             var nombreE = "";
             let socket = io.connect('http://localhost:8888');
-
+            let h = 0;
+            let m= 0;
+            let s = 0;
             socket.on('examenCompletoAlumnos', function(examenesCompletoAlumno) {
                 nombreE = examenesCompletoAlumno[0].nombreExamen;
                 preguntasExamen = examenesCompletoAlumno[0].preguntas;
+                console.log(examenesCompletoAlumno);
 
             })
-
+            socket.on('temps', function(temps) {
+                
+                console.log(temps);
+                h = temps[0].hora;
+                m = temps[0].minuto;
+                s = temps[0].segundos
+            })
+            
             setTimeout(() => {
                 this.nombreExamen = nombreE;
                 this.listaPreguntasDeLosExamenes = preguntasExamen;
                 this.mostrar = false;
                 this.lista = false;
+                this.horas = h;
+                this.minutos= m;
+                this.segundos = s;
+                this.contador();
             }, 2000);
 
 
@@ -108,6 +146,7 @@ Vue.component('empezarExamenAlumno', {
 
             let socket = io.connect('http://localhost:8888');
             this.lista = true;
+            this.finTiempo = false;
             socket.emit('respuestasAlumnoDelExamen', examen)
         },
         recuperarDatosAlumno: function() {
@@ -136,7 +175,7 @@ Vue.component('empezarExamenAlumno', {
                 this.listaExamenRealizadosXAlumno(emailAlumno);
             }, 900);
 
-
+          
 
         },
         listadoExamenesPorClase: function(clase) {
@@ -161,6 +200,35 @@ Vue.component('empezarExamenAlumno', {
             }, 900);
 
 
+        },
+        contador:function(){
+
+            this.segundos=this.segundos-1;
+        
+            if(this.segundos<0){
+                this.segundos=59;
+                this.minutos=this.minutos-1;
+            }
+        
+            
+            if(this.minutos<0){
+        
+                this.minutos=59;
+                this.horas=this.horas-1;
+            }
+            if(this.horas<0){
+            
+            }
+            else{
+              setTimeout(this.contador,1000);
+            }
+            if (this.horas == 00 && this.minutos == 00 && this.segundos == 00) {
+                this.segundos = 00;
+                this.minutos = 00;
+                this.horas = 00;
+                this.finTiempo = true;
+                this.mostrar = true;
+            }
         },
         listaExamenRealizadosXAlumno: function(emailAlumn) {
 

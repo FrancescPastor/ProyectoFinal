@@ -639,7 +639,7 @@ Vue.component('registroAlumno', {
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Información Exámen</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Información Registro Alumno</h5>
             <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>-->
@@ -904,6 +904,12 @@ Vue.component('empezarExamen', {
       <option v-for="nombre in listaNombresDeLosExamenes" v-text="nombre.nombre" ></option>
     </select>
   </div>
+  <div class="col-lg-1">
+    <label for="materia">Duracion examen:</label>
+  </div>
+  <div class="col-lg-2"> 
+   <input v-model="timmer"  type="time" ></input>
+  </div>
   <div class="col-lg-2"> 
     <button id="botonGuardar" class="btn btn-block" @click="mostrarExamenCompleto">Mostrar</button>
   </div>
@@ -917,6 +923,7 @@ Vue.component('empezarExamen', {
         <div class="col-lg-12">    
           <p id="preguntas" v-for="pregunta in listaPreguntasDeLosExamenes" for="nombre" v-text="pregunta.preguntas" ><b></b></p>
         </div>
+        
     </div>
   <div class="form-group row">  
     <div class="col-md-4"> 
@@ -955,7 +962,8 @@ Vue.component('empezarExamen', {
             listaNombresDeLosExamenes: [],
             nombreExamenAMostrar: "",
             listaPreguntasDeLosExamenes: [],
-            enviarExamen: true
+            enviarExamen: true,
+            timmer: "00:00"
         }
     },
     methods: {
@@ -965,7 +973,7 @@ Vue.component('empezarExamen', {
             let socket = io.connect('http://localhost:8888');
 
             socket.emit('mostrarExamenCompleto', this.nombreExamenAMostrar);
-
+         
 
             socket.on('examenCompleto', function(examenesCompleto) {
                 preguntasExamen = examenesCompleto;
@@ -994,10 +1002,14 @@ Vue.component('empezarExamen', {
         },
 
         enviarExamenAlAlumno: function() {
-
-            let socket = io.connect('http://localhost:8888');
-
-            socket.emit('enviarExamenes', this.nombreExamenAMostrar);
+          let nombreExamenYtimmer = [];
+          let socket = io.connect('http://localhost:8888');
+          let tiempo = this.timmer;
+          if (this.timmer=="00:00"){
+          tiempo = "01:00"
+          }
+          nombreExamenYtimmer.push({nombreExamen: this.nombreExamenAMostrar, duracion: tiempo});
+          socket.emit('enviarExamenes', nombreExamenYtimmer);
 
             $("#exampleModal").modal("show");
         }
