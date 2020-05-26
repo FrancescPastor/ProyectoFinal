@@ -1101,7 +1101,7 @@ Vue.component('corregirExamen', {
         <div class="col-lg-12 my-auto"> 
           <div class=" text-center"> 
             <h1 id="tituloNoExamn" class="card card-block w-100 text-center">No hay examen pendientes de corrección</h1>
-           <!-- <img src="../img/profesor.jpg" class="rounded mx-auto d-block"></img>-->
+         
           </div>
         </div>
       </div>
@@ -1113,9 +1113,7 @@ Vue.component('corregirExamen', {
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">Información Exámen</h5>
-            <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>-->
+     
         </div>
         <div class="modal-body">
          Exámen Corregido Guardado Correctamente
@@ -1171,7 +1169,8 @@ Vue.component('corregirExamen', {
             this.noExamen = true
 
         },
-        mostrarAlumnosDelExamen: function(event) {
+        mostrarAlumnosDelExamen: function(event) { 
+       
             let nombreExamen = event.currentTarget.id;
             let nombresEmailAlumnos = [];
 
