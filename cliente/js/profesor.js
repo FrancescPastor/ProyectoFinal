@@ -403,7 +403,7 @@ Vue.component('mostrarCompartirPantalla', {
               </div>
             
            </div>
-       
+           <button id="btnDesc">Desconectar</button>
   </div>
           </div>
         </div>
@@ -475,7 +475,7 @@ Vue.component('mostrarCompartirPantalla', {
                     });
 
                     $(document).on('click', '.alumnoInfoScreen', (e) => {
-
+                    
 
                         let arrayTokenS = JSON.parse(localStorage.getItem('tokenAlumnoScreen'));
                         for (i = 0; i < arrayTokenS.length; i++) {
@@ -493,16 +493,21 @@ Vue.component('mostrarCompartirPantalla', {
                             if (this.listaStreaming[yy].idAlumno == e.currentTarget.id) {
 
                                 let idScreen = this.listaStreaming[yy].idAlumno;
-                                console.log("ID_");
+                               
 
                                 p.on('stream', friendStream => this.startCapture(friendStream, idScreen));
-
+                              
                             }
                         }
 
                     })
 
-                    //  p.on('stream', friendStream => this.playVideo(friendStream, 'friendStream'))
+                    $('#btnDesc').click(()=>{
+                      p.removeStream(stream);
+                 
+                    })
+
+                    
                 })
                 .catch(err => console.log(err));
         },
@@ -1350,6 +1355,11 @@ var app = new Vue({
     methods: {
         navegar: function($event) {
             this.rutaActual = $event.target.hash;
+        },
+        logout : function () {
+          let socket = io.connect('http://localhost:8888');
+          socket.emit ('logout', 'salir');
+          window.location.href = "https://localhost:3000/registro";
         }
     },
     computed: {
@@ -1384,9 +1394,18 @@ var app = new Vue({
            <li class="nav-item">
             <a class="nav-link" href="#/corregirExamen"  v-on:click="navegar">Corregir Exámen</a>
           </li>
+        
           <!--<li class="nav-item">
-            <a class="nav-link disabled" href="#">Disabled</a>
+            <a class="nav-link disabled"   href="#">Disabled</a>
           </li>-->
+        </ul>
+      
+      </div>
+      <div>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a @click="logout" class="nav-link text-rigth">Log Out</a>
+        </li>
         </ul>
       </div>
     </nav>

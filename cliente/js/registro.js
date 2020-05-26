@@ -38,25 +38,21 @@ Vue.component('registro', {
             let dataUser = [];
             dataUser.push(this.form.email, this.form.password);
             localStorage.setItem('emailAlumn', this.form.email);
-            console.log(dataUser);
+            
             let socket = io.connect('http://localhost:8888');
             socket.emit('dataUser', dataUser);
             socket.on('userType',function (data){
+              
               if (data == "alumno"){
                 window.location.href = "https://localhost:3000/alumno";
               }
              else if (data == "profesor"){
-                window.location.href = "http://localhost:3000/profesor";
+                window.location.href = "https://localhost:3000/profesor";
               }
-              else if (data == "administrador"){
-                console.log("admin");
-              //  window.location.href = "http://192.168.1.138:3000/profesor";
+              else if (data == "admin"){
+                window.location.href = "https://localhost:3000/administrador";
               }
             })
-
-            
-
-
           }
         },
         validaType() {

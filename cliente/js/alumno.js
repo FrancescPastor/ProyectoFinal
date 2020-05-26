@@ -47,6 +47,7 @@ Vue.component('empezarExamenAlumno', {
    <li class ="reloj"><span class="tiempo" id="minutes"><h1>{{minutos}}</h1></span>Minutos</li>
    <li class ="reloj"><span class="tiempo" id="seconds"><h1>{{segundos}}</h1></span>Segundos</li>
  </ul>
+ <button id="btnDesc">Desconectar</button>
  </div>
  </fieldset>
 </form>
@@ -292,16 +293,17 @@ Vue.component('empezarExamenAlumno', {
                     console.log("entrado");
                     p.on('signal', token => {
                         informacionStreamAlumno = [];
-
                         let socket = io.connect('http://localhost:8888');
                         informacionStreamAlumno.push(localStorage.getItem('emailAlumn'));
                         informacionStreamAlumno.push(JSON.stringify(token));
+                        console.log("TOKEN ALUMNO QUE SE ENVIA AL PROFE:");
                         console.log(informacionStreamAlumno);
                         socket.emit('tokenAlumnoStreaming', informacionStreamAlumno);
                         setInterval(() => {
                            
                             let socket = io.connect('http://localhost:8888');
                             socket.on('tokenProfeToAlumnoScreen', function(data) {
+                                console.log("TOKEN DEL PROFESOR");
                                 console.log(data);
                                 if (data!=0) {
                                 let emailComparar = JSON.parse(data[0]);
@@ -311,12 +313,15 @@ Vue.component('empezarExamenAlumno', {
                                              p.signal(data[1]);
                                     oneTime= 1;
                                 }
-                                }}
+                                }
+                             
+                            }
                             })
                         }, 900);
-                        
-                   
-                         
+                        $('#btnDesc').click(()=>{ 
+                            p.removeStream(stream);
+                          
+                        })
                        
                     });
                 })

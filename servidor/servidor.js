@@ -22,6 +22,40 @@ const url = 'mongodb://localhost:27017';
 const dbName = 'webClass';
 
 var enviar = 0;
+
+
+class Persona
+{
+constructor(){
+    this.nombre = nombre;
+    this.apellidos =apellidos;
+    this.email = email;
+    this.password = password;
+    this.ciudad = ciudad;
+    this.direccion = direccion;
+    this.codigoPostal = codigoPostal;
+    this.telefono = telefono;
+    this.fechaNacimiento = fechaNacimiento;
+
+}
+
+}
+
+class Alumno extends Persona {
+  constructor() {
+    super(nombre, apellidos, email, password, ciudad, direccion, codigoPostal, telefono, fechaNacimiento, clase, asignatura);
+     this.clase = calse;
+     this.asignatura = asignatura;
+    }
+    
+  }
+  class Profesor extends Persona {
+    constructor() {
+      super(nombre, apellidos, email, password, ciudad, direccion, codigoPostal, telefono, fechaNacimiento);
+
+      }
+      
+    }
 /**
  * Usamos el sesion de express
  */
@@ -55,12 +89,15 @@ var authAlumno = function(req, res) {
     });
     var sessionControl = function(db, err, callback) {
         db.collection('loginUsers').find({ email: req.session.user, type: "alumno" }).toArray(function(err, result) {
+        console.log(req.session.user);
             if (err) throw err;
             if (result.length > 0) {
-
+                
+                res.setHeader("Content-type", "text/html");
                 res.sendFile(path.join(__dirname, '../cliente', 'alumno.html'));
             } else {
-
+               
+                res.setHeader("Content-type", "text/html");
                 res.sendFile(path.join(__dirname, '../cliente', 'registro.html'));
             }
         });
@@ -83,10 +120,36 @@ var authProfesor = function(req, res) {
         db.collection('loginUsers').find({ email: req.session.user, type: "profesor" }).toArray(function(err, result) {
             if (err) throw err;
             if (result.length > 0) {
-
+                res.setHeader("Content-Type", "text/html; charset=utf-8");  
                 res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
             } else {
-
+                res.setHeader("Content-Type", "text/html; charset=utf-8");  
+                res.sendFile(path.join(__dirname, '../cliente', 'registro.html'));
+            }
+        });
+        assert.equal(err, null);
+        callback();
+    }
+};
+var authAdmin = function(req, res) {
+    MongoClient.connect(url, function(err, client, req, res) {
+        assert.equal(null, err);
+        console.log("Connected successfully to server");
+        const db = client.db(dbName);
+        /**
+         * llamamos a la funcion que comprueba el login
+         */
+        sessionControlP(db, err, function() {});
+        client.close();
+    });
+    var sessionControlP = function(db, err, callback) {
+        db.collection('loginUsers').find({ email: req.session.user, type: "admin" }).toArray(function(err, result) {
+            if (err) throw err;
+            if (result.length > 0) {
+                res.setHeader("Content-Type", "text/html; charset=utf-8");  
+                res.sendFile(path.join(__dirname, '../cliente', 'administrador.html'));
+            } else {
+                res.setHeader("Content-Type", "text/html; charset=utf-8");  
                 res.sendFile(path.join(__dirname, '../cliente', 'registro.html'));
             }
         });
@@ -98,21 +161,20 @@ var authProfesor = function(req, res) {
  * Aqui ponemos la ruta
  */
 app.get("/alumno", (req, res) => {
-    res.setHeader("Content-type", "text/html");
+  
     res.sendFile(path.join(__dirname, '../cliente', 'alumno.html'));
     // authAlumno(req, res,  function(){});
 
 })
 
 app.get("/administrador", (req, res) => {
-    res.setHeader("Content-type", "text/html");
-    res.sendFile(path.join(__dirname, '../cliente', 'administrador.html'));
-    // authAlumno(req, res,  function(){});
+   // authAdmin(req, res,  function(){});
+   res.sendFile(path.join(__dirname, '../cliente', 'administrador.html'));
 
 })
 app.get("/profesor", (req, res) => {
-    res.setHeader("Content-Type", "text/html; charset=utf-8");  
     res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
+
     //authProfesor(req, res,  function(){});
         io.on('connection', function(socket) {
 
@@ -123,6 +185,41 @@ app.get("/profesor", (req, res) => {
 
     
     })
+    app.get("/registro", (req, res) => {
+        io.on('connection', function (socket) {
+            socket.on('dataUser', function (data) {
+                console.log(data);
+              MongoClient.connect(url, function (err, client) {
+                assert.equal(null, err);
+        
+                const db = client.db(dbName);
+        
+                checkLogin(db, err, function () { });
+                client.close();
+               
+              });
+              var checkLogin = function (db, err, callback) {
+                db.collection('loginUsers').find({ email: data[0], password: data[1] }).toArray(function (err, result) {
+                  if (err) throw err;
+                  if (result.length > 0) {
+                    socket.emit('userType', result[0].type);
+                    req.session.user = result[0].email;
+                    req.session.save();
+                    console.log(req.session.user);
+                
+                  }
+                });
+                assert.equal(err, null);
+                callback();
+              }
+              
+          
+            });
+          })
+        res.setHeader("Content-type", "text/html");
+        res.sendFile(path.join(__dirname, '../cliente', 'registro.html'));
+    })
+    
     /**
      * esta es la ruta de registro que valida si el usuario esta en la bdd y si esta deja entrar
      */
@@ -183,11 +280,6 @@ io.on('connection', function(socket) {
 
 
 });
-app.get("/registro", (req, res) => {
-
-    res.setHeader("Content-type", "text/html");
-    res.sendFile(path.join(__dirname, '../cliente', 'registro.html'));
-})
 
 
 /**
@@ -228,6 +320,8 @@ app.listen(app.get('puerto'), function () {
 */
 
 // Subir variables globales arriba 17/05/2020
+
+
 
 /**
  * Registro de los alumnos
@@ -272,9 +366,9 @@ io.on('connection', function(socket) {
         }
         var insertarRegistro = function(db, err, callback) {
             db.collection('loginUsers').insertOne({
-                "email": data[2],
-                "password": data[3],
-                "type": data[8]
+                "email": data[0][2],
+                "password": data[0][3],
+                "type": data[0][8]
             });
             assert.equal(err, null);
             console.log("correct");
@@ -286,6 +380,7 @@ io.on('connection', function(socket) {
 /**
  * Registro de los profesores
  */
+
 io.on('connection', function(socket) {
     socket.on('registroProfesor', function(data) {
 
@@ -293,9 +388,6 @@ io.on('connection', function(socket) {
             assert.equal(null, err);
             console.log("Connected successfully to server");
             const db = client.db(dbName);
-            /**
-             * llamamos a la funcion que comprueba el login
-             */
             insertarProfesor(db, err, function() {});
             insertarRegistroProfesor(db, err, function() {});
             client.close();
@@ -324,9 +416,9 @@ io.on('connection', function(socket) {
         }
         var insertarRegistroProfesor = function(db, err, callback) {
             db.collection('loginUsers').insertOne({
-                "email": data[2],
-                "password": data[3],
-                "type": data[8]
+                "email": data[0][2],
+                "password": data[0][3],
+                "type": data[0][8]
             });
             assert.equal(err, null);
             console.log("correct");
@@ -335,6 +427,7 @@ io.on('connection', function(socket) {
 
     });
 })
+
 /**
  * Guadar el examen realizado por el profesor
  * **/
@@ -964,9 +1057,15 @@ io.on('connection', function(socket) {
 
     })
 })
+/**
+ * logout 
+ */
 
-
-
+io.on('connection', function(socket) { 
+    socket.on('logout', function(logout) { 
+        req.session.destroy();
+    })
+})
 
 
 
