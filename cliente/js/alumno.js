@@ -96,14 +96,14 @@ Vue.component('empezarExamenAlumno', {
             //PARTE PAU DESCOMENTA SI QUIERS Q VAYA
             /*   this.name=event.key;
                console.log(this.name);
-               let socket = io.connect('http://localhost:8888');
+               let socket = io.connect('https://25.145.218.244:8888');
                socket.emit ('caracter', this.name);*/
         },
         mostrarExamenCompletoAlumno: function() {
             this.permitirConexiones();
             var preguntasExamen = [];
             var nombreE = "";
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
             let h = 0;
             let m= 0;
             let s = 0;
@@ -145,7 +145,7 @@ Vue.component('empezarExamenAlumno', {
 
             examen.push({ emailAlumno: emailAlumno, nombreExamen: this.nombreExamen, respuestasAlumno: respuestasExamen })
 
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
             this.lista = true;
             this.finTiempo = false;
             socket.emit('respuestasAlumnoDelExamen', examen)
@@ -156,16 +156,18 @@ Vue.component('empezarExamenAlumno', {
             let nombre = "";
             let apellido = "";
             let clase = "";
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
 
             socket.emit('datosAlumno', emailAlumno);
 
             socket.on('datosDelAlumno', function(datosDelAlumno) {
-
+                console.log(datosDelAlumno);
+                if (datosDelAlumno.length != 0){
+              
                 nombre = datosDelAlumno[0].nombreAlumno;
                 apellido = datosDelAlumno[0].apellidos;
                 clase = datosDelAlumno[0].clase;
-
+                }
             });
 
             setTimeout(() => {
@@ -182,7 +184,7 @@ Vue.component('empezarExamenAlumno', {
         listadoExamenesPorClase: function(clase) {
             let listaExamens = []
 
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
 
             socket.emit('clasAlumno', clase);
 
@@ -234,7 +236,7 @@ Vue.component('empezarExamenAlumno', {
         listaExamenRealizadosXAlumno: function(emailAlumn) {
 
             let examenesRealizadosXAlumno = []
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
 
             socket.emit('exmPendiEmailDelAlumno', emailAlumn);
 
@@ -254,7 +256,7 @@ Vue.component('empezarExamenAlumno', {
         },
         estadoExamen: function() {
             var nombreE = "";
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
 
             socket.on('examenCompletoAlumnos', function(examenesCompletoAlumno) {
 
@@ -293,7 +295,7 @@ Vue.component('empezarExamenAlumno', {
                     console.log("entrado");
                     p.on('signal', token => {
                         informacionStreamAlumno = [];
-                        let socket = io.connect('http://localhost:8888');
+                        let socket = io.connect('https://25.145.218.244:8888');
                         informacionStreamAlumno.push(localStorage.getItem('emailAlumn'));
                         informacionStreamAlumno.push(JSON.stringify(token));
                         console.log("TOKEN ALUMNO QUE SE ENVIA AL PROFE:");
@@ -301,7 +303,7 @@ Vue.component('empezarExamenAlumno', {
                         socket.emit('tokenAlumnoStreaming', informacionStreamAlumno);
                         setInterval(() => {
                            
-                            let socket = io.connect('http://localhost:8888');
+                            let socket = io.connect('https://25.145.218.244:8888');
                             socket.on('tokenProfeToAlumnoScreen', function(data) {
                                 console.log("TOKEN DEL PROFESOR");
                                 console.log(data);
@@ -337,14 +339,14 @@ Vue.component('empezarExamenAlumno', {
                     p.on('signal', token => {
                         informacionAlumno = [];
 
-                        let socket = io.connect('http://localhost:8888');
+                        let socket = io.connect('https://25.145.218.244:8888');
                         informacionAlumno.push(localStorage.getItem('emailAlumn'));
                         informacionAlumno.push(JSON.stringify(token));
                         socket.emit('tokenAlumno', informacionAlumno);
 
                         setInterval(() => {
 
-                            let socket = io.connect('http://localhost:8888');
+                            let socket = io.connect('https://25.145.218.244:8888');
                             socket.on('tokenConexion', function(data) {
                                 if (data!=0) {
                                 let emailComparar = JSON.parse(data[0]);

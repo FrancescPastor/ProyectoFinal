@@ -157,7 +157,7 @@ Vue.component('listaAlumnos', {
     },
     methods: {
         mostrarListaAlumnosXClases: function() {
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
             let clases = this.clase;
             let inforAlumno = [];
             socket.emit('listaAlumnos', clases);
@@ -177,7 +177,7 @@ Vue.component('listaAlumnos', {
         },
 
         mostrarNotasAlumno: function(event) {
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
             let idEmailAlumno = event.currentTarget.id;
             let inforNotasAlumno = [];
             socket.emit('idEmailAlumno', idEmailAlumno);
@@ -274,7 +274,7 @@ Vue.component('mostrarCamaras', {
         a: function() {
 
             if (localStorage.getItem('tokenAlumno') === null) {
-                localStorage.setItem('tokenAlumnoScreen', '[]');
+                localStorage.setItem('tokenAlumno', '[]');
             } else {
                 var cogerArrayLocal = JSON.parse(localStorage.getItem('tokenAlumno'));
             }
@@ -306,7 +306,7 @@ Vue.component('mostrarCamaras', {
                         info = [];
                         nombreAl1 = localStorage.getItem('alumnoNombreSeñal');
                         info.push(nombreAl1, token);
-                        let socket = io.connect('http://localhost:8888');
+                        let socket = io.connect('https://25.145.218.244:8888');
                         socket.emit('tokenProfesor', info);
 
                     });
@@ -347,7 +347,7 @@ Vue.component('mostrarCamaras', {
 
         subirAlLocal: function() {
 
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
             socket.on('listaAlumnos', function(data) {
                 localStorage.setItem('tokenAlumno', JSON.stringify(data));
 
@@ -428,15 +428,16 @@ Vue.component('mostrarCompartirPantalla', {
                 localStorage.setItem('tokenAlumnoScreen', '[]');
             } else {
                 var cogerArrayLocalS = JSON.parse(localStorage.getItem('tokenAlumnoScreen'));
+                if (listaAA.length < cogerArrayLocalS.length) {
+                  this.listaStreaming = cogerArrayLocalS;
+              }else{
+                this.listaStreaming=[];  
+              }
             }
-            if (listaAA.length < cogerArrayLocalS.length) {
-                this.listaStreaming = cogerArrayLocalS;
-            }else{
-              this.listaStreaming=[];  
-            }
+            
         },
         subirAlLocalScreen: function() {
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
             socket.on('tokenAlumnoToProfeScreen', function(data) {
                 localStorage.setItem('tokenAlumnoScreen', JSON.stringify(data));
 
@@ -469,7 +470,7 @@ Vue.component('mostrarCompartirPantalla', {
                         infoScr = [];
                         nombreS = localStorage.getItem('alumnoNombreSeñalScreen');
                         infoScr.push(nombreS, token);
-                        let socket = io.connect('http://localhost:8888');
+                        let socket = io.connect('https://25.145.218.244:8888');
                         socket.emit('tokenProfesorScreen', infoScr);
 
                     });
@@ -707,7 +708,7 @@ Vue.component('registroAlumno', {
             let registroUsuario = [];
             registroUsuario.push(datosAlumno);
             console.log(registroUsuario);
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
             socket.emit('registroAlumno', registroUsuario);
 
             $("#exampleModal").modal("show");
@@ -835,7 +836,7 @@ Vue.component('generarExamen', {
     methods: {
         comprobarNombre: function() {
             let nombreOK = "";
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
             socket.emit('comprobarNombreExamen', this.nombreExamen);
 
             socket.on('comprobacionNombre', function(examenesCompleto) {
@@ -883,7 +884,7 @@ Vue.component('generarExamen', {
             var informacionExamen = [];
 
             informacionExamen.push({ nombreExamen: this.nombreExamen, nombreMateria: this.nombreMateria, nombreAula: this.nombreAula, preguntas: preguntasExamen });
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
             socket.emit('examen', informacionExamen)
 
             this.examenok = false
@@ -975,7 +976,7 @@ Vue.component('empezarExamen', {
         mostrarExamenCompleto: function() {
             var preguntasExamen = [];
             this.nombreExamenAMostrar
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
 
             socket.emit('mostrarExamenCompleto', this.nombreExamenAMostrar);
          
@@ -995,7 +996,7 @@ Vue.component('empezarExamen', {
         mostrarExamenesCombo: function() {
             var nombres = [];
             console.log("dentro");
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
 
             socket.on('mostrarExamen', function(mostrar) {
                 for (i = 0; i < mostrar.length; i++) {
@@ -1008,7 +1009,7 @@ Vue.component('empezarExamen', {
 
         enviarExamenAlAlumno: function() {
           let nombreExamenYtimmer = [];
-          let socket = io.connect('http://localhost:8888');
+          let socket = io.connect('https://25.145.218.244:8888');
           let tiempo = this.timmer;
           if (this.timmer=="00:00"){
           tiempo = "01:00"
@@ -1146,15 +1147,21 @@ Vue.component('corregirExamen', {
     },
     methods: {
         recuperarNombreAlumnoYNombreExamno: function() {
-            var nombreExamen = JSON.parse(localStorage.getItem('NombreAlumnoDelExamen'));
-            this.nombreExamen = nombreExamen[0].nombreExamenPendiente;
-            this.nombreAlumno = nombreExamen[0].gmailAlumno;
+
+          if (localStorage.getItem('NombreAlumnoDelExamen') === null) {
+            localStorage.setItem('NombreAlumnoDelExamen', '[]');
+        } else{
+        var nombreExamen = JSON.parse(localStorage.getItem('NombreAlumnoDelExamen'));
+        this.nombreExamen = nombreExamen[0].nombreExamenPendiente;
+        this.nombreAlumno = nombreExamen[0].gmailAlumno;
+      }
+          
 
 
         },
         recuperarNombreExamenes: function() {
             var listaEx = []
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
             socket.on('mostrarExamenRealizados', function(mostrarExamenRealizados) {
 
                 for (i = 0; i < mostrarExamenRealizados.length; i++) {
@@ -1174,7 +1181,7 @@ Vue.component('corregirExamen', {
             let nombreExamen = event.currentTarget.id;
             let nombresEmailAlumnos = [];
 
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
 
             socket.emit('nombreAlumnosDelExamenACorregir', nombreExamen);
 
@@ -1201,7 +1208,7 @@ Vue.component('corregirExamen', {
             let nombreExamenYGmailAlumno = [{ gmailAlumno: gmailAlumno, nombreExamenPendiente: nombreExamenPendiente }]
             let examenesACorregir = [];
 
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
 
             socket.emit('examenAlumnoACorregir', nombreExamenYGmailAlumno);
 
@@ -1219,7 +1226,7 @@ Vue.component('corregirExamen', {
             this.noListasSiExamen = true;
         },
         guardarNotasExamen: function() {
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
             let notasAlumno = [];
             let nombreAlumnoDelExamen = JSON.parse(localStorage.getItem('NombreAlumnoDelExamen'));
             let notaFinalExamen = this.notaFinal;
@@ -1356,9 +1363,9 @@ var app = new Vue({
             this.rutaActual = $event.target.hash;
         },
         logout : function () {
-          let socket = io.connect('http://localhost:8888');
+          let socket = io.connect('https://25.145.218.244:8888');
           socket.emit ('logout', 'salir');
-          window.location.href = "https://localhost:3000/registro";
+          window.location.href = "https://25.145.218.244:3000/registro";
         }
     },
     computed: {

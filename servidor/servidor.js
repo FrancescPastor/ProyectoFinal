@@ -13,9 +13,24 @@ const assert = require('assert');
 var port = 8888;
 var privateKey = fs.readFileSync('./server.key').toString();
 var certificate = fs.readFileSync('./server.cert').toString();
+var tokenAlumn = "";
+
+var tokenProfe = "";
+var arrayTokensAlumnos = [];
+var idAlumnoServidor = 0;
+var idAlumnoServidorS = 0;
+var tokenProfesorAlumno = [];
+var arrayTokensAlumnosStreaming = [];
+var tokenProfesorAlumnoScreen = [];
 //var ca = fs.readFileSync('YOUR SSL CA').toString();
 
-var io = require('socket.io').listen(app.listen(port, { key: privateKey, cert: certificate }));
+//var io = require('socket.io').listen(app.listen(port, { key: privateKey, cert: certificate }));
+
+const io = require('socket.io').listen(https.createServer({
+    key: privateKey,
+    cert: certificate
+  }, app).listen(port));
+
 // Connection URL
 const url = 'mongodb://localhost:27017';
 // Database Name
@@ -469,20 +484,20 @@ var authAdmin = function(req, res) {
  */
 app.get("/alumno", (req, res) => {
   
-    res.sendFile(path.join(__dirname, '../cliente', 'alumno.html'));
-    // authAlumno(req, res,  function(){});
+    //res.sendFile(path.join(__dirname, '../cliente', 'alumno.html'));
+    authAlumno(req, res,  function(){});
 
 })
 
 app.get("/administrador", (req, res) => {
-   // authAdmin(req, res,  function(){});
-   res.sendFile(path.join(__dirname, '../cliente', 'administrador.html'));
+   authAdmin(req, res,  function(){});
+   //res.sendFile(path.join(__dirname, '../cliente', 'administrador.html'));
 
 })
 app.get("/profesor", (req, res) => {
-    res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
+    //res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
 
-    //authProfesor(req, res,  function(){});
+    authProfesor(req, res,  function(){});
         io.on('connection', function(socket) {
 
             socket.on('registroAlumno', function(data) {
@@ -530,15 +545,7 @@ app.get("/profesor", (req, res) => {
     /**
      * esta es la ruta de registro que valida si el usuario esta en la bdd y si esta deja entrar
      */
-var tokenAlumn = "";
 
-var tokenProfe = "";
-var arrayTokensAlumnos = [];
-var idAlumnoServidor = 0;
-var idAlumnoServidorS = 0;
-var tokenProfesorAlumno = [];
-var arrayTokensAlumnosStreaming = [];
-var tokenProfesorAlumnoScreen = [];
 io.on('connection', function(socket) {
 
     socket.on('tokenAlumno', function(data) {
@@ -739,7 +746,6 @@ io.on('connection', function(socket) {
     MongoClient.connect(url, function(err, client) {
         assert.equal(null, err);
         const db = client.db(dbName);
-
         profesor.mostrarExamenes(db, err, function() {}, socket);
         client.close();
     });
@@ -785,9 +791,7 @@ toMinute = 0;
 toSecond = 0;
 //cuenta atras
 function countDown(){
-
-    
-	toSecond=toSecond-1;
+toSecond=toSecond-1;
 
 	if(toSecond<0){
 		toSecond=59;

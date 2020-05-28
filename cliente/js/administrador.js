@@ -139,7 +139,7 @@ Vue.component('registrarProfesor', {
             let registroUsuario = [];
             registroUsuario.push(datosProfesor);
             console.log(registroUsuario);
-            let socket = io.connect('http://localhost:8888');
+            let socket = io.connect('https://25.145.218.244:8888');
             socket.emit('registroProfesor', registroUsuario);
 
             $("#exampleModal").modal("show");
