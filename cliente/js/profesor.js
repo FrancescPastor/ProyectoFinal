@@ -368,6 +368,115 @@ Vue.component('mostrarCamaras', {
     }
 
 });
+Vue.component('graficoMonitorizacion', {
+  template: /*html*/ `
+<div>
+<div id="accordion">
+<div class="card">
+  <div class="card-header" id="headingOne">
+    <h5 class="mb-0">
+      <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTree" aria-expanded="true" aria-controls="collapseTree">
+        Graficos
+      </button>
+    </h5>
+  </div>
+
+<div id="collapseTree" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+        <div class="card-body">
+            <div class="centroTab">
+            <div class="container">
+        <canvas id="myChart" ></canvas>
+    </div>
+    <button @click="grafico">Mostrar Grafico</button>
+    <button @click="mongo">Enviar Resultats</button>
+              </div>   
+            
+      </div>
+      
+</div>
+</div>
+
+
+
+
+</div>
+
+</div>
+`,
+
+  data() {
+
+
+      return {
+         vacia :[]
+        
+      }
+
+  },
+  methods: {
+    grafico: function () {
+      var myChart = document.getElementById('myChart').getContext('2d');
+
+      let socket = io.connect('https://25.145.218.244:8888');
+      socket.on('chatmin', function (caracter) {
+        console.log(caracter);
+
+        var datagraph = new Chart(myChart, {
+
+          type: 'line', //bar/horizontalBar,pie,line
+          data: {
+            labels: ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60'],
+            datasets: [{
+              label: 'Caracters',
+              data: [
+                caracter[0],
+                caracter[1],
+                caracter[2],
+                caracter[3],
+                caracter[4],
+                caracter[5],
+                caracter[6],
+                caracter[7],
+                caracter[8],
+                caracter[9],
+                caracter[10],
+                caracter[11],
+              ],
+
+              borderColor: 'black',
+              pointBackgroundColor: 'red',
+              hoverBorderWidth: 3,
+
+            }]
+          },
+          options: {
+            title: {
+              display: true,
+              text: 'Caracters escrits',
+
+            },
+            animation: {
+              duration: 0 // general animation time
+            },
+            legend: {
+              position: 'right',
+            }
+          }
+        })
+      });
+    },
+    mongo:function(event){
+      var socket = io.connect('https://25.145.218.244:8888');
+      socket.emit('mongo', this.email);
+    }
+
+  },
+
+  created: function() {
+    this.grafico();
+  }
+
+});
 Vue.component('mostrarCompartirPantalla', {
     template: /*html*/ `
 <div>
@@ -403,7 +512,7 @@ Vue.component('mostrarCompartirPantalla', {
               </div>
             
            </div>
-           <button id="btnDesc">Desconectar</button>
+        
   </div>
           </div>
         </div>
@@ -503,10 +612,7 @@ Vue.component('mostrarCompartirPantalla', {
 
                     })
 
-                    $('#btnDesc').click(()=>{
-                      p.removeStream(stream);
-                 
-                    })
+                   
 
                     
                 })
@@ -1308,6 +1414,7 @@ const monitorizacion = {
   <div>
     <mostrarCamaras></mostrarCamaras>
     <mostrarCompartirPantalla></mostrarCompartirPantalla>
+    <graficoMonitorizacion></graficoMonitorizacion>
   </div>
    `
 };

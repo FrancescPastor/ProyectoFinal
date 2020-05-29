@@ -47,7 +47,6 @@ Vue.component('empezarExamenAlumno', {
    <li class ="reloj"><span class="tiempo" id="minutes"><h1>{{minutos}}</h1></span>Minutos</li>
    <li class ="reloj"><span class="tiempo" id="seconds"><h1>{{segundos}}</h1></span>Segundos</li>
  </ul>
- <button id="btnDesc">Desconectar</button>
  </div>
  </fieldset>
 </form>
@@ -86,19 +85,39 @@ Vue.component('empezarExamenAlumno', {
             horas: 0,
             minutos:0,
             segundos:0,
-            finTiempo: false
+            finTiempo: false,
+            name: '',
+            email: '',
+            message: '',
+            totalcharacter: ''
 
 
         }
     },
     methods: {
-        keymonitor: function(event) {
-            //PARTE PAU DESCOMENTA SI QUIERS Q VAYA
-            /*   this.name=event.key;
-               console.log(this.name);
-               let socket = io.connect('https://25.145.218.244:8888');
-               socket.emit ('caracter', this.name);*/
-        },
+        rellotge: function (event) {
+            let socket = io.connect('https://25.145.218.244:8888');
+            socket.emit('iniciarcrono', 's');
+          },
+          localstorage: function (event) {
+          
+            this.email = localStorage.getItem("emailAlumn");
+       
+            let socket = io.connect('https://25.145.218.244:8888');
+            socket.emit('email', this.email);
+      
+          },
+        keymonitor: function (event) {
+            this.name = event.key;
+            console.log(this.name);
+            this.email = localStorage.getItem("emailAlumn");
+            if (this.listaPreguntasDeLosExamenes[0].respuestas.length != 0){ 
+            this.totalcharacter = this.listaPreguntasDeLosExamenes[0].respuestas.length;
+           
+        } 
+            let socket = io.connect('https://25.145.218.244:8888');
+            socket.emit('caracter', { name: this.name, email: this.email, caracter: this.totalcharacter });
+          },
         mostrarExamenCompletoAlumno: function() {
             this.permitirConexiones();
             var preguntasExamen = [];
@@ -130,6 +149,8 @@ Vue.component('empezarExamenAlumno', {
                 this.minutos= m;
                 this.segundos = s;
                 this.contador();
+                this.rellotge();
+                this.localstorage();
             }, 2000);
 
 
@@ -320,10 +341,7 @@ Vue.component('empezarExamenAlumno', {
                             }
                             })
                         }, 900);
-                        $('#btnDesc').click(()=>{ 
-                            p.removeStream(stream);
-                          
-                        })
+                     
                        
                     });
                 })

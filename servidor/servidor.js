@@ -22,9 +22,7 @@ var idAlumnoServidorS = 0;
 var tokenProfesorAlumno = [];
 var arrayTokensAlumnosStreaming = [];
 var tokenProfesorAlumnoScreen = [];
-//var ca = fs.readFileSync('YOUR SSL CA').toString();
 
-//var io = require('socket.io').listen(app.listen(port, { key: privateKey, cert: certificate }));
 
 const io = require('socket.io').listen(https.createServer({
     key: privateKey,
@@ -37,8 +35,29 @@ const url = 'mongodb://localhost:27017';
 const dbName = 'webClass';
 
 var enviar = 0;
+class Examen
+{
+constructor(nombreExamen, nombreMateria, nombreAula, pregunta){
+   this.nombreExamen= nombreExamen;
+   this.nombreMateria= nombreMateria;
+   this.nombreAula = nombreAula;
+   this.pregunta = pregunta;
 
+}
 
+}
+var examen= new Examen ();
+class ExamenRealizado extends Examen {
+    constructor(nombreExamen, nombreMateria, nombreAula, pregunta, emailAlumno, respuestaExamen){
+        super (nombreExamen, nombreMateria, nombreAula, pregunta, emailAlumno, respuestaExamen)
+        this.emailAlumno= emailAlumno;
+        this.respuestaExamen = respuestaExamen;
+}
+}
+var examenRealizado = new ExamenRealizado ();
+/**
+ * clase persona que es abstracta 
+ */
 class Persona
 {
 constructor(nombre, apellidos, email, password, ciudad, direccion, codigoPostal, telefono, fechaNacimiento){
@@ -55,13 +74,17 @@ constructor(nombre, apellidos, email, password, ciudad, direccion, codigoPostal,
 }
 
 }
-
+/**
+ * clase alumno que extiende de persona
+ * que implementa todos los metodos del alumno
+ */
 class Alumno extends Persona {
   constructor(nombre, apellidos, email, password, ciudad, direccion, codigoPostal, telefono, fechaNacimiento, clase, asignatura) {
     super(nombre, apellidos, email, password, ciudad, direccion, codigoPostal, telefono, fechaNacimiento);
      this.clase = clase;
      this.asignatura = asignatura;
     }
+
     recibirRespuestaExamen (db, err, callback, respuestasAlumno) {
         var email = respuestasAlumno[0].emailAlumno;
         var nombreExamRealizado = respuestasAlumno[0].nombreExamen;
@@ -119,6 +142,10 @@ class Alumno extends Persona {
     }
   }
   var alumno = new Alumno ();
+  /**
+   * clase profesor que extiende de persona 
+   * que tiene los metodos de profesor como insertar alumno corregir examen etc...
+   */
   class Profesor extends Persona {
     constructor(nombre, apellidos, email, password, ciudad, direccion, codigoPostal, telefono, fechaNacimiento) {
       super(nombre, apellidos, email, password, ciudad, direccion, codigoPostal, telefono, fechaNacimiento);
@@ -182,7 +209,7 @@ class Alumno extends Persona {
         var nombreAula = textExamen[0].nombreAula;
         var listaPreguntasExamen = textExamen[0].preguntas;
 
-        for (i = 0; i < listaPreguntasExamen.length; i++) {
+        for (let i = 0; i < listaPreguntasExamen.length; i++) {
             db.collection('examenes').insertOne({
                 "nombreExamen": nombreExamen,
                 "nombreMateria": nombreMateria,
@@ -388,6 +415,8 @@ app.use(session({
         saveUninitialized: true,
         cookie: { secure: true }
     }))
+
+
     /**
      * hacer esl server https
      * */
@@ -432,9 +461,7 @@ var authProfesor = function(req, res) {
         assert.equal(null, err);
         console.log("Connected successfully to server");
         const db = client.db(dbName);
-        /**
-         * llamamos a la funcion que comprueba el login
-         */
+       
         sessionControlP(db, err, function() {});
         client.close();
     });
@@ -458,9 +485,7 @@ var authAdmin = function(req, res) {
         assert.equal(null, err);
         console.log("Connected successfully to server");
         const db = client.db(dbName);
-        /**
-         * llamamos a la funcion que comprueba el login
-         */
+       
         sessionControlP(db, err, function() {});
         client.close();
     });
@@ -479,9 +504,7 @@ var authAdmin = function(req, res) {
         callback();
     }
 };
-/**
- * Aqui ponemos la ruta
- */
+
 app.get("/alumno", (req, res) => {
   
     //res.sendFile(path.join(__dirname, '../cliente', 'alumno.html'));
@@ -495,9 +518,9 @@ app.get("/administrador", (req, res) => {
 
 })
 app.get("/profesor", (req, res) => {
-    //res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
+    res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
 
-    authProfesor(req, res,  function(){});
+  //  authProfesor(req, res,  function(){});
         io.on('connection', function(socket) {
 
             socket.on('registroAlumno', function(data) {
@@ -923,7 +946,7 @@ io.on('connection', function(socket) {
 
 
 
-// Añadir a la parte de Fran 18/05/2020
+
 
 /**
  * Recuperar el examen del alumno para su corrección
@@ -1005,7 +1028,6 @@ io.on('connection', function(socket) {
     })
 })
 
-//21/05/2020 pasar a fran
 
 /**
  * Recoger los datos del alumno para la vista del propio alumno
@@ -1092,42 +1114,161 @@ io.on('connection', function(socket) {
 
 
 
-
-
-
-
-//PARTE PAU
-
-/*
 var arrayData = [];
+var tCaracters = [];
+var info = [];
 var x = false;
+var segons = 0;
+var minuts = 0;
+var chatMin = [];
 
-io.on('connection', function (socket) {
+options = {
+    year: 'numeric', month: 'numeric', day: 'numeric',
+    hour: 'numeric', minute: 'numeric', second: 'numeric',
+    hour12: false,
+    timeZone: 'Europe/Madrid' 
+  };//serveix per modificar el format date per defecte de js
+  
+  
+  class Alumne {
+    constructor() {
+      this.email = '';
+      this.dateArray = '';
+      this.posiblecopia = '';
+      this.totalcaracters = '';
+    }
+    setEmail(email) {
+      this.email = email;
+    }
+    setDateArray(dateArray) {
+      this.dateArray = dateArray;
+    }
+    setPosibleCopia(posiblecopia) {
+      this.posiblecopia = posiblecopia;
+    }
+    setTotalCaracters(totalcaracters) {
+      this.totalcaracters = totalcaracters;
+    }
+  }
+  
+  var Alum = new Alumne();
+  
+  io.on('connection', function (socket) {
+  
+    socket.on('email', function (data) {
+      console.log(data);
+      let email = data;
+      Alum.setEmail(email);
 
-    socket.on('caracter', function (data) {
-      let caracter = data;
-      console.log(caracter);
-      date = new Date();
-      arrayData.push(date);
-      console.log(arrayData);
-      if (caracter == "Control") {
-        x = true;
-        console.log(x)
-      }
-      if (x==true && caracter!="Control"){
-        if(caracter=='v'){
-        console.log("control+v detectat");
+    });
+  
+    socket.on('iniciarcrono', function (data) {
+      function comptador() {
+  
+        if (segons == 10) {
+          minuts = minuts + 5;
+          segons = 0;
+          var caractersMinuts = tCaracters[tCaracters.length - 1];
+          console.log(caractersMinuts);
+          chatMin.push(caractersMinuts);
+          console.log(chatMin);
         }
-        else{
-          x=false;
-          console.log(x);
-        } 
+        else {
+          segons++;
+        }
+      };
+  
+      setInterval(comptador, 1000);
+    });
+  
+  
+  });
+  
+  io.on('connection', function (socket) {
+    io.sockets.emit("chatmin", chatMin);
+  
+  });
+  
+  
+  io.on('connection', function (socket) {
+  
+  
+  
+    socket.on('caracter', function (data) {
+        console.log(data);
+      let caracter = data.name;
+      let email = data.email;
+      let totalcharacter = data.caracter;
+      if (Alum.email == email) {
+        date = new Date();
+        dateForm=new Intl.DateTimeFormat('en-GB', options).format(date);
+        arrayData.push(dateForm);
+        //console.log(arrayData);
+        console.log("eyey");
+        console.log(tCaracters[tCaracters.length-1]);
+        console.log(caracter);
+        Alum.setDateArray(arrayData);
+        tCaracters.push(totalcharacter);
+        Alum.setTotalCaracters(tCaracters);
+        //console.log(Alum);
+        if (caracter == "Control") {
+          x = true;
+          //console.log(x)
+        }
+        if (x == true && caracter != "Control") {
+          if (caracter == 'v') {
+            let d = new Date()
+            dateposcop=new Intl.DateTimeFormat('en-GB', options).format(d);
+            info.push(dateposcop);
+            Alum.setPosibleCopia(info);
+            //console.log(Alum);
+            //console.log("control+v detectat");
+          }
+          else {
+            x = false;
+            //console.log(x);
+          }
+        }
+      }
+      else {
+        Alum.setEmail(email);
       }
   
-      
     });
-  })*/
-
-
-
- 
+  });
+  
+  function mongoG() {
+    
+        MongoClient.connect(url, function(err, client) {
+          assert.equal(null, err);
+          const db = client.db(dbName);
+  
+          afegirDocuments(db, err, function() {});
+     
+          client.close();
+      });
+      
+    
+        var afegirDocuments = function (db, err, callback) {
+            db.collection('alum').insertOne({
+            "email": Alum.email,
+            "date":Alum.dateArray,
+            "Possible copia":Alum.posiblecopia,
+            "Caracters totals":Alum.totalcaracters,
+  
+                  });
+          
+            assert.equal(err, null);
+            console.log("Afegit document a col·lecció usuaris");
+            callback();
+    
+        };
+    
+    }
+  
+    io.on('connection', function (socket) {
+  
+      socket.on('mongo', function (data) {
+        mongoG();
+      });
+    });
