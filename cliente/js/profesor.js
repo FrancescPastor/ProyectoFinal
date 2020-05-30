@@ -228,8 +228,8 @@ Vue.component('mostrarCamaras', {
                               </thead>
                             <tbody>
                               <tr>
-                                <td class="tamañoFilasPantCam"  v-for="listaAlumno in listaAA">
-                                  <video class="tamañoFilasPantCam" v-bind:id="listaAlumno.idAlumno" autoplay playsinline controls="false"/>
+                                <td class="tamañoFilasPantCam" >
+                                  <video class="tamañoFilasPantCam" id = "camaraAlumno" autoplay playsinline controls="false"/>
                                 </td>    
                               </tr>
                             </tbody>
@@ -239,7 +239,7 @@ Vue.component('mostrarCamaras', {
                 <div id="prueba">
                   <div  v-for="listaAlumno in listaAA">
                     <div id="iduno">
-                      <button v-bind:id="listaAlumno.idAlumno" class="alumnoInfo"  v-text="listaAlumno.nombreAlumno"> </button>     
+                      <button type="button" v-bind:id="listaAlumno.idAlumno" class="alumnoInfo btn btn-light"  v-text="listaAlumno.nombreAlumno"> </button>     
                   </div>
                 </div>
               </div>
@@ -331,8 +331,8 @@ Vue.component('mostrarCamaras', {
 
                             if (this.listaAA[rec].idAlumno == e.currentTarget.id) {
 
-                                let gh = JSON.parse(this.listaAA[rec].idAlumno);
-                                p.on('stream', friendStream => this.playVideo(friendStream, gh));
+                              //  let gh = JSON.parse(this.listaAA[rec].idAlumno);
+                                p.on('stream', friendStream => this.playVideo(friendStream, 'camaraAlumno'));
 
                             }
                         }
@@ -387,8 +387,8 @@ Vue.component('graficoMonitorizacion', {
             <div class="container">
         <canvas id="myChart" ></canvas>
     </div>
-    <button @click="grafico">Mostrar Grafico</button>
-    <button @click="mongo">Enviar Resultats</button>
+    <button type="button" class="btn btn-light" @click="grafico">Mostrar Grafico</button>
+    <button type="button" class="btn btn-light" @click="mongo">Enviar Resultats</button>
               </div>   
             
       </div>
@@ -498,8 +498,8 @@ Vue.component('mostrarCompartirPantalla', {
                   </thead>
                 <tbody>
                    <tr>
-                      <td class="tamañoFilasPantCam"  v-for="listaS in listaStreaming">
-                        <video class="tamañoFilasPantCam" v-bind:id="listaS.idAlumno" autoplay playsinline controls="false"/>
+                      <td class="tamañoFilasPantCam" >
+                        <video class="tamañoFilasPantCam" id="pantallaAlumno" autoplay playsinline controls="false"/>
                       </td>    
                    </tr>
                 </tbody>
@@ -508,7 +508,7 @@ Vue.component('mostrarCompartirPantalla', {
             <div id="prueba">
               <div  v-for="listaAlumnoS in listaStreaming">
                 <div id="iduno1">
-                  <button v-bind:id="listaAlumnoS.idAlumno" class="alumnoInfoScreen"  v-text="listaAlumnoS.nombreAlumno"> </button>     
+                  <button  type="button" v-bind:id="listaAlumnoS.idAlumno" class="alumnoInfoScreen btn btn-light"  v-text="listaAlumnoS.nombreAlumno"> </button>     
               </div>
             
            </div>
@@ -602,10 +602,10 @@ Vue.component('mostrarCompartirPantalla', {
 
                             if (this.listaStreaming[yy].idAlumno == e.currentTarget.id) {
 
-                                let idScreen = this.listaStreaming[yy].idAlumno;
+                             //   let idScreen = this.listaStreaming[yy].idAlumno;
                                
 
-                                p.on('stream', friendStream => this.startCapture(friendStream, idScreen));
+                                p.on('stream', friendStream => this.startCapture(friendStream, "pantallaAlumno"));
                               
                             }
                         }

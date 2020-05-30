@@ -47,8 +47,8 @@ body {
 }
 
 .tamañoFilasPantCam {
-    width: 300px;
-    height: 200px;
+    width: 500px;
+    height: 300px;
 }
 
 #iconoMenu {
@@ -88,12 +88,7 @@ body {
     font-weight: bold;
 }
 
-#videoPantalla,
-#videoFriend {
-    border: 1px solid #999;
-    width: 98%;
-    max-width: 860px;
-}
+
 
 #botonEnviarExamen {
     color: #fff;

@@ -440,7 +440,7 @@ var authAlumno = function(req, res) {
     });
     var sessionControl = function(db, err, callback) {
         db.collection('loginUsers').find({ email: req.session.user, type: "alumno" }).toArray(function(err, result) {
-        console.log(req.session.user);
+        
             if (err) throw err;
             if (result.length > 0) {
                 
@@ -518,9 +518,9 @@ app.get("/administrador", (req, res) => {
 
 })
 app.get("/profesor", (req, res) => {
-    res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
+    //res.sendFile(path.join(__dirname, '../cliente', 'profesor.html'));
 
-  //  authProfesor(req, res,  function(){});
+    authProfesor(req, res,  function(){});
         io.on('connection', function(socket) {
 
             socket.on('registroAlumno', function(data) {
@@ -533,7 +533,7 @@ app.get("/profesor", (req, res) => {
     app.get("/registro", (req, res) => {
         io.on('connection', function (socket) {
             socket.on('dataUser', function (data) {
-                console.log(data);
+              
               MongoClient.connect(url, function (err, client) {
                 assert.equal(null, err);
         
@@ -550,7 +550,7 @@ app.get("/profesor", (req, res) => {
                     socket.emit('userType', result[0].type);
                     req.session.user = result[0].email;
                     req.session.save();
-                    console.log(req.session.user);
+                   
                 
                   }
                 });
@@ -860,7 +860,7 @@ io.on('connection', function(socket) {
         toHour = hora;
         toMinute = minuto;
         countDown();
-        console.log(hora, minuto);
+      
 
         MongoClient.connect(url, function(err, client) {
             assert.equal(null, err);
@@ -1129,7 +1129,7 @@ options = {
     timeZone: 'Europe/Madrid' 
   };//serveix per modificar el format date per defecte de js
   
-  
+ 
   class Alumne {
     constructor() {
       this.email = '';
@@ -1152,11 +1152,13 @@ options = {
   }
   
   var Alum = new Alumne();
-  
+  /**
+   * funcion para cojer el email del alumno y ponerlo en la instancia de la clase con el setEmail
+   */
   io.on('connection', function (socket) {
   
     socket.on('email', function (data) {
-      console.log(data);
+
       let email = data;
       Alum.setEmail(email);
 
@@ -1169,9 +1171,9 @@ options = {
           minuts = minuts + 5;
           segons = 0;
           var caractersMinuts = tCaracters[tCaracters.length - 1];
-          console.log(caractersMinuts);
+         
           chatMin.push(caractersMinuts);
-          console.log(chatMin);
+         
         }
         else {
           segons++;
@@ -1189,13 +1191,15 @@ options = {
   
   });
   
-  
+  /**
+   * funcion para comporbar si el alumno ha copiado 
+   */
   io.on('connection', function (socket) {
   
   
   
     socket.on('caracter', function (data) {
-        console.log(data);
+   
       let caracter = data.name;
       let email = data.email;
       let totalcharacter = data.caracter;
@@ -1203,17 +1207,14 @@ options = {
         date = new Date();
         dateForm=new Intl.DateTimeFormat('en-GB', options).format(date);
         arrayData.push(dateForm);
-        //console.log(arrayData);
-        console.log("eyey");
-        console.log(tCaracters[tCaracters.length-1]);
-        console.log(caracter);
+  
         Alum.setDateArray(arrayData);
         tCaracters.push(totalcharacter);
         Alum.setTotalCaracters(tCaracters);
-        //console.log(Alum);
+  
         if (caracter == "Control") {
           x = true;
-          //console.log(x)
+      
         }
         if (x == true && caracter != "Control") {
           if (caracter == 'v') {
@@ -1221,12 +1222,11 @@ options = {
             dateposcop=new Intl.DateTimeFormat('en-GB', options).format(d);
             info.push(dateposcop);
             Alum.setPosibleCopia(info);
-            //console.log(Alum);
-            //console.log("control+v detectat");
+           
           }
           else {
             x = false;
-            //console.log(x);
+            ;
           }
         }
       }
@@ -1259,7 +1259,7 @@ options = {
                   });
           
             assert.equal(err, null);
-            console.log("Afegit document a col·lecció usuaris");
+           
             callback();
     
         };

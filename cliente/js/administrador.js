@@ -184,6 +184,11 @@ var app = new Vue({
     methods: {
         navegar: function($event) {
             this.rutaActual = $event.target.hash;
+        },
+        logout : function () {
+          let socket = io.connect('https://25.145.218.244:8888');
+          socket.emit ('logout', 'salir');
+          window.location.href = "https://25.145.218.244:3000/registro";
         }
     },
     computed: {
@@ -207,6 +212,13 @@ var app = new Vue({
           <!--<li class="nav-item">
             <a class="nav-link disabled" href="#">Disabled</a>
           </li>-->
+        </ul>
+      </div>
+      <div>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a @click="logout" class="nav-link text-rigth">Log Out</a>
+        </li>
         </ul>
       </div>
     </nav>
